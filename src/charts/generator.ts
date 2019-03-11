@@ -4,32 +4,26 @@ import {
   Container,
   LinePoints,
   Point,
-  RectangleOptions
-} from "../interfaces/chart";
+  RectangleOptions,
+} from '../interfaces/chart';
 
-import { PyxChart } from "./chart";
-import { PyxNode } from "../interfaces/node";
+import { PyxChart } from './chart';
+import { PyxNode } from '../interfaces/node';
 
-const getSize = (
-  container: Container,
-  defaultValue?: any
-): RectangleOptions => {
+const getSize = (container: Container, defaultValue?: any): RectangleOptions => {
   if (container && container.size) {
     return {
       height: container.size.height,
-      width: container.size.width
+      width: container.size.width,
     };
   }
   return defaultValue;
 };
 
-export function generatePath(
-  points: Array<Point>,
-  color: string
-): SVGPathElement {
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+export function generatePath(points: Array<Point>, color: string): SVGPathElement {
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute(
-    "d",
+    'd',
     points
       .map((point, index) => {
         if (index === 0) {
@@ -37,25 +31,25 @@ export function generatePath(
         }
         return `L ${point.x} ${point.y}`;
       })
-      .join(" ")
+      .join(' '),
   );
-  path.setAttribute("stroke", color);
-  path.setAttribute("fill", "none");
+  path.setAttribute('stroke', color);
+  path.setAttribute('fill', 'none');
   return path;
 }
 
 export function generateLine(
   point: LinePoints,
   color: string | null,
-  classList: Array<string> = []
+  classList: Array<string> = [],
 ): SVGLineElement {
-  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  line.setAttribute("x1", point.x1 as any);
-  line.setAttribute("x2", point.x2 as any);
-  line.setAttribute("y1", point.y1 as any);
-  line.setAttribute("y2", point.y2 as any);
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', point.x1 as any);
+  line.setAttribute('x2', point.x2 as any);
+  line.setAttribute('y1', point.y1 as any);
+  line.setAttribute('y2', point.y2 as any);
   if (color) {
-    line.setAttribute("stroke", color);
+    line.setAttribute('stroke', color);
   }
 
   classList.forEach(item => {
@@ -67,15 +61,12 @@ export function generateLine(
 export function generateText(
   point: Point,
   text: string,
-  classList: Array<string> = []
+  classList: Array<string> = [],
 ): SVGTextElement {
-  const textSvgNode = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "text"
-  );
+  const textSvgNode = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 
-  textSvgNode.setAttribute("x", point.x as any);
-  textSvgNode.setAttribute("y", point.y as any);
+  textSvgNode.setAttribute('x', point.x as any);
+  textSvgNode.setAttribute('y', point.y as any);
   classList.forEach(item => {
     textSvgNode.classList.add(item);
   });
@@ -84,23 +75,21 @@ export function generateText(
   return textSvgNode;
 }
 
-export function generateNode(
-  node: PyxNode
-): HTMLElement | SVGSVGElement | null {
+export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null {
   if (node.skip) {
     return null;
   }
 
   const rootNode =
-    node.tag === "svg"
-      ? document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    node.tag === 'svg'
+      ? document.createElementNS('http://www.w3.org/2000/svg', 'svg')
       : document.createElement(node.tag);
 
   if (node.value) {
     rootNode.nodeValue = node.value;
   }
   if (node.id) {
-    rootNode.setAttribute("id", node.id);
+    rootNode.setAttribute('id', node.id);
   }
 
   if (node.classList) {
@@ -110,14 +99,14 @@ export function generateNode(
   }
 
   if (node.attrs) {
-    if (node.tag === "svg") {
+    if (node.tag === 'svg') {
       Object.keys(node.attrs).forEach(key => {
         rootNode.setAttributeNS(null, key, node.attrs[key]);
       });
       rootNode.setAttributeNS(
         null,
-        "viewbox",
-        `0 0 ${node.attrs["width"]} ${node.attrs["height"]}`
+        'viewbox',
+        `0 0 ${node.attrs['width']} ${node.attrs['height']}`,
       );
     } else {
       Object.keys(node.attrs).forEach(key => {
@@ -139,58 +128,53 @@ export function generateNode(
 }
 
 export function chartsGenerator(
-  rootNode: HTMLElement
+  rootNode: HTMLElement,
 ): (dataset: Chart, options?: ChartOptions) => PyxChart {
   let id = 0;
   return (dataset: Chart, options: ChartOptions = {}) => {
     const basicNode = generateNode({
       id: `pyx_chart_${id}`,
-      classList: ["pyx_chart_container"],
-      tag: "div",
+      classList: ['pyx_chart_container'],
+      tag: 'div',
       children: [
         {
-          tag: "svg",
-          classList: ["main_chart"],
+          tag: 'svg',
+          classList: ['main_chart'],
           attrs: {
             ...getSize(options.chartsContainer, {
-              width: "400",
-              height: "400"
-            })
-          }
+              width: '400',
+              height: '400',
+            }),
+          },
         },
         {
-          tag: "svg",
+          tag: 'svg',
           skip: options.withoutPreview,
-          classList: ["chart_preview"],
+          classList: ['chart_preview'],
           attrs: {
             ...getSize(options.chartsContainer, {
-              width: "100",
-              height: "100"
-            })
-          }
+              width: '100',
+              height: '100',
+            }),
+          },
         },
         {
-          tag: "div",
+          tag: 'div',
           skip: options.withoutControls,
           children: [
             {
-              tag: "button"
+              tag: 'button',
             },
             {
-              tag: "button"
-            }
-          ]
-        }
-      ]
+              tag: 'button',
+            },
+          ],
+        },
+      ],
     });
     rootNode.appendChild(basicNode);
     id++;
-    const pyxChart = new PyxChart(
-      id,
-      basicNode as HTMLElement,
-      dataset,
-      options
-    );
+    const pyxChart = new PyxChart(id, basicNode as HTMLElement, dataset, options);
     return pyxChart;
   };
 }

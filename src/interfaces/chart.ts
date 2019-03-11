@@ -37,8 +37,8 @@ export interface RectangleOptions {
 export type Column = [String, ...Array<number>];
 
 export enum Type {
-  Line = "line",
-  X = "x"
+  Line = 'line',
+  X = 'x',
 }
 
 export type Types = { [key: string]: Type };
