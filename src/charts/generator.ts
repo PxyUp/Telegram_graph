@@ -9,6 +9,7 @@ import {
 
 import { PyxChart } from './chart';
 import { PyxNode } from '../interfaces/node';
+import { getPathByPoints } from '../utils/misc';
 
 const getSize = (container: Container, defaultValue?: any): RectangleOptions => {
   if (container && container.size) {
@@ -22,17 +23,7 @@ const getSize = (container: Container, defaultValue?: any): RectangleOptions => 
 
 export function generatePath(points: Array<Point>, color: string): SVGPathElement {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute(
-    'd',
-    points
-      .map((point, index) => {
-        if (index === 0) {
-          return `M ${point.x} ${point.y}`;
-        }
-        return `L ${point.x} ${point.y}`;
-      })
-      .join(' '),
-  );
+  path.setAttribute('d', getPathByPoints(points));
   path.setAttribute('stroke', color);
   path.setAttribute('fill', 'none');
   return path;
