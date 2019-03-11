@@ -2,8 +2,10 @@
     "compilerOptions": {
       "outDir": "./dist/",
       "noImplicitAny": true,
-      "module": "es6",
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "module": "commonjs",
       "target": "es5",
       "allowJs": true
     }
-  }
+}

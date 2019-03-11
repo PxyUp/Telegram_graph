@@ -5,7 +5,7 @@ export interface Chart {
     names: {[key: string]: string}
 }
 
-export type Column = [String, ...Array<number>]
+export type Column = [String, ...Array<number | string>]
 
 export enum Type {
     Line = 'line',

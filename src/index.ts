@@ -1,10 +1,10 @@
-class PyxCharts {
-    constructor(private rootNode: HTMLElement) {
-    }
+import "./styles/main.scss"
 
-    getSelector() {
-        return this.rootNode
-    }
-}
+import { Chart } from "./interfaces/chart";
+import { chartsGenerator } from "./charts/generator";
+import dataSets from './datasets/chart_data.json';
 
-const chart = new PyxCharts(document.querySelector(".draw_engine"))
+const generator = chartsGenerator(document.querySelector(".draw_engine"))
+dataSets.forEach((dataset: any) => {
+    generator(dataset as Chart)
+})
