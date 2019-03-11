@@ -1,9 +1,46 @@
-import { Chart } from "../interfaces/chart";
+import { Chart, ChartOptions, Container, LinePoints, RectangleOptions, TextPoints } from "../interfaces/chart";
+
 import { PyxChart } from "./chart";
 import { PyxNode } from "../interfaces/node";
 
-const generateBasicTemplate = (node: PyxNode) => {
-    const rootNode = document.createElement(node.tag)
+const getSize = (container: Container, defaultValue?: any): RectangleOptions => {
+    if(container && container.size) {
+        return {
+            height: container.size.height,
+            width: container.size.width
+        }
+    }
+    return defaultValue
+}
+
+export function generateLine(points: LinePoints, color: string): SVGLineElement {
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute("x1", points.x1 as any)
+    line.setAttribute("x2", points.x2  as any)
+    line.setAttribute("y1", points.y1  as any)
+    line.setAttribute("y2", points.y2  as any)
+    line.setAttribute("stroke", color)
+    return line
+}
+
+export function generateText(points: TextPoints, text: string): SVGTextElement {
+    const textSvgNode = document.createElementNS('http://www.w3.org/2000/svg','text');
+    textSvgNode.setAttribute("x", points.x as any)
+    textSvgNode.setAttribute("y", points.y  as any)
+    textSvgNode.appendChild(document.createTextNode(text))
+    return textSvgNode
+}
+
+export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null  {
+    if (node.skip) {
+        return null
+    }
+    
+    const rootNode = node.tag === 'svg' ? document.createElementNS('http://www.w3.org/2000/svg', 'svg') : document.createElement(node.tag);
+
+    if (node.value) {
+        rootNode.nodeValue = node.value;
+    }
     if (node.id) {
         rootNode.setAttribute("id", node.id)
     }
@@ -14,31 +51,64 @@ const generateBasicTemplate = (node: PyxNode) => {
         })
     }
 
+    if (node.attrs) {
+        if(node.tag === 'svg') {
+            Object.keys(node.attrs).forEach((key) => {
+                rootNode.setAttributeNS(null, key, node.attrs[key])
+            })
+        } else {
+            Object.keys(node.attrs).forEach((key) => {
+                rootNode.setAttribute(key, node.attrs[key])
+            })
+        }
+
+    }
+
     if(node.children) {
         node.children.forEach((item) => {
-            rootNode.appendChild(generateBasicTemplate(item))
+            const child = generateNode(item)
+            if (child) {
+                rootNode.appendChild(child)
+            }
         })
     }
 
     return rootNode
 }
 
-export function chartsGenerator(rootNode: HTMLElement): (dataset: Chart) => PyxChart {
+export function chartsGenerator(rootNode: HTMLElement): (dataset: Chart, options?: ChartOptions) => PyxChart {
     let id = 0;
-    return (dataset: Chart) => {
-        const basicNode = generateBasicTemplate({
+    return (dataset: Chart, options: ChartOptions = {}) => {
+        const basicNode = generateNode({
             id: `pyx_chart_${id}`,
             classList: ["pyx_chart_container"],
             tag: "div",
             children: [
                 {
-                    tag: "svg"
+                    tag: "svg",
+                    classList: ["main_chart"],
+                    attrs: {
+                        ...getSize(options.chartsContainer, {
+                            width: "100",
+                            height: "100"
+                        }),
+                        "viewBox": "0 0 100 100"
+                    }
                 },
                 {
-                    tag: "svg"
+                    tag: "svg",
+                    skip: options.withoutPreview,
+                    classList: ["chart_preview"],
+                    attrs: {
+                        ...getSize(options.chartsContainer, {
+                            width: "100",
+                            height: "100"
+                        })
+                    }
                 },
                 {
                     tag: "div",
+                    skip: options.withoutControls,
                     children: [
                         {
                             tag: "button"
@@ -52,6 +122,6 @@ export function chartsGenerator(rootNode: HTMLElement): (dataset: Chart) => PyxC
         })
         rootNode.appendChild(basicNode)
         id++
-        return new PyxChart(id, basicNode, dataset)
+        return new PyxChart(id, basicNode as HTMLElement, dataset, options)
     }
 }
