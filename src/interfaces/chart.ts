@@ -12,7 +12,7 @@ export interface LinePoints {
     y2: number | string;
 }
 
-export interface TextPoints {
+export interface Point {
     x: number | string;
     y: number | string;
 }

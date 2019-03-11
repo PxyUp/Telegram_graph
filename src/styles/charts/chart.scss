@@ -1,3 +1,47 @@
 .pyx_chart_container {
     width: 100%;
+    background-color: white;
+
+    line {
+        &.verticle {
+
+            display: none;;
+
+            &.show {
+                display: block;
+            }
+        }
+            stroke: #f2f4f5;
+        
+    }
+
+    path {
+        stroke-width: 2;
+        &:hover {
+            stroke-width: 3
+        }
+    }
+
+    text {
+        font-size: 12px;
+        z-index: 1;
+        background-color: white;
+        &.text_step {
+            fill: #96a2aa;
+        }
+    }
+
+    &.night {
+        background-color: #242f3e;
+        line {
+                stroke: #293544;
+            
+        }
+    
+        text {
+            &.text_step {
+                fill: #546778;
+            }
+        }
+    }
 }

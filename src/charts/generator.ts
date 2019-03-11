@@ -1,4 +1,4 @@
-import { Chart, ChartOptions, Container, LinePoints, RectangleOptions, TextPoints } from "../interfaces/chart";
+import { Chart, ChartOptions, Container, LinePoints, Point, RectangleOptions } from "../interfaces/chart";
 
 import { PyxChart } from "./chart";
 import { PyxNode } from "../interfaces/node";
@@ -13,24 +13,40 @@ const getSize = (container: Container, defaultValue?: any): RectangleOptions => 
     return defaultValue
 }
 
-export function generateLine(points: LinePoints, color: string, classList: Array<string> = []): SVGLineElement {
+export function generatePath(points: Array<Point>, color: string, ): SVGPathElement {
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute("d",points.map((point, index) => {
+        if (index === 0) {
+            return `M ${point.x} ${point.y}`
+        }
+        return `L ${point.x} ${point.y}`
+    }).join(" "))
+    path.setAttribute("stroke", color)
+    path.setAttribute("fill", "none")
+    return path
+}
+
+export function generateLine(point: LinePoints, color: string | null, classList: Array<string> = []): SVGLineElement {
     const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-    line.setAttribute("x1", points.x1 as any)
-    line.setAttribute("x2", points.x2  as any)
-    line.setAttribute("y1", points.y1  as any)
-    line.setAttribute("y2", points.y2  as any)
-    line.setAttribute("stroke", color)
+    line.setAttribute("x1", point.x1 as any)
+    line.setAttribute("x2", point.x2  as any)
+    line.setAttribute("y1", point.y1  as any)
+    line.setAttribute("y2", point.y2  as any)
+    if (color) {
+        line.setAttribute("stroke", color)
+    }
+
     classList.forEach((item) => {
         line.classList.add(item)
     })
     return line
 }
 
-export function generateText(points: TextPoints, text: string, classList: Array<string> = []): SVGTextElement {
+export function generateText(point: Point, text: string, classList: Array<string> = []): SVGTextElement {
     const textSvgNode = document.createElementNS('http://www.w3.org/2000/svg','text');
 
-    textSvgNode.setAttribute("x", points.x as any)
-    textSvgNode.setAttribute("y", points.y  as any)
+    textSvgNode.setAttribute("x", point.x as any)
+    textSvgNode.setAttribute("y", point.y  as any)
     classList.forEach((item) => {
         textSvgNode.classList.add(item)
     })
@@ -119,10 +135,10 @@ export function chartsGenerator(rootNode: HTMLElement): (dataset: Chart, options
                     skip: options.withoutControls,
                     children: [
                         {
-                            tag: "button"
+                            tag: "button",
                         },
                         {
-                            tag: "button"
+                            tag: "button",
                         }
                     ]
                 }
@@ -130,6 +146,7 @@ export function chartsGenerator(rootNode: HTMLElement): (dataset: Chart, options
         })
         rootNode.appendChild(basicNode)
         id++
-        return new PyxChart(id, basicNode as HTMLElement, dataset, options)
+        const pyxChart = new PyxChart(id, basicNode as HTMLElement, dataset, options)
+        return pyxChart;
     }
 }
