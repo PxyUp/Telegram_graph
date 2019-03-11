@@ -56,6 +56,7 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
             Object.keys(node.attrs).forEach((key) => {
                 rootNode.setAttributeNS(null, key, node.attrs[key])
             })
+            rootNode.setAttributeNS(null, "viewbox", `0 0 ${node.attrs["width"]} ${node.attrs["height"]}`)
         } else {
             Object.keys(node.attrs).forEach((key) => {
                 rootNode.setAttribute(key, node.attrs[key])
@@ -89,10 +90,9 @@ export function chartsGenerator(rootNode: HTMLElement): (dataset: Chart, options
                     classList: ["main_chart"],
                     attrs: {
                         ...getSize(options.chartsContainer, {
-                            width: "100",
-                            height: "100"
+                            width: "400",
+                            height: "400"
                         }),
-                        "viewBox": "0 0 100 100"
                     }
                 },
                 {
