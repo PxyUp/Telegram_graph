@@ -93,13 +93,15 @@ export class PyxChart {
                     x2: width,
                     y1: positionY,
                     y2: positionY,
-                }, "red"
+                }, "red",
+                [classNameStepLine]
             )
             const text = generateText({
                     x: 0,
                     y: positionY - 5,
                 },
-                step.toString()
+                step.toString(),
+                [classNameStepTitle]
             )
             positionY -= delta;
             this.charts_svg.appendChild(line)
@@ -113,6 +115,10 @@ export class PyxChart {
 
     getDataSet() {
         return this.dataset
+    }
+
+    getTranspilingDataset() {
+        return this.columnDatasets
     }
 }
 

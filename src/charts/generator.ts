@@ -13,21 +13,29 @@ const getSize = (container: Container, defaultValue?: any): RectangleOptions => 
     return defaultValue
 }
 
-export function generateLine(points: LinePoints, color: string): SVGLineElement {
+export function generateLine(points: LinePoints, color: string, classList: Array<string> = []): SVGLineElement {
     const line = document.createElementNS('http://www.w3.org/2000/svg','line');
     line.setAttribute("x1", points.x1 as any)
     line.setAttribute("x2", points.x2  as any)
     line.setAttribute("y1", points.y1  as any)
     line.setAttribute("y2", points.y2  as any)
     line.setAttribute("stroke", color)
+    classList.forEach((item) => {
+        line.classList.add(item)
+    })
     return line
 }
 
-export function generateText(points: TextPoints, text: string): SVGTextElement {
+export function generateText(points: TextPoints, text: string, classList: Array<string> = []): SVGTextElement {
     const textSvgNode = document.createElementNS('http://www.w3.org/2000/svg','text');
+
     textSvgNode.setAttribute("x", points.x as any)
     textSvgNode.setAttribute("y", points.y  as any)
+    classList.forEach((item) => {
+        textSvgNode.classList.add(item)
+    })
     textSvgNode.appendChild(document.createTextNode(text))
+    
     return textSvgNode
 }
 
