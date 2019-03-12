@@ -147,8 +147,8 @@ export function chartsGenerator(
           classList: ['chart_preview'],
           attrs: {
             ...getSize(options.chartsContainer, {
-              width: '100',
-              height: '100',
+              width: '400',
+              height: '50',
             }),
           },
         },

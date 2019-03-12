@@ -4,11 +4,12 @@ import { generateLine, generateNode, generatePath, generateText } from './genera
 
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
+const DEFAULT_PREVIEW_SPACING = 5;
 const DEFAULT_SLICE = 10;
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';
 const verticleLineClass = 'verticle';
-
+const classPreviewAbsLine = 'charts_abs_preview';
 const classNameStepTitle = 'text_step';
 
 export class PyxChart {
@@ -16,11 +17,19 @@ export class PyxChart {
   private preview_svg: HTMLElement;
 
   private timer: number | null = null;
+  private timerPreview: number | null = null;
 
   private maxValue: number;
   private minValue: number;
+
+  private maxValueGlobal: number;
+  private minValueGlobal: number;
+
   private height: number;
   private width: number;
+
+  private previewWidth: number;
+  private previewHeight: number;
 
   private night_mod = false;
 
@@ -36,6 +45,8 @@ export class PyxChart {
 
   private columnDatasets: { [key: string]: Array<number> } = Object.create(null);
 
+  private countElements: number;
+
   constructor(
     private id: number,
     private node: HTMLElement,
@@ -46,6 +57,7 @@ export class PyxChart {
     this.preview_svg = this.node.querySelector('.chart_preview');
     this.height = parseInt(this.charts_svg.getAttribute('height'));
     this.width = parseInt(this.charts_svg.getAttribute('width')) - DEFAULT_SPACING;
+
     Object.keys(this.dataset.names).forEach(key => {
       this.columnsVisible[key] = true;
     });
@@ -55,6 +67,9 @@ export class PyxChart {
       this.columnDatasets[keyOfColumn] = column as any;
       if (!this.sliceEndIndex) {
         this.sliceEndIndex = Math.min(this.columnDatasets[keyOfColumn].length, DEFAULT_SLICE);
+      }
+      if (!this.countElements) {
+        this.countElements = this.columnDatasets[keyOfColumn].length;
       }
     });
 
@@ -75,6 +90,9 @@ export class PyxChart {
     this.draw();
 
     if (!options.withoutPreview) {
+      // Preview
+      this.previewHeight = parseInt(this.preview_svg.getAttribute('height'));
+      this.previewWidth = parseInt(this.preview_svg.getAttribute('width'));
       this.drawPreview();
     }
   }
@@ -86,6 +104,7 @@ export class PyxChart {
   }
 
   destroy() {
+    this.resetTimer();
     this.charts_svg.removeEventListener('mouseenter', this.onMouseEnter);
     this.charts_svg.removeEventListener('mouseleave', this.onMouseLeave);
     this.charts_svg.removeEventListener('mousemove', this.onMouseMove);
@@ -123,6 +142,8 @@ export class PyxChart {
   resetTimer() {
     clearTimeout(this.timer);
     this.timer = null;
+    clearTimeout(this.timerPreview);
+    this.timerPreview = null;
   }
 
   setRightIndexSlice(size: number) {
@@ -177,12 +198,8 @@ export class PyxChart {
 
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
-      const classNameStepLine = `graph_line_${key}`;
-      if (columnVisible) {
-        this.charts_svg.querySelectorAll(`line.${classNameStepLine}`).forEach(item => {
-          item.remove();
-        });
 
+      if (columnVisible) {
         const path = generatePath(
           this.columnDatasets[key]
             .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
@@ -202,7 +219,49 @@ export class PyxChart {
     });
   }
 
-  drawPreview() {}
+  drawPreview() {
+    const values = [] as Array<number>;
+    const getXCord = (index: number): number => {
+      return (this.previewWidth / this.countElements) * index;
+    };
+    const getYCord = (value: number): number => {
+      return (
+        this.previewHeight -
+        DEFAULT_PREVIEW_SPACING -
+        (value / (this.maxValueGlobal - this.minValueGlobal)) *
+          (this.previewHeight - 2 * DEFAULT_PREVIEW_SPACING)
+      );
+    };
+
+    Object.keys(this.columnsVisible).forEach(key => {
+      const columnVisible = this.columnsVisible[key];
+      if (columnVisible) {
+        values.push(...this.columnDatasets[key]);
+      }
+    });
+
+    this.minValueGlobal = getMin(values);
+    this.maxValueGlobal = getMax(values);
+
+    Object.keys(this.columnsVisible).forEach(key => {
+      const columnVisible = this.columnsVisible[key];
+      if (columnVisible) {
+        const path = generatePath(
+          this.columnDatasets[key].map((point, index) => {
+            return {
+              x: getXCord(index),
+              y: getYCord(point),
+            };
+          }),
+          this.dataset.colors[key],
+          `pyx_path_preview_${key}`,
+        );
+
+        this.preview_svg.appendChild(path);
+        this.timerPreview = animatePath(path);
+      }
+    });
+  }
 
   setSupportsLines() {
     const values = [] as Array<number>;

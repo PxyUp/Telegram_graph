@@ -2,6 +2,10 @@
   width: 100%;
   background-color: white;
 
+  svg {
+    display: block;
+  }
+
   line {
     &.verticle {
       display: none;
@@ -13,12 +17,19 @@
     stroke: #f2f4f5;
   }
 
+  svg {
+    &.main_chart {
+      path {
+        &:hover {
+          stroke-width: 3;
+        }
+      }
+    }
+  }
+
   path {
     stroke-width: 2;
     transition: d 0.35s;
-    &:hover {
-      stroke-width: 3;
-    }
   }
 
   text {
