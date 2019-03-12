@@ -18,6 +18,9 @@
   }
 
   svg {
+    user-select: none;
+    touch-action: pan-x;
+
     &.main_chart {
       path {
         &:hover {

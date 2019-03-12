@@ -15,6 +15,9 @@ const NAVIGATION_RECT_COLOR = 'rgb(227, 227, 227, 0.4)';
 const MIN_CONTROL_WIDTH = 10;
 
 export class PyxChart {
+  private isDragActive = false;
+  private positions: ClientRect;
+
   private charts_svg: HTMLElement;
   private preview_svg: HTMLElement;
 
@@ -121,10 +124,36 @@ export class PyxChart {
     this.charts_svg.removeEventListener('mouseleave', this.onMouseLeave);
     this.charts_svg.removeEventListener('mousemove', this.onMouseMove);
     if (!this.options.withoutPreview) {
+      // PC
+      this.centerControl.removeEventListener('mousedown', this.onDragStart);
+      this.centerControl.removeEventListener('mousemove', this.onDrag);
+      this.centerControl.removeEventListener('mouseout', this.onDrag);
+      this.centerControl.removeEventListener('mouseup', this.onDragEnd);
+      // mobile
+      this.centerControl.removeEventListener('touchstart', this.onDragStart);
+      this.centerControl.removeEventListener('touchmove', this.onDrag);
+      this.centerControl.removeEventListener('touchend', this.onDragEnd);
+      // Right and Left navigation controls
       this.leftControl.removeEventListener('click', this.onPreviewControlClick);
       this.rightControl.removeEventListener('click', this.onPreviewControlClick);
     }
   }
+
+  onDragStart = (e: MouseEvent | TouchEvent) => {
+    this.isDragActive = true;
+    this.positions = this.charts_svg.getBoundingClientRect();
+  };
+
+  onDragEnd = (e: MouseEvent | TouchEvent) => {
+    this.isDragActive = false;
+  };
+
+  onDrag = (e: MouseEvent | TouchEvent) => {
+    console.log(e);
+    if (this.isDragActive) {
+      this.onPreviewControlClick(e);
+    }
+  };
 
   onMouseEnter = () => {
     this.verticleLine.classList.add('show');
@@ -134,8 +163,9 @@ export class PyxChart {
     this.verticleLine.classList.remove('show');
   };
 
-  onPreviewControlClick = (e: MouseEvent) => {
-    const cursorX = e.offsetX;
+  onPreviewControlClick = (e: MouseEvent | TouchEvent) => {
+    const cursorX =
+      (e as MouseEvent).offsetX || (e as TouchEvent).touches[0].clientX - this.positions.left;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     this.sliceStartIndex = Math.min(
       this.countElements - sliceSize - 1,
@@ -169,6 +199,16 @@ export class PyxChart {
     if (withEvents) {
       this.leftControl.addEventListener('click', this.onPreviewControlClick);
       this.rightControl.addEventListener('click', this.onPreviewControlClick);
+      // PC
+      this.centerControl.addEventListener('mousedown', this.onDragStart, false);
+      this.centerControl.addEventListener('mouseup', this.onDragEnd, false);
+      this.centerControl.addEventListener('mousemove', this.onDrag, false);
+      this.centerControl.addEventListener('mouseout', this.onDrag, false);
+      // Mobile
+      this.centerControl.addEventListener('touchstart', this.onDragStart, false);
+      this.centerControl.addEventListener('touchend', this.onDragEnd, false);
+      this.centerControl.addEventListener('touchmove', this.onDrag, false);
+      this.centerControl.addEventListener('touchcancel', this.onDrag, false);
     }
   }
 
@@ -307,7 +347,7 @@ export class PyxChart {
 
     let currentIndex = 0;
     for (let index = this.sliceStartIndex - 1; index < this.sliceEndIndex; index += sliceXSize) {
-      const item = this.columnDatasets[Type.X][index];
+      const item = this.columnDatasets[Type.X][Math.floor(index)];
       const date = new Date(item);
       const label = date.toLocaleString('en-us', {
         month: 'short',
