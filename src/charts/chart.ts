@@ -6,6 +6,7 @@ const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
 const DEFAULT_PREVIEW_SPACING = 16;
 const DEFAULT_SLICE = 19; // Programming + 1
+const SLICE_NUMBER = 5.5;
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';
 const verticleLineClass = 'verticle';
@@ -77,7 +78,7 @@ export class PyxChart {
         this.countElements = this.columnDatasets[keyOfColumn].length;
       }
       if (!this.sliceStartIndex) {
-        const sliceSize = Math.max(DEFAULT_SLICE, Math.floor(this.countElements / 5.5));
+        const sliceSize = Math.max(DEFAULT_SLICE, Math.floor(this.countElements / SLICE_NUMBER));
         this.sliceStartIndex = Math.max(this.columnDatasets[keyOfColumn].length - sliceSize - 1, 0);
       }
       if (!this.sliceEndIndex) {
