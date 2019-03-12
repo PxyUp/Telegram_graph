@@ -11,6 +11,11 @@
       }
       &.control_resize {
         fill: rgba(221, 234, 243, 0.7);
+        &:hover,
+        &:active,
+        &:focus {
+          cursor: col-resize;
+        }
       }
     }
   }
