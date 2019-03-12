@@ -139,7 +139,7 @@ export class PyxChart {
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     this.sliceStartIndex = Math.min(
       this.countElements - sliceSize - 1,
-      Math.max(0, Math.floor((cursorX / this.previewWidth) * this.countElements)),
+      Math.max(0, Math.ceil((cursorX / this.previewWidth) * this.countElements) - sliceSize / 2),
     );
     this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
 
