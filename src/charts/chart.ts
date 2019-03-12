@@ -1,6 +1,6 @@
 import { Chart, ChartOptions, Type } from '../interfaces/chart';
-import { animatePath, getMax, getMin, getPathByPoints } from '../utils/misc';
-import { generateLine, generateNode, generatePath, generateText } from './generator';
+import { animatePath, getMax, getMin } from '../utils/misc';
+import { generateLine, generatePath, generateText } from './generator';
 
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
