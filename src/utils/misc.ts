@@ -21,10 +21,15 @@ export function getPathByPoints(points: Array<Point>): string {
 
 export function animatePath(path: SVGPathElement) {
   const length = path.getTotalLength();
+  const duration = 0.8;
+  const oldTransition = path.style.transition;
   path.style.transition = 'none';
   path.style.strokeDasharray = length + ' ' + length;
   path.style.strokeDashoffset = length.toString();
   path.getBoundingClientRect();
-  path.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
+  path.style.transition = `stroke-dashoffset ${duration}s ease-in-out`;
   path.style.strokeDashoffset = '0';
+  setTimeout(() => {
+    path.style.transition = oldTransition;
+  }, duration * 1000);
 }

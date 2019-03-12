@@ -21,11 +21,14 @@ const getSize = (container: Container, defaultValue?: any): RectangleOptions => 
   return defaultValue;
 };
 
-export function generatePath(points: Array<Point>, color: string): SVGPathElement {
+export function generatePath(points: Array<Point>, color: string, id?: string): SVGPathElement {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', getPathByPoints(points));
   path.setAttribute('stroke', color);
   path.setAttribute('fill', 'none');
+  if (id) {
+    path.setAttribute('id', id);
+  }
   return path;
 }
 

@@ -109,7 +109,7 @@ export class PyxChart {
   }
 
   refresh() {
-    this.drawCurrentSlice();
+    this.draw();
   }
 
   setRightIndexSlice(size: number) {
@@ -180,6 +180,7 @@ export class PyxChart {
               };
             }),
           this.dataset.colors[key],
+          `pyx_path_${key}`,
         );
 
         this.charts_svg.appendChild(path);
