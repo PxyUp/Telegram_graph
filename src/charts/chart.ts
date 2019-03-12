@@ -9,7 +9,6 @@ const DEFAULT_SLICE = 10;
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';
 const verticleLineClass = 'verticle';
-const classPreviewAbsLine = 'charts_abs_preview';
 const classNameStepTitle = 'text_step';
 
 export class PyxChart {

@@ -152,18 +152,6 @@ export function chartsGenerator(
             }),
           },
         },
-        {
-          tag: 'div',
-          skip: options.withoutControls,
-          children: [
-            {
-              tag: 'button',
-            },
-            {
-              tag: 'button',
-            },
-          ],
-        },
       ],
     });
     rootNode.appendChild(basicNode);
