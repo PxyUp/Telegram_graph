@@ -94,6 +94,7 @@ export function generateText(
   point: Point,
   text: string,
   classList: Array<string> = [],
+  width?: string,
 ): SVGTextElement {
   const textSvgNode = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 
@@ -103,7 +104,9 @@ export function generateText(
     textSvgNode.classList.add(item);
   });
   textSvgNode.appendChild(document.createTextNode(text));
-
+  if (width) {
+    textSvgNode.setAttribute('width', width as any);
+  }
   return textSvgNode;
 }
 

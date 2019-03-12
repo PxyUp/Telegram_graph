@@ -6,9 +6,8 @@ const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
 const DEFAULT_PREVIEW_SPACING = 16;
 const DEFAULT_SLICE = 19; // Programming + 1
-const RESIZE_CONTROL_WIDTH = 16;
 const SLICE_NUMBER = 5.5;
-const DEFAULT_DAY_COUNT = 5;
+const DEFAULT_DAY_COUNT = 6;
 const classNameStepLine = 'line_step';
 const classControlName = 'control';
 const classControlResizeName = 'control_resize';
@@ -16,9 +15,13 @@ const verticleLineClass = 'verticle';
 const classNameStepTitle = 'text_step';
 const classNameAbsLine = 'charts_abs';
 const MIN_CONTROL_WIDTH = 10;
+const RESIZE_CONTROL_WIDTH = MIN_CONTROL_WIDTH;
+const MIN_AREA_IN_PERSENT = 0.1;
 
 export class PyxChart {
   private isDragActive = false;
+  private isResizeActive = false;
+  private activeResize: boolean | null = null;
   private positions: ClientRect;
 
   private charts_svg: HTMLElement;
@@ -122,6 +125,7 @@ export class PyxChart {
     this.charts_svg.addEventListener('mouseenter', this.onMouseEnter);
     this.charts_svg.addEventListener('mouseleave', this.onMouseLeave);
     this.charts_svg.addEventListener('mousemove', this.onMouseMove);
+    document.addEventListener('mouseup', this.onMouseUp);
   }
 
   destroy() {
@@ -129,12 +133,18 @@ export class PyxChart {
     this.charts_svg.removeEventListener('mouseenter', this.onMouseEnter);
     this.charts_svg.removeEventListener('mouseleave', this.onMouseLeave);
     this.charts_svg.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('mouseup', this.onMouseUp);
     if (!this.options.withoutPreview) {
       // PC
       this.centerControl.removeEventListener('mousedown', this.onDragStart);
       this.centerControl.removeEventListener('mousemove', this.onDrag);
       this.centerControl.removeEventListener('mouseout', this.onDrag);
       this.centerControl.removeEventListener('mouseup', this.onDragEnd);
+      this.leftResizeControl.removeEventListener('mouseup', this.onResizeEndLeft);
+      this.leftResizeControl.removeEventListener('mousedown', this.onResizeStartLeft);
+      this.rightResizeControl.removeEventListener('mouseup', this.onResizeEndRight);
+      this.rightResizeControl.removeEventListener('mousedown', this.onResizeStartRight);
+      this.preview_svg.removeEventListener('mousemove', this.onResize);
       // mobile
       this.centerControl.removeEventListener('touchstart', this.onDragStart);
       this.centerControl.removeEventListener('touchmove', this.onDrag);
@@ -144,6 +154,38 @@ export class PyxChart {
       this.rightControl.removeEventListener('click', this.onPreviewControlClick);
     }
   }
+
+  onMouseUp = () => {
+    this.isResizeActive = false;
+    this.isDragActive = false;
+    this.activeResize = null;
+  };
+
+  onResizeStartRight = (e: MouseEvent | TouchEvent) => {
+    this.isResizeActive = true;
+    this.activeResize = true;
+  };
+
+  onResizeStartLeft = (e: MouseEvent | TouchEvent) => {
+    this.isResizeActive = true;
+    this.activeResize = false;
+  };
+
+  onResizeEndLeft = (e: MouseEvent | TouchEvent) => {
+    this.isResizeActive = false;
+    this.activeResize = null;
+  };
+
+  onResizeEndRight = (e: MouseEvent | TouchEvent) => {
+    this.isResizeActive = false;
+    this.activeResize = null;
+  };
+
+  onResize = (e: MouseEvent | TouchEvent) => {
+    if (this.isResizeActive) {
+      this.doResize(this.activeResize, e);
+    }
+  };
 
   onDragStart = (e: MouseEvent | TouchEvent) => {
     this.isDragActive = true;
@@ -167,9 +209,61 @@ export class PyxChart {
     this.verticleLine.classList.remove('show');
   };
 
+  doResize(isRight: boolean, e: MouseEvent | TouchEvent) {
+    if (isRight === null) {
+      return;
+    }
+    if (!isRight) {
+      const cursorX =
+        ((e as MouseEvent).offsetX >= 0
+          ? (e as MouseEvent).offsetX
+          : (e as TouchEvent).touches[0].clientX - this.positions.left) +
+        2 * DEFAULT_SPACING;
+      this.sliceStartIndex = Math.max(
+        0,
+        Math.max(
+          0,
+          Math.ceil(
+            ((cursorX - 2 * DEFAULT_SPACING - MIN_CONTROL_WIDTH) / this.previewWidth) *
+              this.countElements,
+          ),
+        ),
+      );
+      if (this.sliceStartIndex >= this.sliceEndIndex) {
+        this.sliceStartIndex = this.sliceEndIndex - 1;
+      }
+    } else {
+      const cursorX =
+        ((e as MouseEvent).offsetX >= 0
+          ? (e as MouseEvent).offsetX
+          : (e as TouchEvent).touches[0].clientX - this.positions.left) +
+        2 * DEFAULT_SPACING;
+      this.sliceEndIndex = Math.min(
+        this.countElements,
+        Math.max(
+          0,
+          Math.ceil(
+            ((cursorX - 2 * DEFAULT_SPACING - MIN_CONTROL_WIDTH) / this.previewWidth) *
+              this.countElements,
+          ),
+        ),
+      );
+
+      if (this.sliceEndIndex <= this.sliceStartIndex) {
+        this.sliceEndIndex = this.sliceStartIndex + 1;
+      }
+    }
+
+    this.drawPreviewControls();
+    this.resetCharts();
+    this.draw();
+  }
+
   onPreviewControlClick = (e: MouseEvent | TouchEvent) => {
     const cursorX =
-      (e as MouseEvent).offsetX || (e as TouchEvent).touches[0].clientX - this.positions.left;
+      (e as MouseEvent).offsetX >= 0
+        ? (e as MouseEvent).offsetX
+        : (e as TouchEvent).touches[0].clientX - this.positions.left;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     this.sliceStartIndex = Math.min(
       this.countElements - sliceSize - 1,
@@ -184,14 +278,13 @@ export class PyxChart {
 
   onMouseMove = (e: MouseEvent) => {
     // todo create hover effect on point
-    this.verticleLine.setAttribute(
-      'x1',
-      (e.clientX - this.positions.left + DEFAULT_SPACING * 0.5).toString(),
-    );
-    this.verticleLine.setAttribute(
-      'x2',
-      (e.clientX - this.positions.left + DEFAULT_SPACING * 0.5).toString(),
-    );
+    if (
+      e.clientX - this.positions.left > DEFAULT_SPACING * 2 &&
+      e.clientX - this.positions.left < this.width
+    ) {
+      this.verticleLine.setAttribute('x1', (e.clientX - this.positions.left).toString());
+      this.verticleLine.setAttribute('x2', (e.clientX - this.positions.left).toString());
+    }
   };
 
   toggleColumnVisible(key: string) {
@@ -216,6 +309,11 @@ export class PyxChart {
       this.centerControl.addEventListener('mouseup', this.onDragEnd, false);
       this.centerControl.addEventListener('mousemove', this.onDrag, false);
       this.centerControl.addEventListener('mouseout', this.onDrag, false);
+      this.leftResizeControl.addEventListener('mouseup', this.onResizeEndLeft, false);
+      this.leftResizeControl.addEventListener('mousedown', this.onResizeStartLeft, false);
+      this.rightResizeControl.addEventListener('mouseup', this.onResizeEndRight);
+      this.rightResizeControl.addEventListener('mousedown', this.onResizeStartRight);
+      this.preview_svg.addEventListener('mousemove', this.onResize, false);
       // Mobile
       this.centerControl.addEventListener('touchstart', this.onDragStart, false);
       this.centerControl.addEventListener('touchend', this.onDragEnd, false);
@@ -230,13 +328,7 @@ export class PyxChart {
       height: this.previewHeight,
     } as RectangleOptions;
     const leftResizeControlPoint = {
-      x:
-        Math.max(
-          Math.floor(
-            (this.sliceStartIndex / this.countElements) *
-              (this.previewWidth + DEFAULT_PREVIEW_SPACING),
-          ),
-        ) - RESIZE_CONTROL_WIDTH,
+      x: Math.max(Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth), 0),
       y: 0,
     } as Point;
 
@@ -312,14 +404,13 @@ export class PyxChart {
   drawLeftNavigateControl(): SVGRectElement {
     const leftControlSize = {
       width: Math.max(
-        Math.floor(
-          (this.sliceStartIndex / this.countElements) *
-            (this.previewWidth + DEFAULT_PREVIEW_SPACING),
-        ),
+        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth) +
+          MIN_CONTROL_WIDTH,
         MIN_CONTROL_WIDTH,
       ),
       height: this.previewHeight,
     } as RectangleOptions;
+
     const leftControlPoint = {
       x: 0,
       y: 0,
@@ -410,7 +501,7 @@ export class PyxChart {
     const calculatedWidth = this.width - DEFAULT_SPACING;
     const realMinValue = this.minValue > 0 ? 0 : this.minValue;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
-    const sliceXSize = Math.floor(sliceSize / DEFAULT_DAY_COUNT);
+    const sliceXSize = Math.max(Math.floor(sliceSize / (DEFAULT_DAY_COUNT - 1)), 1);
 
     const getXCord = (index: number): number => {
       return 2 * DEFAULT_SPACING + (calculatedWidth / sliceSize) * index;
@@ -422,28 +513,36 @@ export class PyxChart {
         (value / (this.maxValue - realMinValue)) * (this.height - 2 * DEFAULT_SPACING)
       );
     };
-
-    let currentIndex = 0;
-    for (let index = this.sliceStartIndex - 1; index < this.sliceEndIndex; index += sliceXSize) {
+    let fullWidth = 0;
+    const labelCount = Math.min(Math.max(1, sliceSize), DEFAULT_DAY_COUNT) + 1;
+    for (let index = this.sliceStartIndex; index <= this.sliceEndIndex; index += sliceXSize) {
       const item = this.columnDatasets[Type.X][Math.floor(index)];
       const date = new Date(item);
       const label = date.toLocaleString('en-us', {
         month: 'short',
         day: 'numeric',
       });
+
       const text = generateText(
         {
-          x:
-            2 * DEFAULT_SPACING +
-            ((this.width - 2 * DEFAULT_SPACING) / (DEFAULT_DAY_COUNT + 1)) * currentIndex,
+          x: 2 * DEFAULT_SPACING,
           y: this.height,
         },
         label,
         [classNameAbsLine],
       );
       this.charts_svg.appendChild(text);
-      currentIndex += 1;
     }
+
+    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
+      fullWidth += item.getBoundingClientRect().width;
+    });
+    const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (labelCount - 1);
+    let relWidth = 0;
+    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
+      item.setAttribute('x', (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any);
+      relWidth += item.getBoundingClientRect().width;
+    });
 
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
