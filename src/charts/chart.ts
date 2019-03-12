@@ -9,10 +9,10 @@ const DEFAULT_SLICE = 19; // Programming + 1
 const SLICE_NUMBER = 5.5;
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';
+const classControlName = 'control';
 const verticleLineClass = 'verticle';
 const classNameStepTitle = 'text_step';
 const classNameAbsLine = 'charts_abs';
-const NAVIGATION_RECT_COLOR = 'rgb(227, 227, 227, 0.4)';
 const MIN_CONTROL_WIDTH = 10;
 
 export class PyxChart {
@@ -252,7 +252,10 @@ export class PyxChart {
     } as Point;
 
     if (!this.leftControl) {
-      const leftRect = generateRect(leftControlPoint, leftControlSize, NAVIGATION_RECT_COLOR);
+      const leftRect = generateRect(leftControlPoint, leftControlSize, null, [
+        classControlName,
+        'left',
+      ]);
       this.preview_svg.appendChild(leftRect);
       return leftRect;
     }
@@ -283,7 +286,10 @@ export class PyxChart {
     } as Point;
 
     if (!this.rightControl) {
-      const rightRect = generateRect(rightControlPoint, rightControlSize, NAVIGATION_RECT_COLOR);
+      const rightRect = generateRect(rightControlPoint, rightControlSize, null, [
+        classControlName,
+        'right',
+      ]);
       this.preview_svg.appendChild(rightRect);
       return rightRect;
     }

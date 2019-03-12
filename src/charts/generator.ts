@@ -25,6 +25,7 @@ export function generateRect(
   point: Point,
   size: RectangleOptions,
   color?: string,
+  classList?: Array<string>,
   id?: string,
 ): SVGRectElement {
   const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -34,6 +35,11 @@ export function generateRect(
   rect.setAttribute('height', size.height as any);
   if (color) {
     rect.setAttribute('fill', color);
+  }
+  if (classList) {
+    classList.forEach(item => {
+      rect.classList.add(item);
+    });
   }
 
   if (id) {
@@ -67,9 +73,12 @@ export function generateLine(
     line.setAttribute('stroke', color);
   }
 
-  classList.forEach(item => {
-    line.classList.add(item);
-  });
+  if (classList) {
+    classList.forEach(item => {
+      line.classList.add(item);
+    });
+  }
+
   return line;
 }
 

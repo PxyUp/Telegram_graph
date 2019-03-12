@@ -4,6 +4,12 @@
 
   svg {
     display: block;
+
+    rect {
+      &.control {
+        fill: rgba(245, 249, 251, 0.7);
+      }
+    }
   }
 
   line {
@@ -58,6 +64,12 @@
     background-color: #242f3e;
     line {
       stroke: #293544;
+    }
+
+    rect {
+      &.control {
+        fill: rgba(31, 42, 56, 0.7);
+      }
     }
 
     text {
