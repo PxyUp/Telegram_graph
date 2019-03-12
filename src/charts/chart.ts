@@ -5,7 +5,7 @@ import { generateLine, generatePath, generateRect, generateText } from './genera
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
 const DEFAULT_PREVIEW_SPACING = 16;
-const DEFAULT_SLICE = 9; // Programming + 1
+const DEFAULT_SLICE = 19; // Programming + 1
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';
 const verticleLineClass = 'verticle';
@@ -142,6 +142,7 @@ export class PyxChart {
       Math.max(0, Math.floor((cursorX / this.previewWidth) * this.countElements)),
     );
     this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
+
     this.drawPreviewControls();
     this.resetCharts();
     this.draw();
@@ -199,7 +200,10 @@ export class PyxChart {
   drawLeftNavigateControl(): SVGRectElement {
     const leftControlSize = {
       width: Math.max(
-        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
+        Math.floor(
+          (this.sliceStartIndex / this.countElements) *
+            (this.previewWidth + DEFAULT_PREVIEW_SPACING),
+        ),
         MIN_CONTROL_WIDTH,
       ),
       height: this.previewHeight,
@@ -233,8 +237,10 @@ export class PyxChart {
     } as RectangleOptions;
     const rightControlPoint = {
       x:
+        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth) +
         MIN_CONTROL_WIDTH +
-        Math.floor((this.sliceEndIndex / this.countElements) * this.previewWidth),
+        Math.floor((this.sliceEndIndex / this.countElements) * this.previewWidth) -
+        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
       y: 0,
     } as Point;
 
@@ -283,7 +289,7 @@ export class PyxChart {
   }
 
   drawCurrentSlice() {
-    const calculatedWidth = this.width;
+    const calculatedWidth = this.width - DEFAULT_SPACING;
     const realMinValue = this.minValue > 0 ? 0 : this.minValue;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     const sliceXSize = Math.floor(sliceSize / DEFAULT_DAY_COUNT);
