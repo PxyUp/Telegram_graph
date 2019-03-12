@@ -149,6 +149,11 @@ export class PyxChart {
       this.centerControl.removeEventListener('touchstart', this.onDragStart);
       this.centerControl.removeEventListener('touchmove', this.onDrag);
       this.centerControl.removeEventListener('touchend', this.onDragEnd);
+      this.leftResizeControl.removeEventListener('touchend', this.onResizeEndLeft);
+      this.leftResizeControl.removeEventListener('touchstart', this.onResizeStartLeft);
+      this.rightResizeControl.removeEventListener('touchend', this.onResizeEndRight);
+      this.rightResizeControl.removeEventListener('touchstart', this.onResizeStartRight);
+      this.preview_svg.removeEventListener('touchmove', this.onResize);
       // Right and Left navigation controls
       this.leftControl.removeEventListener('click', this.onPreviewControlClick);
       this.rightControl.removeEventListener('click', this.onPreviewControlClick);
@@ -319,6 +324,11 @@ export class PyxChart {
       this.centerControl.addEventListener('touchend', this.onDragEnd, false);
       this.centerControl.addEventListener('touchmove', this.onDrag, false);
       this.centerControl.addEventListener('touchcancel', this.onDrag, false);
+      this.leftResizeControl.addEventListener('touchend', this.onResizeEndLeft, false);
+      this.leftResizeControl.addEventListener('touchstart', this.onResizeStartLeft, false);
+      this.rightResizeControl.addEventListener('touchend', this.onResizeEndRight);
+      this.rightResizeControl.addEventListener('touchstart', this.onResizeStartRight);
+      this.preview_svg.addEventListener('touchmove', this.onResize, false);
     }
   }
 
