@@ -1,11 +1,11 @@
 import { Chart, ChartOptions, Point, RectangleOptions, Type } from '../interfaces/chart';
-import { animatePath, getMax, getMin } from '../utils/misc';
+import { animatePath, changePathOnElement, getMax, getMin, getPathByPoints } from '../utils/misc';
 import { generateLine, generatePath, generateRect, generateText } from './generator';
 
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
 const DEFAULT_PREVIEW_SPACING = 16;
-const DEFAULT_SLICE = 10;
+const DEFAULT_SLICE = 9; // Programming + 1
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';
 const verticleLineClass = 'verticle';
@@ -35,6 +35,7 @@ export class PyxChart {
 
   private leftControl: SVGRectElement;
   private rightControl: SVGRectElement;
+  private centerControl: SVGRectElement;
 
   private night_mod = false;
 
@@ -70,10 +71,13 @@ export class PyxChart {
       const keyOfColumn = column.shift() as any;
       this.columnDatasets[keyOfColumn] = column as any;
       if (!this.sliceStartIndex) {
-        this.sliceStartIndex = Math.max(this.columnDatasets[keyOfColumn].length - DEFAULT_SLICE, 0);
+        this.sliceStartIndex = Math.max(
+          this.columnDatasets[keyOfColumn].length - DEFAULT_SLICE - 1,
+          0,
+        );
       }
       if (!this.sliceEndIndex) {
-        this.sliceEndIndex = this.columnDatasets[keyOfColumn].length;
+        this.sliceEndIndex = this.columnDatasets[keyOfColumn].length - 1;
       }
       if (!this.countElements) {
         this.countElements = this.columnDatasets[keyOfColumn].length;
@@ -134,7 +138,7 @@ export class PyxChart {
     const cursorX = e.offsetX;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     this.sliceStartIndex = Math.min(
-      this.countElements - sliceSize,
+      this.countElements - sliceSize - 1,
       Math.max(0, Math.floor((cursorX / this.previewWidth) * this.countElements)),
     );
     this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
@@ -160,10 +164,36 @@ export class PyxChart {
   drawPreviewControls(withEvents: boolean = false) {
     this.leftControl = this.drawLeftNavigateControl();
     this.rightControl = this.drawRightNavigateControl();
+    this.centerControl = this.drawPreviewCenterControl();
     if (withEvents) {
       this.leftControl.addEventListener('click', this.onPreviewControlClick);
       this.rightControl.addEventListener('click', this.onPreviewControlClick);
     }
+  }
+
+  drawPreviewCenterControl() {
+    const centerControlSize = {
+      width:
+        MIN_CONTROL_WIDTH +
+        Math.floor((this.sliceEndIndex / this.countElements) * this.previewWidth) -
+        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
+      height: this.previewHeight,
+    } as RectangleOptions;
+    const centerControlPoint = {
+      x: Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
+      y: 0,
+    } as Point;
+
+    if (!this.centerControl) {
+      const center = generateRect(centerControlPoint, centerControlSize, 'transparent');
+      this.preview_svg.appendChild(center);
+      return center;
+    }
+
+    this.centerControl.setAttribute('x', centerControlPoint.x as any);
+    this.centerControl.setAttribute('y', centerControlPoint.y as any);
+    this.centerControl.setAttribute('width', centerControlSize.width as any);
+    return this.centerControl;
   }
 
   drawLeftNavigateControl(): SVGRectElement {
@@ -250,7 +280,6 @@ export class PyxChart {
 
   resetCharts() {
     this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(el => el.remove());
-    this.charts_svg.querySelectorAll('path').forEach(el => el.remove());
   }
 
   drawCurrentSlice() {
@@ -296,6 +325,28 @@ export class PyxChart {
       const columnVisible = this.columnsVisible[key];
 
       if (columnVisible) {
+        const currentPath = this.charts_svg.querySelector(
+          `path#${`pyx_path_${key}`}`,
+        ) as SVGPathElement;
+
+        if (currentPath) {
+          changePathOnElement(
+            currentPath,
+            getPathByPoints(
+              this.columnDatasets[key]
+                .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
+                .map((point, index) => {
+                  return {
+                    x: getXCord(index),
+                    y: getYCord(point),
+                  };
+                }),
+            ),
+          );
+
+          return;
+        }
+
         const path = generatePath(
           this.columnDatasets[key]
             .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
@@ -428,8 +479,8 @@ export class PyxChart {
         step.toString(),
         [classNameStepTitle],
       );
-      this.charts_svg.appendChild(line);
-      this.charts_svg.appendChild(text);
+      this.charts_svg.prepend(line);
+      this.charts_svg.prepend(text);
       positionY -= delta;
     });
   }

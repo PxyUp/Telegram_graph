@@ -24,7 +24,7 @@ const getSize = (container: Container, defaultValue?: any): RectangleOptions => 
 export function generateRect(
   point: Point,
   size: RectangleOptions,
-  color: string,
+  color?: string,
   id?: string,
 ): SVGRectElement {
   const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -32,7 +32,10 @@ export function generateRect(
   rect.setAttribute('y', point.y as any);
   rect.setAttribute('width', size.width as any);
   rect.setAttribute('height', size.height as any);
-  rect.setAttribute('fill', color);
+  if (color) {
+    rect.setAttribute('fill', color);
+  }
+
   if (id) {
     rect.setAttribute('id', id);
   }
