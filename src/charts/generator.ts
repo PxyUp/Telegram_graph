@@ -99,7 +99,7 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
       });
       rootNode.setAttributeNS(
         null,
-        'viewbox',
+        'viewBox',
         `0 0 ${node.attrs['width']} ${node.attrs['height']}`,
       );
     } else {

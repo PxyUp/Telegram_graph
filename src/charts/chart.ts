@@ -69,6 +69,7 @@ export class PyxChart {
     );
     this.charts_svg.appendChild(this.verticleLine);
     this.addMouseListener();
+
     this.draw();
   }
 
