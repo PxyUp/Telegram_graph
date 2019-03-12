@@ -100,6 +100,8 @@ export class PyxChart {
     this.charts_svg.appendChild(this.verticleLine);
 
     this.addMouseListener();
+
+    this.positions = this.charts_svg.getBoundingClientRect();
     this.draw();
 
     if (!options.withoutPreview) {
@@ -140,7 +142,6 @@ export class PyxChart {
 
   onDragStart = (e: MouseEvent | TouchEvent) => {
     this.isDragActive = true;
-    this.positions = this.charts_svg.getBoundingClientRect();
   };
 
   onDragEnd = (e: MouseEvent | TouchEvent) => {
@@ -178,8 +179,14 @@ export class PyxChart {
 
   onMouseMove = (e: MouseEvent) => {
     // todo create hover effect on point
-    this.verticleLine.setAttribute('x1', (e.clientX - DEFAULT_SPACING).toString());
-    this.verticleLine.setAttribute('x2', (e.clientX - DEFAULT_SPACING).toString());
+    this.verticleLine.setAttribute(
+      'x1',
+      (e.clientX - this.positions.left + DEFAULT_SPACING * 0.5).toString(),
+    );
+    this.verticleLine.setAttribute(
+      'x2',
+      (e.clientX - this.positions.left + DEFAULT_SPACING * 0.5).toString(),
+    );
   };
 
   toggleColumnVisible(key: string) {
