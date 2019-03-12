@@ -6,10 +6,12 @@ const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
 const DEFAULT_PREVIEW_SPACING = 16;
 const DEFAULT_SLICE = 19; // Programming + 1
+const RESIZE_CONTROL_WIDTH = 16;
 const SLICE_NUMBER = 5.5;
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';
 const classControlName = 'control';
+const classControlResizeName = 'control_resize';
 const verticleLineClass = 'verticle';
 const classNameStepTitle = 'text_step';
 const classNameAbsLine = 'charts_abs';
@@ -40,6 +42,9 @@ export class PyxChart {
   private leftControl: SVGRectElement;
   private rightControl: SVGRectElement;
   private centerControl: SVGRectElement;
+
+  private leftResizeControl: SVGRectElement;
+  private rightResizeControl: SVGRectElement;
 
   private night_mod = false;
 
@@ -201,6 +206,8 @@ export class PyxChart {
     this.leftControl = this.drawLeftNavigateControl();
     this.rightControl = this.drawRightNavigateControl();
     this.centerControl = this.drawPreviewCenterControl();
+    this.leftResizeControl = this.drawPreviewLeftResizeControl();
+    this.rightResizeControl = this.drawPreviewRightResizeControl();
     if (withEvents) {
       this.leftControl.addEventListener('click', this.onPreviewControlClick);
       this.rightControl.addEventListener('click', this.onPreviewControlClick);
@@ -217,7 +224,67 @@ export class PyxChart {
     }
   }
 
-  drawPreviewCenterControl() {
+  drawPreviewLeftResizeControl(): SVGRectElement {
+    const leftResizeControlSize = {
+      width: RESIZE_CONTROL_WIDTH,
+      height: this.previewHeight,
+    } as RectangleOptions;
+    const leftResizeControlPoint = {
+      x:
+        Math.max(
+          Math.floor(
+            (this.sliceStartIndex / this.countElements) *
+              (this.previewWidth + DEFAULT_PREVIEW_SPACING),
+          ),
+        ) - RESIZE_CONTROL_WIDTH,
+      y: 0,
+    } as Point;
+
+    if (!this.leftResizeControl) {
+      const leftResizeRect = generateRect(leftResizeControlPoint, leftResizeControlSize, null, [
+        classControlResizeName,
+        'left',
+      ]);
+      this.preview_svg.appendChild(leftResizeRect);
+      return leftResizeRect;
+    }
+
+    this.leftResizeControl.setAttribute('x', leftResizeControlPoint.x as any);
+    this.leftResizeControl.setAttribute('y', leftResizeControlPoint.y as any);
+    this.leftResizeControl.setAttribute('width', leftResizeControlSize.width as any);
+    return this.leftResizeControl;
+  }
+
+  drawPreviewRightResizeControl(): SVGRectElement {
+    const rightResizeControlSize = {
+      width: RESIZE_CONTROL_WIDTH,
+      height: this.previewHeight,
+    } as RectangleOptions;
+    const rightResizeControlPoint = {
+      x:
+        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth) +
+        MIN_CONTROL_WIDTH +
+        Math.floor((this.sliceEndIndex / this.countElements) * this.previewWidth) -
+        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
+      y: 0,
+    } as Point;
+
+    if (!this.rightResizeControl) {
+      const rightResizeRect = generateRect(rightResizeControlPoint, rightResizeControlSize, null, [
+        classControlResizeName,
+        'left',
+      ]);
+      this.preview_svg.appendChild(rightResizeRect);
+      return rightResizeRect;
+    }
+
+    this.rightResizeControl.setAttribute('x', rightResizeControlPoint.x as any);
+    this.rightResizeControl.setAttribute('y', rightResizeControlPoint.y as any);
+    this.rightResizeControl.setAttribute('width', rightResizeControlSize.width as any);
+    return this.rightResizeControl;
+  }
+
+  drawPreviewCenterControl(): SVGRectElement {
     const centerControlSize = {
       width:
         MIN_CONTROL_WIDTH +

@@ -48,6 +48,14 @@ export function generateRect(
   return rect;
 }
 
+export function generateGroup(child: Array<SVGElement> = []): SVGElement {
+  const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  child.forEach(item => {
+    group.appendChild(item);
+  });
+  return group;
+}
+
 export function generatePath(points: Array<Point>, color: string, id?: string): SVGPathElement {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', getPathByPoints(points));
@@ -186,7 +194,6 @@ export function chartsGenerator(
     });
     rootNode.appendChild(basicNode);
     id++;
-    const pyxChart = new PyxChart(id, basicNode as HTMLElement, dataset, options);
-    return pyxChart;
+    return new PyxChart(id, basicNode as HTMLElement, dataset, options);
   };
 }
