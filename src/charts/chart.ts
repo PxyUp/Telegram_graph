@@ -4,7 +4,7 @@ import { generateLine, generateNode, generatePath, generateText } from './genera
 
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
-const DEFAULT_PREVIEW_SPACING = 5;
+const DEFAULT_PREVIEW_SPACING = 16;
 const DEFAULT_SLICE = 10;
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';

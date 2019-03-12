@@ -36,7 +36,13 @@
     font-size: 12px;
     z-index: 1;
     background-color: white;
+    font-family: sans-serif;
+    text-shadow: 1px 0.5px white;
     &.text_step {
+      fill: #96a2aa;
+    }
+
+    &.charts_abs {
       fill: #96a2aa;
     }
   }
@@ -48,7 +54,11 @@
     }
 
     text {
+      text-shadow: 1px 0.5px #242f3e;
       &.text_step {
+        fill: #546778;
+      }
+      &.charts_abs {
         fill: #546778;
       }
     }

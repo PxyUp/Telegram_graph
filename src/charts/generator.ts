@@ -148,7 +148,7 @@ export function chartsGenerator(
           attrs: {
             ...getSize(options.chartsContainer, {
               width: '400',
-              height: '50',
+              height: '60',
             }),
           },
         },
