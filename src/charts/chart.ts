@@ -4,7 +4,7 @@ import { generateLine, generateNode, generatePath, generateText } from './genera
 
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
-const DEFAULT_SLICE = 15;
+const DEFAULT_SLICE = 10;
 const DEFAULT_DAY_COUNT = 5;
 const classNameStepLine = 'line_step';
 const verticleLineClass = 'verticle';
@@ -43,7 +43,7 @@ export class PyxChart {
     this.charts_svg = this.node.querySelector('.main_chart');
     this.preview_svg = this.node.querySelector('.chart_preview');
     this.height = parseInt(this.charts_svg.getAttribute('height'));
-    this.width = parseInt(this.charts_svg.getAttribute('width'));
+    this.width = parseInt(this.charts_svg.getAttribute('width')) - DEFAULT_SPACING;
     Object.keys(this.dataset.names).forEach(key => {
       this.columnsVisible[key] = true;
     });
@@ -62,7 +62,7 @@ export class PyxChart {
         x1: 0,
         x2: 0,
         y1: 0,
-        y2: this.height,
+        y2: this.height - DEFAULT_SPACING,
       },
       null,
       [verticleLineClass],
@@ -93,6 +93,7 @@ export class PyxChart {
   };
 
   onMouseMove = (e: MouseEvent) => {
+    // todo create hover effect on point
     this.verticleLine.setAttribute('x1', (e.clientX - DEFAULT_SPACING).toString());
     this.verticleLine.setAttribute('x2', (e.clientX - DEFAULT_SPACING).toString());
   };
@@ -177,8 +178,7 @@ export class PyxChart {
                 x: getXCord(index),
                 y: getYCord(point),
               };
-            })
-            .filter(item => item.x <= this.width - DEFAULT_SPACING),
+            }),
           this.dataset.colors[key],
         );
 
@@ -194,7 +194,9 @@ export class PyxChart {
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
       if (columnVisible) {
-        values.push(...this.columnDatasets[key]);
+        values.push(
+          ...this.columnDatasets[key].slice(this.sliceStartIndex, this.sliceEndIndex + 1),
+        );
       }
     });
 
