@@ -73,17 +73,15 @@ export class PyxChart {
     this.dataset.columns.forEach(column => {
       const keyOfColumn = column.shift() as any;
       this.columnDatasets[keyOfColumn] = column as any;
+      if (!this.countElements) {
+        this.countElements = this.columnDatasets[keyOfColumn].length;
+      }
       if (!this.sliceStartIndex) {
-        this.sliceStartIndex = Math.max(
-          this.columnDatasets[keyOfColumn].length - DEFAULT_SLICE - 1,
-          0,
-        );
+        const sliceSize = Math.max(DEFAULT_SLICE, Math.floor(this.countElements / 5.5));
+        this.sliceStartIndex = Math.max(this.columnDatasets[keyOfColumn].length - sliceSize - 1, 0);
       }
       if (!this.sliceEndIndex) {
         this.sliceEndIndex = this.columnDatasets[keyOfColumn].length - 1;
-      }
-      if (!this.countElements) {
-        this.countElements = this.columnDatasets[keyOfColumn].length;
       }
     });
 
