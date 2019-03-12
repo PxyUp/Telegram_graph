@@ -15,6 +15,8 @@ export class PyxChart {
   private charts_svg: HTMLElement;
   private preview_svg: HTMLElement;
 
+  private timer: number | null = null;
+
   private maxValue: number;
   private minValue: number;
   private height: number;
@@ -68,9 +70,13 @@ export class PyxChart {
       [verticleLineClass],
     );
     this.charts_svg.appendChild(this.verticleLine);
-    this.addMouseListener();
 
+    this.addMouseListener();
     this.draw();
+
+    if (!options.withoutPreview) {
+      this.drawPreview();
+    }
   }
 
   addMouseListener() {
@@ -110,7 +116,13 @@ export class PyxChart {
   }
 
   refresh() {
+    this.resetTimer();
     this.draw();
+  }
+
+  resetTimer() {
+    clearTimeout(this.timer);
+    this.timer = null;
   }
 
   setRightIndexSlice(size: number) {
@@ -185,10 +197,12 @@ export class PyxChart {
         );
 
         this.charts_svg.appendChild(path);
-        animatePath(path);
+        this.timer = animatePath(path);
       }
     });
   }
+
+  drawPreview() {}
 
   setSupportsLines() {
     const values = [] as Array<number>;

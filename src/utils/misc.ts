@@ -19,7 +19,7 @@ export function getPathByPoints(points: Array<Point>): string {
     .join(' ');
 }
 
-export function animatePath(path: SVGPathElement) {
+export function animatePath(path: SVGPathElement): number {
   const length = path.getTotalLength();
   const duration = 0.8;
   const oldTransition = path.style.transition;
@@ -29,7 +29,7 @@ export function animatePath(path: SVGPathElement) {
   path.getBoundingClientRect();
   path.style.transition = `stroke-dashoffset ${duration}s ease-in-out`;
   path.style.strokeDashoffset = '0';
-  setTimeout(() => {
+  return setTimeout(() => {
     path.style.transition = oldTransition;
   }, duration * 1000);
 }
