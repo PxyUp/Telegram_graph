@@ -221,17 +221,6 @@ export class PyxChart {
 
   drawPreview() {
     const values = [] as Array<number>;
-    const getXCord = (index: number): number => {
-      return (this.previewWidth / this.countElements) * index;
-    };
-    const getYCord = (value: number): number => {
-      return (
-        this.previewHeight -
-        DEFAULT_PREVIEW_SPACING -
-        (value / (this.maxValueGlobal - this.minValueGlobal)) *
-          (this.previewHeight - 2 * DEFAULT_PREVIEW_SPACING)
-      );
-    };
 
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
@@ -242,6 +231,19 @@ export class PyxChart {
 
     this.minValueGlobal = getMin(values);
     this.maxValueGlobal = getMax(values);
+
+    const getXCord = (index: number): number => {
+      return (this.previewWidth / this.countElements) * index;
+    };
+
+    const getYCord = (value: number): number => {
+      return (
+        this.previewHeight -
+        DEFAULT_PREVIEW_SPACING -
+        ((value - this.minValueGlobal) / (this.maxValueGlobal - this.minValueGlobal)) *
+          (this.previewHeight - 2 * DEFAULT_PREVIEW_SPACING)
+      );
+    };
 
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
