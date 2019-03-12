@@ -30,8 +30,8 @@ export interface Container {
 }
 
 export interface RectangleOptions {
-  width: string;
-  height: string;
+  width: string | number;
+  height: string | number;
 }
 
 export type Column = [String, ...Array<number>];

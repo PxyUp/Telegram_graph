@@ -21,6 +21,24 @@ const getSize = (container: Container, defaultValue?: any): RectangleOptions => 
   return defaultValue;
 };
 
+export function generateRect(
+  point: Point,
+  size: RectangleOptions,
+  color: string,
+  id?: string,
+): SVGRectElement {
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', point.x as any);
+  rect.setAttribute('y', point.y as any);
+  rect.setAttribute('width', size.width as any);
+  rect.setAttribute('height', size.height as any);
+  rect.setAttribute('fill', color);
+  if (id) {
+    rect.setAttribute('id', id);
+  }
+  return rect;
+}
+
 export function generatePath(points: Array<Point>, color: string, id?: string): SVGPathElement {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', getPathByPoints(points));
