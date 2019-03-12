@@ -149,7 +149,6 @@ export class PyxChart {
   };
 
   onDrag = (e: MouseEvent | TouchEvent) => {
-    console.log(e);
     if (this.isDragActive) {
       this.onPreviewControlClick(e);
     }
