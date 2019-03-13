@@ -241,7 +241,7 @@ export class PyxChart {
   };
 
   onMouseLeave = (e: MouseEvent) => {
-    if (e.toElement !== this.toolTip) {
+    if (e.toElement !== this.toolTip || e.offsetY >= this.height - 100) {
       this.removePoints();
       this.verticleLine.classList.remove('show');
       this.toolTip.style.display = 'none';
