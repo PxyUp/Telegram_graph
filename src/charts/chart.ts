@@ -929,12 +929,16 @@ export class PyxChart {
         );
       }
     });
-
     this.minValue = getMin(values);
     this.maxValue = getMax(values);
-    const step = Math.ceil(
-      (this.minValue > 0 ? this.maxValue : this.maxValue - this.minValue) / this.horizontSteps,
-    );
+    const step =
+      values.length === 0
+        ? 0
+        : Math.ceil(
+            (this.minValue > 0 ? this.maxValue : this.maxValue - this.minValue) /
+              this.horizontSteps,
+          );
+
     const stepsArr = this.minValue > 0 ? [0] : [this.minValue];
     for (let index = 1; index < this.horizontSteps; index++) {
       stepsArr.push(stepsArr[0] + step * index || index);
