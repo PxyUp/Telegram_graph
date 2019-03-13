@@ -1,6 +1,29 @@
-import { Chart, ChartOptions, Point, RectangleOptions, Type } from '../interfaces/chart';
-import { animatePath, changePathOnElement, getMax, getMin, getPathByPoints } from '../utils/misc';
-import { generateLine, generatePath, generateRect, generateText } from './generator';
+import {
+  Chart,
+  ChartOptions,
+  Point,
+  PointWithColor,
+  PointWithValue,
+  PointWithValueAndColor,
+  RectangleOptions,
+  Type,
+} from '../interfaces/chart';
+import {
+  animatePath,
+  changePathOnElement,
+  getMax,
+  getMin,
+  getPathByPoints,
+  getShortDateByUnix,
+} from '../utils/misc';
+import {
+  generateCircle,
+  generateLine,
+  generateNode,
+  generatePath,
+  generateRect,
+  generateText,
+} from './generator';
 
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
@@ -16,7 +39,6 @@ const classNameStepTitle = 'text_step';
 const classNameAbsLine = 'charts_abs';
 const MIN_CONTROL_WIDTH = 10;
 const RESIZE_CONTROL_WIDTH = MIN_CONTROL_WIDTH;
-const MIN_AREA_IN_PERSENT = 0.1;
 
 export class PyxChart {
   private isDragActive = false;
@@ -26,6 +48,9 @@ export class PyxChart {
 
   private charts_svg: HTMLElement;
   private preview_svg: HTMLElement;
+
+  private toolTip: HTMLElement;
+  private toolTipDate: HTMLElement;
 
   private timer: number | null = null;
   private timerPreview: number | null = null;
@@ -57,6 +82,8 @@ export class PyxChart {
 
   private sliceEndIndex = 0;
 
+  private currentSlicePoint: { [key: string]: Array<PointWithValue> } = Object.create(null);
+
   private verticleLine: SVGLineElement;
 
   private columnsVisible: { [key: string]: boolean } = Object.create(null);
@@ -73,6 +100,8 @@ export class PyxChart {
   ) {
     this.charts_svg = this.node.querySelector('.main_chart');
     this.preview_svg = this.node.querySelector('.chart_preview');
+    this.toolTip = this.node.querySelector('div.tooltip');
+    this.toolTipDate = this.node.querySelector('div.tooltip p.date');
     this.height = parseInt(this.charts_svg.getAttribute('height'));
     this.width = parseInt(this.charts_svg.getAttribute('width'));
 
@@ -90,7 +119,7 @@ export class PyxChart {
         this.sliceStartIndex = Math.max(this.columnDatasets[keyOfColumn].length - sliceSize - 1, 0);
       }
       if (!this.sliceEndIndex) {
-        this.sliceEndIndex = this.columnDatasets[keyOfColumn].length - 1;
+        this.sliceEndIndex = this.columnDatasets[keyOfColumn].length;
       }
     });
 
@@ -211,7 +240,9 @@ export class PyxChart {
   };
 
   onMouseLeave = () => {
+    this.removePoints();
     this.verticleLine.classList.remove('show');
+    this.toolTip.style.display = 'none';
   };
 
   doResize(isRight: boolean, e: MouseEvent | TouchEvent) {
@@ -271,11 +302,15 @@ export class PyxChart {
         : (e as TouchEvent).touches[0].clientX - this.positions.left;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     this.sliceStartIndex = Math.min(
-      this.countElements - sliceSize - 1,
-      Math.max(0, Math.ceil((cursorX / this.previewWidth) * this.countElements) - sliceSize / 2),
+      this.countElements - sliceSize,
+      Math.max(
+        0,
+        Math.ceil((cursorX / this.previewWidth) * (this.countElements - 1)) -
+          Math.floor(sliceSize / 2),
+      ),
     );
-    this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
 
+    this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
     this.drawPreviewControls();
     this.resetCharts();
     this.draw();
@@ -287,10 +322,88 @@ export class PyxChart {
       e.clientX - this.positions.left > DEFAULT_SPACING * 2 &&
       e.clientX - this.positions.left < this.width
     ) {
-      this.verticleLine.setAttribute('x1', (e.clientX - this.positions.left).toString());
-      this.verticleLine.setAttribute('x2', (e.clientX - this.positions.left).toString());
+      const cordX = e.clientX - this.positions.left;
+      const cordY = e.offsetY;
+      this.verticleLine.setAttribute('x1', cordX.toString());
+      this.verticleLine.setAttribute('x2', cordX.toString());
+      const closestIndex = this.findClosesIndexOfPoint(cordX);
+      if (closestIndex === null) {
+        return;
+      }
+      const points = Object.keys(this.columnsVisible)
+        .filter(key => this.columnsVisible[key])
+        .map(key => ({
+          key: key,
+          color: this.dataset.colors[key],
+          x: this.currentSlicePoint[key][closestIndex].x,
+          y: this.currentSlicePoint[key][closestIndex].y,
+          value: this.currentSlicePoint[key][closestIndex].value,
+          date: this.currentSlicePoint[key][closestIndex].date,
+        }));
+      this.showPoints(points);
+      this.showTooltip(points, { x: cordX, y: cordY });
     }
   };
+
+  showPoints(arr: Array<PointWithColor> = []) {
+    this.removePoints();
+    arr.forEach(point => {
+      const circle = generateCircle(point);
+      this.charts_svg.appendChild(circle);
+    });
+  }
+
+  removePoints() {
+    this.charts_svg.querySelectorAll('circle').forEach(el => el.remove());
+  }
+
+  showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
+    this.toolTip.style.display = 'block';
+    this.toolTip.style.left = `${(point.x as number) + DEFAULT_SPACING}px`;
+    this.toolTip.style.top = `${point.y}px`;
+    const childContainer = this.toolTip.querySelector('.items');
+    while (childContainer.firstChild) {
+      childContainer.removeChild(childContainer.firstChild);
+    }
+    this.toolTipDate.innerText = getShortDateByUnix(arr[0].date);
+    arr
+      .map(item =>
+        generateNode({
+          tag: 'div',
+          attrs: {
+            style: `color: ${item.color}`,
+          },
+          children: [
+            {
+              tag: 'span',
+              classList: ['value'],
+              value: item.value.toString(),
+            },
+            {
+              tag: 'span',
+              classList: ['item'],
+              value: this.dataset.names[item.key],
+            },
+          ],
+        }),
+      )
+      .forEach(item => childContainer.appendChild(item));
+  }
+
+  findClosesIndexOfPoint(cordX: number): number | null {
+    const arr = Object.keys(this.columnsVisible).filter(key => this.columnsVisible[key]);
+    if (!arr.length) {
+      return null;
+    }
+    return this.currentSlicePoint[arr[0]].reduce(
+      (prev, curr, index) => {
+        return Math.abs((curr.x as number) - cordX) < Math.abs(prev[0] - cordX)
+          ? [curr.x as number, index]
+          : prev;
+      },
+      [this.width, null],
+    )[1];
+  }
 
   toggleColumnVisible(key: string) {
     this.columnsVisible[key] = !this.columnsVisible[key];
@@ -508,13 +621,45 @@ export class PyxChart {
   }
 
   drawCurrentSlice() {
-    const calculatedWidth = this.width - DEFAULT_SPACING;
     const realMinValue = this.minValue > 0 ? 0 : this.minValue;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
-    const sliceXSize = Math.max(Math.floor(sliceSize / (DEFAULT_DAY_COUNT - 1)), 1);
+    const sliceXSize = Math.max(Math.ceil(sliceSize / DEFAULT_DAY_COUNT), 1);
+
+    let fullWidth = 0;
+    let labelCount = 0;
+    for (let index = this.sliceStartIndex; index < this.sliceEndIndex; index += sliceXSize) {
+      const item = this.columnDatasets[Type.X][Math.ceil(index)];
+      if (item) {
+        const text = generateText(
+          {
+            x: 2 * DEFAULT_SPACING,
+            y: this.height,
+          },
+          getShortDateByUnix(item),
+          [classNameAbsLine],
+        );
+        this.charts_svg.appendChild(text);
+        labelCount += 1;
+      }
+    }
+
+    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
+      fullWidth += item.getBoundingClientRect().width;
+    });
+    const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (2 * labelCount);
+    let relWidth = 0;
+    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
+      item.setAttribute('x', (2 * DEFAULT_SPACING +
+        textDelta +
+        index * 2 * textDelta +
+        relWidth) as any);
+      relWidth += item.getBoundingClientRect().width;
+    });
+
+    const calculatedWidth = this.width - 2 * textDelta - 3 * DEFAULT_SPACING;
 
     const getXCord = (index: number): number => {
-      return 2 * DEFAULT_SPACING + (calculatedWidth / sliceSize) * index;
+      return 2 * DEFAULT_SPACING + 2 * textDelta + (calculatedWidth / sliceSize) * index;
     };
     const getYCord = (value: number): number => {
       return (
@@ -523,36 +668,6 @@ export class PyxChart {
         (value / (this.maxValue - realMinValue)) * (this.height - 2 * DEFAULT_SPACING)
       );
     };
-    let fullWidth = 0;
-    const labelCount = Math.min(Math.max(1, sliceSize), DEFAULT_DAY_COUNT) + 1;
-    for (let index = this.sliceStartIndex; index <= this.sliceEndIndex; index += sliceXSize) {
-      const item = this.columnDatasets[Type.X][Math.floor(index)];
-      const date = new Date(item);
-      const label = date.toLocaleString('en-us', {
-        month: 'short',
-        day: 'numeric',
-      });
-
-      const text = generateText(
-        {
-          x: 2 * DEFAULT_SPACING,
-          y: this.height,
-        },
-        label,
-        [classNameAbsLine],
-      );
-      this.charts_svg.appendChild(text);
-    }
-
-    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
-      fullWidth += item.getBoundingClientRect().width;
-    });
-    const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (labelCount - 1);
-    let relWidth = 0;
-    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
-      item.setAttribute('x', (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any);
-      relWidth += item.getBoundingClientRect().width;
-    });
 
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
@@ -562,37 +677,28 @@ export class PyxChart {
           `path#${`pyx_path_${key}`}`,
         ) as SVGPathElement;
 
+        this.currentSlicePoint[key] = this.columnDatasets[key]
+          .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
+          .map((point, index) => {
+            return {
+              x: getXCord(index),
+              y: getYCord(point),
+              value: point,
+              date: this.columnDatasets[Type.X][this.sliceStartIndex + index],
+            };
+          });
+
         if (currentPath) {
-          changePathOnElement(
-            currentPath,
-            getPathByPoints(
-              this.columnDatasets[key]
-                .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
-                .map((point, index) => {
-                  return {
-                    x: getXCord(index),
-                    y: getYCord(point),
-                  };
-                }),
-            ),
-          );
+          changePathOnElement(currentPath, getPathByPoints(this.currentSlicePoint[key]));
 
           return;
         }
 
         const path = generatePath(
-          this.columnDatasets[key]
-            .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
-            .map((point, index) => {
-              return {
-                x: getXCord(index),
-                y: getYCord(point),
-              };
-            }),
+          this.currentSlicePoint[key],
           this.dataset.colors[key],
           `pyx_path_${key}`,
         );
-
         this.charts_svg.appendChild(path);
         this.timer = animatePath(path);
       }

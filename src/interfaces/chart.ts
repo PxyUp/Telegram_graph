@@ -17,6 +17,22 @@ export interface Point {
   y: number | string;
 }
 
+export interface PointWithColor extends Point {
+  color: string;
+}
+
+export interface PointWithValue extends Point {
+  value: number;
+  date: number;
+}
+
+export interface PointWithValueAndColor extends Point {
+  value: number;
+  color: string;
+  date: number;
+  key?: string;
+}
+
 export interface ChartOptions {
   withoutPreview?: boolean;
   withoutControls?: boolean;

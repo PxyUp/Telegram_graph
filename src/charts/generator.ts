@@ -4,6 +4,7 @@ import {
   Container,
   LinePoints,
   Point,
+  PointWithColor,
   RectangleOptions,
 } from '../interfaces/chart';
 
@@ -54,6 +55,17 @@ export function generateGroup(child: Array<SVGElement> = []): SVGElement {
     group.appendChild(item);
   });
   return group;
+}
+
+export function generateCircle(point: PointWithColor, radius: number = 5): SVGCircleElement {
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circle.setAttribute('cx', point.x as any);
+  circle.setAttribute('cy', point.y as any);
+  circle.setAttribute('stroke', point.color);
+  if (radius) {
+    circle.setAttribute('r', radius as any);
+  }
+  return circle;
 }
 
 export function generatePath(points: Array<Point>, color: string, id?: string): SVGPathElement {
@@ -121,7 +133,7 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
       : document.createElement(node.tag);
 
   if (node.value) {
-    rootNode.nodeValue = node.value;
+    rootNode.innerHTML = node.value;
   }
   if (node.id) {
     rootNode.setAttribute('id', node.id);
@@ -192,6 +204,20 @@ export function chartsGenerator(
               height: '60',
             }),
           },
+        },
+        {
+          tag: 'div',
+          classList: ['tooltip'],
+          children: [
+            {
+              tag: 'p',
+              classList: ['date'],
+            },
+            {
+              tag: 'div',
+              classList: ['items'],
+            },
+          ],
         },
       ],
     });

@@ -8,6 +8,14 @@ export function getMax(arr: Array<number>) {
   return Math.max(...arr);
 }
 
+export function getShortDateByUnix(unix: number): string {
+  const date = new Date(unix);
+  return date.toLocaleString('en-us', {
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 export function getPathByPoints(points: Array<Point>): string {
   return points
     .map((point, index) => {
