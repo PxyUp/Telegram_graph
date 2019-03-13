@@ -7,6 +7,10 @@
   border: 1px solid map-get($color_day, 'border');
   padding: 5px;
 
+  &:hover {
+    cursor: pointer;
+  }
+
   label {
     &.not_active {
       background-color: unset !important;
@@ -17,6 +21,8 @@
   .round {
     margin-top: 2px;
     position: relative;
+    width: 18px;
+    height: 18px;
   }
 
   .label {
@@ -34,6 +40,7 @@
     position: absolute;
     top: 0;
     width: 14px;
+    transition: background-color 0.2s ease-out;
   }
 
   .round label:after {
@@ -53,6 +60,9 @@
 
   .round input[type='checkbox'] {
     visibility: hidden;
+    width: 1px;
+    height: 1px;
+    position: absolute;
   }
 
   .round input[type='checkbox']:checked + label:after {

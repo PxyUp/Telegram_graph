@@ -175,19 +175,30 @@ export class PyxChart {
         this.dataset.names[key],
         this.columnsVisible[key],
       );
-      const checkBox = checkBoxControl.querySelector("input[type='checkbox']");
       this.controlsContainer.appendChild(checkBoxControl);
-      checkBox.addEventListener('change', this.onCheckBoxClick, false);
+      const label = checkBoxControl.querySelector("input[type='checkbox']");
+      label.addEventListener('click', this.doPreventDefault, false);
+      checkBoxControl.addEventListener('click', this.onCheckBoxClick, false);
       this.setColorCheckboxByKey(key);
     });
   }
+
+  doPreventDefault = (e: MouseEvent) => {
+    e.stopPropagation();
+  };
 
   onNightModeClick = () => {
     this.toggleNightMode();
   };
 
   onCheckBoxClick = (e: MouseEvent) => {
-    const key = (e.target as HTMLElement).getAttribute('key');
+    let target = e.target as HTMLElement;
+    let key = target.getAttribute('key');
+    while (!key) {
+      target = target.parentNode as HTMLElement;
+      key = target.getAttribute('key');
+    }
+
     this.toggleColumnVisible(key);
   };
 
@@ -208,6 +219,9 @@ export class PyxChart {
     if (!this.options.withoutControls) {
       this.controlsContainer.querySelectorAll("input[type='checkbox']").forEach(el => {
         el.removeEventListener('change', this.onCheckBoxClick);
+      });
+      this.controlsContainer.querySelectorAll('label').forEach(el => {
+        el.removeEventListener('click', this.doPreventDefault);
       });
     }
 

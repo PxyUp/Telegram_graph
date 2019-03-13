@@ -22,6 +22,9 @@ export function generateCheckbox(
   const checkbox = generateNode({
     tag: 'div',
     classList: ['checkbox_container'],
+    attrs: {
+      key: key,
+    },
     children: [
       {
         tag: 'div',
@@ -31,7 +34,6 @@ export function generateCheckbox(
             tag: 'input',
             id: `checkbox_${id}_${key}`,
             attrs: {
-              key: key,
               type: 'checkbox',
               checked: checked,
             },
