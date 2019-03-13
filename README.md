@@ -5,11 +5,12 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 1. Start developing - 11 Mar 2019, 15:09 CET
 2. Funcional working - 13 Mar 2019, 15:55 CET
 3. Refactor(ts and scss) - 13 Mar 2019, 20:47 CET
+4. Improve checkbox click - 13 Mar 2019, 22:02 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-58.4 kB (bundle) - 26.77 kB(datasets) = **31.63 kB** (with gzip **17.48 kB**)
+58.8 kB (bundle) - 26.77 kB(datasets) = **32.03 kB** (with gzip **17.57 kB**)
 # Build
 
 ## Localhost (htpp://localhost:9000)
