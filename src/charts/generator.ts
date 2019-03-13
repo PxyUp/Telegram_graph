@@ -22,6 +22,47 @@ const getSize = (container: Container, defaultValue?: any): RectangleOptions => 
   return defaultValue;
 };
 
+export function generateCheckbox(
+  id: number,
+  key: string,
+  label: string,
+  checked = true,
+): HTMLElement {
+  const checkbox = generateNode({
+    tag: 'div',
+    classList: ['checkbox_container'],
+    children: [
+      {
+        tag: 'div',
+        classList: ['round'],
+        children: [
+          {
+            tag: 'input',
+            id: `checkbox_${id}_${key}`,
+            attrs: {
+              key: key,
+              type: 'checkbox',
+              checked: checked,
+            },
+          },
+          {
+            tag: 'label',
+            attrs: {
+              for: `checkbox_${id}_${key}`,
+            },
+          },
+        ],
+      },
+      {
+        tag: 'div',
+        classList: ['label'],
+        value: label,
+      },
+    ],
+  }) as HTMLElement;
+  return checkbox;
+}
+
 export function generateRect(
   point: Point,
   size: RectangleOptions,
@@ -222,6 +263,18 @@ export function chartsGenerator(
         {
           tag: 'div',
           classList: ['controls'],
+          skip: options.withoutControls,
+        },
+        {
+          tag: 'div',
+          classList: ['night_mode_control'],
+          skip: options.withoutNightMode,
+          children: [
+            {
+              tag: 'a',
+              value: 'Switch to Night mode',
+            },
+          ],
         },
       ],
     });

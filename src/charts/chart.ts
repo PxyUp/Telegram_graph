@@ -17,6 +17,7 @@ import {
   getShortDateByUnix,
 } from '../utils/misc';
 import {
+  generateCheckbox,
   generateCircle,
   generateGroup,
   generateLine,
@@ -76,6 +77,8 @@ export class PyxChart {
 
   private leftResizeControl: SVGRectElement;
   private rightResizeControl: SVGRectElement;
+
+  private nightModeControl: HTMLElement;
 
   private night_mod = false;
 
@@ -156,22 +159,36 @@ export class PyxChart {
       this.controlsContainer = this.node.querySelector('.controls');
       this.generateControls();
     }
+
+    if (!options.withoutNightMode) {
+      this.nightModeControl = this.node.querySelector('.night_mode_control a');
+      this.addNightModeListener();
+    }
+  }
+
+  addNightModeListener() {
+    this.nightModeControl.addEventListener('click', this.onNightModeClick);
   }
 
   generateControls() {
+    this.controlsContainer.style.width = `${this.width}px`;
     Object.keys(this.columnsVisible).forEach(key => {
-      const checkBox = generateNode({
-        tag: 'input',
-        attrs: {
-          key: key,
-          type: 'checkbox',
-          checked: this.columnsVisible[key],
-        },
-      });
-      this.controlsContainer.appendChild(checkBox);
+      const checkBoxControl = generateCheckbox(
+        this.id,
+        key,
+        this.dataset.names[key],
+        this.columnsVisible[key],
+      );
+      const checkBox = checkBoxControl.querySelector("input[type='checkbox']");
+      this.controlsContainer.appendChild(checkBoxControl);
       checkBox.addEventListener('change', this.onCheckBoxClick, false);
+      this.setColorCheckboxByKey(key);
     });
   }
+
+  onNightModeClick = () => {
+    this.toggleNightMode();
+  };
 
   onCheckBoxClick = (e: MouseEvent) => {
     const key = (e.target as HTMLElement).getAttribute('key');
@@ -195,6 +212,9 @@ export class PyxChart {
       this.controlsContainer.querySelectorAll("input[type='checkbox']").forEach(el => {
         el.removeEventListener('change', this.onCheckBoxClick);
       });
+    }
+    if (!this.options.withoutNightMode) {
+      this.nightModeControl.removeEventListener('click', this.onNightModeClick);
     }
     if (!this.options.withoutPreview) {
       // PC
@@ -451,8 +471,23 @@ export class PyxChart {
     }
   }
 
+  setColorCheckboxByKey(key: string) {
+    const color = this.dataset.colors[key];
+    const label = this.controlsContainer.querySelector(
+      `label[for="checkbox_${this.id}_${key}"]`,
+    ) as HTMLElement;
+    if (!this.columnsVisible[key]) {
+      label.style.borderColor = 'unset';
+      label.style.backgroundColor = 'unset';
+    } else {
+      label.style.borderColor = color;
+      label.style.backgroundColor = color;
+    }
+  }
+
   toggleColumnVisible(key: string) {
     this.columnsVisible[key] = !this.columnsVisible[key];
+    this.setColorCheckboxByKey(key);
     if (!this.columnsVisible[key]) {
       this.removePathByKey(key);
     }
@@ -862,8 +897,10 @@ export class PyxChart {
     this.night_mod = !this.night_mod;
     if (this.night_mod) {
       this.node.classList.add('night');
+      this.nightModeControl.innerHTML = 'Switch to day mode';
     } else {
       this.node.classList.remove('night');
+      this.nightModeControl.innerHTML = 'Switch to night mode';
     }
   }
 

@@ -36,6 +36,7 @@ export interface PointWithValueAndColor extends Point {
 export interface ChartOptions {
   withoutPreview?: boolean;
   withoutControls?: boolean;
+  withoutNightMode?: boolean;
   chartsContainer?: Container;
   previewContainer?: Container;
   horizontSteps?: number;
