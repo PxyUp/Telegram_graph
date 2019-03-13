@@ -352,7 +352,6 @@ export class PyxChart {
   };
 
   onMouseMove = (e: MouseEvent) => {
-    // todo create hover effect on point
     if (
       e.clientX - this.positions.left > DEFAULT_SPACING * 2 &&
       e.clientX - this.positions.left < this.width
@@ -836,8 +835,9 @@ export class PyxChart {
 
     this.minValue = getMin(values);
     this.maxValue = getMax(values);
-
-    if (this.minValue > 0) {
+    // I Hope all values not negative
+    // @TODO create for all sets of number
+    if (this.minValue >= 0) {
       const step = parseInt((this.maxValue / this.horizontSteps).toString());
       const stepsArr = [0];
       for (let index = 1; index < this.horizontSteps; index++) {
@@ -846,8 +846,6 @@ export class PyxChart {
       this.drawSteps(stepsArr);
       return;
     }
-
-    //todo create for minus
   }
 
   toggleNightMode() {
