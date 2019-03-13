@@ -194,12 +194,13 @@ export class PyxChart {
   onCheckBoxClick = (e: MouseEvent) => {
     let target = e.target as HTMLElement;
     let key = target.getAttribute('key');
-    while (!key) {
+    while (!key || target === document.body) {
       target = target.parentNode as HTMLElement;
       key = target.getAttribute('key');
     }
-
-    this.toggleColumnVisible(key);
+    if (key) {
+      this.toggleColumnVisible(key);
+    }
   };
 
   addMouseListener() {
