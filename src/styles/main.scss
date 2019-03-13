@@ -3,10 +3,13 @@
 // Here page style just for design
 
 body {
-  margin: 0;
+  margin: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .draw_engine {
-  padding: 64px;
   width: 100%;
 }

@@ -240,10 +240,12 @@ export class PyxChart {
     this.verticleLine.classList.add('show');
   };
 
-  onMouseLeave = () => {
-    this.removePoints();
-    this.verticleLine.classList.remove('show');
-    this.toolTip.style.display = 'none';
+  onMouseLeave = (e: MouseEvent) => {
+    if (e.toElement !== this.toolTip) {
+      this.removePoints();
+      this.verticleLine.classList.remove('show');
+      this.toolTip.style.display = 'none';
+    }
   };
 
   doResize(isRight: boolean, e: MouseEvent | TouchEvent) {
@@ -361,7 +363,7 @@ export class PyxChart {
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
     this.toolTip.style.display = 'flex';
     this.toolTip.style.left = `${(point.x as number) + DEFAULT_SPACING}px`;
-    this.toolTip.style.top = `${point.y}px`;
+    this.toolTip.style.top = `${(point.y as number) + DEFAULT_SPACING}px`;
     const childContainer = this.toolTip.querySelector('.items');
     while (childContainer.firstChild) {
       childContainer.removeChild(childContainer.firstChild);
