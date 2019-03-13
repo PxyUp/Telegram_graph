@@ -823,7 +823,7 @@ export class PyxChart {
           `pyx_path_preview_${key}`,
         );
 
-        this.preview_svg.appendChild(path);
+        this.preview_svg.prepend(path);
         if (withAnimation) {
           this.timerPreview = animatePath(path);
         }

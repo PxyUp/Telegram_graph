@@ -46,6 +46,7 @@
 
     rect {
       &.center {
+        stroke: rgba(221, 234, 243, 0.7);
         &:hover {
           cursor: grab;
         }
@@ -118,6 +119,12 @@
   }
 
   &.night {
+    .tooltip {
+      background-color: #273340;
+      p {
+        color: white;
+      }
+    }
     background-color: #242f3e;
     line {
       stroke: #293544;
