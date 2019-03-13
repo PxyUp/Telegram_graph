@@ -627,29 +627,43 @@ export class PyxChart {
     let fullWidth = 0;
     let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
     const mustGeneratedLabels = labelCount;
-    const deltaDays = Math.floor(sliceSize / (mustGeneratedLabels - 2));
+    const deltaDays = Math.max(Math.floor(sliceSize / (mustGeneratedLabels - 1)), 1);
     let index = this.sliceStartIndex;
 
     const arrayOfText = [];
-    while (labelCount > 0 && index <= this.sliceEndIndex) {
-      const item =
-        labelCount === 1
-          ? this.columnDatasets[Type.X][this.sliceEndIndex]
-          : this.columnDatasets[Type.X][Math.ceil(index)];
-      if (item) {
-        const text = generateText(
-          {
-            x: 2 * DEFAULT_SPACING,
-            y: this.height,
-          },
-          getShortDateByUnix(item),
-          [classNameAbsLine],
-        );
-        arrayOfText.push(text);
-        labelCount -= 1;
-      }
+    const firstItem = generateText(
+      {
+        x: 2 * DEFAULT_SPACING,
+        y: this.height,
+      },
+      getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex]),
+      [classNameAbsLine],
+    );
+    arrayOfText.push(firstItem);
+    index += deltaDays;
+    while (labelCount - 2 > 0 && index < this.sliceEndIndex - 1) {
+      const item = this.columnDatasets[Type.X][Math.floor(index)];
+      const text = generateText(
+        {
+          x: 2 * DEFAULT_SPACING,
+          y: this.height,
+        },
+        getShortDateByUnix(item),
+        [classNameAbsLine],
+      );
+      arrayOfText.push(text);
+      labelCount -= 1;
       index += deltaDays;
     }
+    const lastItem = generateText(
+      {
+        x: 2 * DEFAULT_SPACING,
+        y: this.height,
+      },
+      getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex - 1]),
+      [classNameAbsLine],
+    );
+    arrayOfText.push(lastItem);
     const group = generateGroup(arrayOfText);
     this.charts_svg.appendChild(group);
 
@@ -664,7 +678,7 @@ export class PyxChart {
       relWidth += item.getBoundingClientRect().width;
     });
 
-    const calculatedWidth = this.width - 8 * DEFAULT_SPACING;
+    const calculatedWidth = this.width - 4 * DEFAULT_SPACING;
 
     const getXCord = (index: number): number => {
       return 4 * DEFAULT_SPACING + (calculatedWidth / sliceSize) * index;
