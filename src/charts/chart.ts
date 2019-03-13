@@ -250,7 +250,7 @@ export class PyxChart {
 
   onResize = (e: MouseEvent | TouchEvent) => {
     if (this.isResizeActive) {
-      this.doResize(this.activeResize, e);
+      requestAnimationFrame(() => this.doResize(this.activeResize, e));
     }
   };
 
@@ -264,7 +264,7 @@ export class PyxChart {
 
   onDrag = (e: MouseEvent | TouchEvent) => {
     if (this.isDragActive) {
-      this.onPreviewControlClick(e);
+      requestAnimationFrame(() => this.onPreviewControlClick(e));
     }
   };
 
@@ -344,8 +344,13 @@ export class PyxChart {
           Math.floor(sliceSize / 2),
       ),
     );
-
     this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
+    if (this.sliceEndIndex === this.countElements) {
+      this.sliceStartIndex = Math.max(0, this.sliceEndIndex - sliceSize);
+    }
+    if (this.sliceStartIndex === 0) {
+      this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
+    }
     this.drawPreviewControls();
     this.resetCharts();
     this.draw();
@@ -557,7 +562,7 @@ export class PyxChart {
     } as Point;
 
     if (!this.centerControl) {
-      const center = generateRect(centerControlPoint, centerControlSize, 'transparent');
+      const center = generateRect(centerControlPoint, centerControlSize, 'transparent', ['center']);
       this.preview_svg.appendChild(center);
       return center;
     }
@@ -744,7 +749,7 @@ export class PyxChart {
         ) as SVGPathElement;
 
         this.currentSlicePoint[key] = this.columnDatasets[key]
-          .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
+          .slice(this.sliceStartIndex, this.sliceEndIndex)
           .map((point, index) => {
             return {
               x: getXCord(index),
@@ -764,6 +769,7 @@ export class PyxChart {
           this.dataset.colors[key],
           `pyx_path_${key}`,
         );
+
         this.charts_svg.appendChild(path);
         if (withAnimation) {
           this.timer = animatePath(path);

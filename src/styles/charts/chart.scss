@@ -45,6 +45,15 @@
     }
 
     rect {
+      &.center {
+        &:hover {
+          cursor: grab;
+        }
+        &:active,
+        &:focus {
+          cursor: grabbing;
+        }
+      }
       &.control {
         fill: rgba(245, 249, 251, 0.7);
       }
