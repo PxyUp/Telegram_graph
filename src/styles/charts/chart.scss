@@ -1,6 +1,11 @@
+@import '../colors/colors.scss';
+@import '../checkbox/checkbox.scss';
+
+$toolTipBoxShadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+
 .pyx_chart_container {
   width: 100%;
-  background-color: white;
+  background-color: map-get($color_day, 'background');
   position: relative;
   display: flex;
   align-items: center;
@@ -19,70 +24,10 @@
     a {
       font-size: 20px;
       user-select: none;
-      color: #55abeb;
+      color: map-get($color_day, 'link');
       &:hover {
         cursor: pointer;
       }
-    }
-  }
-
-  .checkbox_container {
-    display: flex;
-    border-radius: 20px;
-    background-color: white;
-    border: 1px solid #e7ecf0;
-    padding: 5px;
-
-    label {
-      &.not_active {
-        background-color: unset !important;
-        border-color: #e7ecf0 !important;
-      }
-    }
-
-    .round {
-      margin-top: 2px;
-      position: relative;
-    }
-
-    .label {
-      margin-left: 3px;
-      margin-top: 2px;
-    }
-
-    .round label {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 50%;
-      cursor: pointer;
-      height: 14px;
-      left: 0;
-      position: absolute;
-      top: 0;
-      width: 14px;
-    }
-
-    .round label:after {
-      border: 2px solid #fff;
-      border-top: none;
-      border-right: none;
-      content: '';
-      height: 3px;
-      left: 3px;
-      opacity: 0;
-      position: absolute;
-      top: 3px;
-      transform: rotate(-45deg);
-      width: 7px;
-      font-size: 5px;
-    }
-
-    .round input[type='checkbox'] {
-      visibility: hidden;
-    }
-
-    .round input[type='checkbox']:checked + label:after {
-      opacity: 1;
     }
   }
 
@@ -90,8 +35,8 @@
     display: none;
     position: absolute;
     z-index: 1;
-    background-color: white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    background-color: map-get($color_day, 'background');
+    box-shadow: $toolTipBoxShadow;
     padding: 8px;
     align-items: center;
     justify-items: center;
@@ -127,7 +72,7 @@
 
     rect {
       &.center {
-        stroke: rgba(221, 234, 243, 0.7);
+        stroke: map-get($color_day, 'controlCenterStoke');
         &:hover {
           cursor: grab;
         }
@@ -137,10 +82,10 @@
         }
       }
       &.control {
-        fill: rgba(245, 249, 251, 0.7);
+        fill: map-get($color_day, 'controlLeftRightFill');
       }
       &.control_resize {
-        fill: rgba(221, 234, 243, 0.7);
+        fill: map-get($color_day, 'controlResizeLeftRightFill');
         &:hover,
         &:active,
         &:focus {
@@ -153,13 +98,12 @@
   line {
     &.verticle {
       display: none;
-
       &.show {
         display: block;
       }
       stroke-width: 2;
     }
-    stroke: #f2f4f5;
+    stroke: map-get($color_day, 'lineStroke');
   }
 
   svg {
@@ -191,18 +135,18 @@
     font-family: sans-serif;
     text-shadow: 1px 0.5px white;
     &.text_step {
-      fill: #96a2aa;
+      fill: map-get($color_day, 'textAxis');
     }
 
     &.charts_abs {
-      fill: #96a2aa;
+      fill: map-get($color_day, 'textAxis');
     }
   }
 
   &.night {
     .checkbox_container {
-      background-color: #26303d;
-      border-color: #374656;
+      background-color: map-get($color_night, 'background');
+      border-color: map-get($color_night, 'border');
       .label {
         color: white;
       }
@@ -210,35 +154,35 @@
       label {
         &.not_active {
           background-color: unset !important;
-          border-color: #374656 !important;
+          border-color: map-get($color_night, 'border') !important;
         }
       }
     }
 
     .tooltip {
-      background-color: #273340;
+      background-color: map-get($color_night, 'toolTipBackGround');
       p {
-        color: white;
+        color: map-get($color_night, 'textColor');
       }
     }
-    background-color: #242f3e;
+    background-color: map-get($color_night, 'background');
     line {
-      stroke: #293544;
+      stroke: map-get($color_night, 'lineStroke');
     }
 
     rect {
       &.control {
-        fill: rgba(31, 42, 56, 0.7);
+        fill: map-get($color_night, 'controlLeftRightFill');
       }
     }
 
     text {
       text-shadow: 1px 0.5px #242f3e;
       &.text_step {
-        fill: #546778;
+        fill: map-get($color_night, 'textAxis');
       }
       &.charts_abs {
-        fill: #546778;
+        fill: map-get($color_night, 'textAxis');
       }
     }
   }
