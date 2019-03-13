@@ -23,7 +23,7 @@ yarn install
 yarn build:prod
 ```
 
-## devDependencies (For develop proccess)
+## devDependencies (For develop process)
 ```json
     "css-loader": "^2.1.1",
     "html-webpack-plugin": "^3.2.0",
