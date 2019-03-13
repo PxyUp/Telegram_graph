@@ -50,6 +50,8 @@ export class PyxChart {
   private charts_svg: HTMLElement;
   private preview_svg: HTMLElement;
 
+  private controlsContainer: HTMLElement;
+
   private toolTip: HTMLElement;
   private toolTipDate: HTMLElement;
 
@@ -149,7 +151,32 @@ export class PyxChart {
       this.drawPreview();
       this.drawPreviewControls(true);
     }
+
+    if (!options.withoutControls) {
+      this.controlsContainer = this.node.querySelector('.controls');
+      this.generateControls();
+    }
   }
+
+  generateControls() {
+    Object.keys(this.columnsVisible).forEach(key => {
+      const checkBox = generateNode({
+        tag: 'input',
+        attrs: {
+          key: key,
+          type: 'checkbox',
+          checked: this.columnsVisible[key],
+        },
+      });
+      this.controlsContainer.appendChild(checkBox);
+      checkBox.addEventListener('change', this.onCheckBoxClick, false);
+    });
+  }
+
+  onCheckBoxClick = (e: MouseEvent) => {
+    const key = (e.target as HTMLElement).getAttribute('key');
+    this.toggleColumnVisible(key);
+  };
 
   addMouseListener() {
     this.charts_svg.addEventListener('mouseenter', this.onMouseEnter);
@@ -164,6 +191,11 @@ export class PyxChart {
     this.charts_svg.removeEventListener('mouseleave', this.onMouseLeave);
     this.charts_svg.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('mouseup', this.onMouseUp);
+    if (!this.options.withoutControls) {
+      this.controlsContainer.querySelectorAll("input[type='checkbox']").forEach(el => {
+        el.removeEventListener('change', this.onCheckBoxClick);
+      });
+    }
     if (!this.options.withoutPreview) {
       // PC
       this.centerControl.removeEventListener('mousedown', this.onDragStart);
@@ -408,12 +440,22 @@ export class PyxChart {
     )[1];
   }
 
+  removePathByKey(key: string) {
+    const path = this.charts_svg.querySelector(`path#pyx_path_${key}`);
+    if (path) {
+      path.remove();
+    }
+  }
+
   toggleColumnVisible(key: string) {
     this.columnsVisible[key] = !this.columnsVisible[key];
-    if (!this.options.withoutPreview) {
-      this.drawPreview();
+    if (!this.columnsVisible[key]) {
+      this.removePathByKey(key);
     }
-    this.refresh();
+    if (!this.options.withoutPreview) {
+      this.drawPreview(false);
+    }
+    this.refresh(false, false);
   }
 
   drawPreviewControls(withEvents: boolean = false) {
@@ -592,14 +634,14 @@ export class PyxChart {
     return this.rightControl;
   }
 
-  draw() {
+  draw(withAnimation = true, withXAxis = true) {
     this.setSupportsLines();
-    this.drawCurrentSlice();
+    this.drawCurrentSlice(withAnimation, withXAxis);
   }
 
-  refresh() {
+  refresh(withAnimation = true, withXAxis = true) {
     this.resetTimer();
-    this.draw();
+    this.draw(withAnimation, withXAxis);
   }
 
   resetTimer() {
@@ -623,7 +665,7 @@ export class PyxChart {
     this.charts_svg.querySelectorAll(`g`).forEach(el => el.remove());
   }
 
-  drawCurrentSlice() {
+  drawCurrentSlice(withAnimation = true, withXAxis = true) {
     const realMinValue = this.minValue > 0 ? 0 : this.minValue;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     let fullWidth = 0;
@@ -631,54 +673,55 @@ export class PyxChart {
     const mustGeneratedLabels = labelCount;
     const deltaDays = Math.max(Math.floor(sliceSize / (mustGeneratedLabels - 1)), 1);
     let index = this.sliceStartIndex;
-
-    const arrayOfText = [];
-    const firstItem = generateText(
-      {
-        x: 2 * DEFAULT_SPACING,
-        y: this.height,
-      },
-      getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex]),
-      [classNameAbsLine],
-    );
-    arrayOfText.push(firstItem);
-    index += deltaDays;
-    while (labelCount - 2 > 0 && index < this.sliceEndIndex - 1) {
-      const item = this.columnDatasets[Type.X][Math.floor(index)];
-      const text = generateText(
+    if (withXAxis) {
+      const arrayOfText = [];
+      const firstItem = generateText(
         {
           x: 2 * DEFAULT_SPACING,
           y: this.height,
         },
-        getShortDateByUnix(item),
+        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex]),
         [classNameAbsLine],
       );
-      arrayOfText.push(text);
-      labelCount -= 1;
+      arrayOfText.push(firstItem);
       index += deltaDays;
+      while (labelCount - 2 > 0 && index < this.sliceEndIndex - 1) {
+        const item = this.columnDatasets[Type.X][Math.floor(index)];
+        const text = generateText(
+          {
+            x: 2 * DEFAULT_SPACING,
+            y: this.height,
+          },
+          getShortDateByUnix(item),
+          [classNameAbsLine],
+        );
+        arrayOfText.push(text);
+        labelCount -= 1;
+        index += deltaDays;
+      }
+      const lastItem = generateText(
+        {
+          x: 2 * DEFAULT_SPACING,
+          y: this.height,
+        },
+        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex - 1]),
+        [classNameAbsLine],
+      );
+      arrayOfText.push(lastItem);
+      const group = generateGroup(arrayOfText);
+      this.charts_svg.appendChild(group);
+
+      this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
+        fullWidth += item.getBoundingClientRect().width;
+      });
+
+      const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (mustGeneratedLabels - 1);
+      let relWidth = 0;
+      this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
+        item.setAttribute('x', (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any);
+        relWidth += item.getBoundingClientRect().width;
+      });
     }
-    const lastItem = generateText(
-      {
-        x: 2 * DEFAULT_SPACING,
-        y: this.height,
-      },
-      getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex - 1]),
-      [classNameAbsLine],
-    );
-    arrayOfText.push(lastItem);
-    const group = generateGroup(arrayOfText);
-    this.charts_svg.appendChild(group);
-
-    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
-      fullWidth += item.getBoundingClientRect().width;
-    });
-
-    const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (mustGeneratedLabels - 1);
-    let relWidth = 0;
-    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
-      item.setAttribute('x', (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any);
-      relWidth += item.getBoundingClientRect().width;
-    });
 
     const calculatedWidth = this.width - 4 * DEFAULT_SPACING;
 
@@ -723,12 +766,15 @@ export class PyxChart {
           `pyx_path_${key}`,
         );
         this.charts_svg.appendChild(path);
-        this.timer = animatePath(path);
+        if (withAnimation) {
+          this.timer = animatePath(path);
+        }
       }
     });
   }
 
-  drawPreview() {
+  drawPreview(withAnimation = true) {
+    this.preview_svg.querySelectorAll(`path`).forEach(el => el.remove());
     const values = [] as Array<number>;
 
     Object.keys(this.columnsVisible).forEach(key => {
@@ -769,7 +815,9 @@ export class PyxChart {
         );
 
         this.preview_svg.appendChild(path);
-        this.timerPreview = animatePath(path);
+        if (withAnimation) {
+          this.timerPreview = animatePath(path);
+        }
       }
     });
   }
@@ -793,7 +841,7 @@ export class PyxChart {
       const step = parseInt((this.maxValue / this.horizontSteps).toString());
       const stepsArr = [0];
       for (let index = 1; index < this.horizontSteps; index++) {
-        stepsArr.push(0 + step * index);
+        stepsArr.push(0 + step * index || index);
       }
       this.drawSteps(stepsArr);
       return;

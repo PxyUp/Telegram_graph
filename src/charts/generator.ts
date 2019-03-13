@@ -219,6 +219,10 @@ export function chartsGenerator(
             },
           ],
         },
+        {
+          tag: 'div',
+          classList: ['controls'],
+        },
       ],
     });
     rootNode.appendChild(basicNode);
