@@ -675,7 +675,7 @@ export class PyxChart {
     let fullWidth = 0;
     let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
     const mustGeneratedLabels = labelCount;
-    const deltaDays = Math.max(Math.floor(sliceSize / (mustGeneratedLabels - 1)), 1);
+    const deltaDays = Math.max(Math.ceil(sliceSize / (mustGeneratedLabels - 1)), 1);
     let index = this.sliceStartIndex;
     if (withXAxis) {
       const arrayOfText = [];
