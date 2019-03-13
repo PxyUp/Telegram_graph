@@ -1,6 +1,11 @@
 # PyxCharts
 This project havent any 3rd party dependencies for show charts or styling elements all was wrote manual from zero
 
+# Timeline
+1. Start developing - 11 Mar 2019, 15:09 CET
+2. Funcional working - 13 Mar 2019, 15:55 CET
+3. Refactor(ts and scss) - 13 Mar 2019, 20:47 CET
+
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Build
