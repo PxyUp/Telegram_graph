@@ -18,6 +18,7 @@ import {
 } from '../utils/misc';
 import {
   generateCircle,
+  generateGroup,
   generateLine,
   generateNode,
   generatePath,
@@ -617,7 +618,7 @@ export class PyxChart {
   }
 
   resetCharts() {
-    this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(el => el.remove());
+    this.charts_svg.querySelectorAll(`g`).forEach(el => el.remove());
   }
 
   drawCurrentSlice() {
@@ -625,12 +626,16 @@ export class PyxChart {
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     let fullWidth = 0;
     let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
-    const mustGeneratedLabels = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
-    const deltaDays = Math.ceil(sliceSize / mustGeneratedLabels);
+    const mustGeneratedLabels = labelCount;
+    const deltaDays = Math.floor(sliceSize / (mustGeneratedLabels - 2));
     let index = this.sliceStartIndex;
-    // TODO must fix issue with last day in slice(on grpah must be last)
+
+    const arrayOfText = [];
     while (labelCount > 0 && index <= this.sliceEndIndex) {
-      const item = this.columnDatasets[Type.X][Math.ceil(index)];
+      const item =
+        labelCount === 1
+          ? this.columnDatasets[Type.X][this.sliceEndIndex]
+          : this.columnDatasets[Type.X][Math.ceil(index)];
       if (item) {
         const text = generateText(
           {
@@ -640,28 +645,29 @@ export class PyxChart {
           getShortDateByUnix(item),
           [classNameAbsLine],
         );
-        this.charts_svg.appendChild(text);
+        arrayOfText.push(text);
         labelCount -= 1;
       }
       index += deltaDays;
     }
+    const group = generateGroup(arrayOfText);
+    this.charts_svg.appendChild(group);
+
     this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
       fullWidth += item.getBoundingClientRect().width;
     });
-    const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (2 * mustGeneratedLabels);
+
+    const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (mustGeneratedLabels - 1);
     let relWidth = 0;
     this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
-      item.setAttribute('x', (2 * DEFAULT_SPACING +
-        textDelta +
-        index * 2 * textDelta +
-        relWidth) as any);
+      item.setAttribute('x', (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any);
       relWidth += item.getBoundingClientRect().width;
     });
 
-    const calculatedWidth = this.width - 2 * textDelta - 4 * DEFAULT_SPACING;
+    const calculatedWidth = this.width - 8 * DEFAULT_SPACING;
 
     const getXCord = (index: number): number => {
-      return 2 * DEFAULT_SPACING + 2 * textDelta + (calculatedWidth / sliceSize) * index;
+      return 4 * DEFAULT_SPACING + (calculatedWidth / sliceSize) * index;
     };
     const getYCord = (value: number): number => {
       return (
