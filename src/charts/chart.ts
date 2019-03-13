@@ -418,7 +418,6 @@ export class PyxChart {
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
     this.toolTip.style.display = 'flex';
-    console.log(point);
     this.toolTip.style.left = `${(point.x as number) + DEFAULT_SPACING}px`;
     this.toolTip.style.top = `${(point.y as number) + DEFAULT_SPACING}px`;
     const childContainer = this.toolTip.querySelector('.items');
@@ -478,9 +477,9 @@ export class PyxChart {
       `label[for="checkbox_${this.id}_${key}"]`,
     ) as HTMLElement;
     if (!this.columnsVisible[key]) {
-      label.style.borderColor = 'unset';
-      label.style.backgroundColor = 'unset';
+      label.classList.add('not_active');
     } else {
+      label.classList.remove('not_active');
       label.style.borderColor = color;
       label.style.backgroundColor = color;
     }
