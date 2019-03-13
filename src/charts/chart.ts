@@ -11,36 +11,33 @@ import {
 import {
   animatePath,
   changePathOnElement,
+  createTextNode,
   getMax,
   getMin,
   getPathByPoints,
   getShortDateByUnix,
+  removeAllChild,
 } from '../utils/misc';
-import {
-  generateCheckbox,
-  generateCircle,
-  generateGroup,
-  generateLine,
-  generateNode,
-  generatePath,
-  generateRect,
-  generateText,
-} from './generator';
+import { generateCheckbox, generateNode, generateSvgElement } from './generator';
 
+// constant number
+const POINT_RADIUS = 5;
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
 const DEFAULT_PREVIEW_SPACING = 16;
 const DEFAULT_SLICE = 19; // Programming + 1
 const SLICE_NUMBER = 5.5;
 const DEFAULT_DAY_COUNT = 6;
+const MIN_CONTROL_WIDTH = 10;
+const RESIZE_CONTROL_WIDTH = MIN_CONTROL_WIDTH;
+
+// ClassNames
 const classNameStepLine = 'line_step';
 const classControlName = 'control';
 const classControlResizeName = 'control_resize';
 const verticleLineClass = 'verticle';
 const classNameStepTitle = 'text_step';
 const classNameAbsLine = 'charts_abs';
-const MIN_CONTROL_WIDTH = 10;
-const RESIZE_CONTROL_WIDTH = MIN_CONTROL_WIDTH;
 
 export class PyxChart {
   private isDragActive = false;
@@ -71,12 +68,12 @@ export class PyxChart {
   private previewWidth: number;
   private previewHeight: number;
 
-  private leftControl: SVGRectElement;
-  private rightControl: SVGRectElement;
-  private centerControl: SVGRectElement;
+  private leftControl: SVGElement;
+  private rightControl: SVGElement;
+  private centerControl: SVGElement;
 
-  private leftResizeControl: SVGRectElement;
-  private rightResizeControl: SVGRectElement;
+  private leftResizeControl: SVGElement;
+  private rightResizeControl: SVGElement;
 
   private nightModeControl: HTMLElement;
 
@@ -90,7 +87,7 @@ export class PyxChart {
 
   private currentSlicePoint: { [key: string]: Array<PointWithValue> } = Object.create(null);
 
-  private verticleLine: SVGLineElement;
+  private verticleLine: SVGElement;
 
   private columnsVisible: { [key: string]: boolean } = Object.create(null);
 
@@ -114,6 +111,7 @@ export class PyxChart {
     Object.keys(this.dataset.names).forEach(key => {
       this.columnsVisible[key] = true;
     });
+    // Create dataset help and set first slice size and indexes
     this.dataset.columns.forEach(column => {
       const keyOfColumn = column.shift() as any;
       this.columnDatasets[keyOfColumn] = column as any;
@@ -130,16 +128,14 @@ export class PyxChart {
     });
 
     this.horizontSteps = (options && options.horizontSteps) || DEFAULT_HOR_STEPS;
-    this.verticleLine = generateLine(
-      {
-        x1: 0,
-        x2: 0,
-        y1: 0,
-        y2: this.height - DEFAULT_SPACING,
-      },
-      null,
-      [verticleLineClass],
-    );
+
+    this.verticleLine = generateSvgElement('line', [verticleLineClass], {
+      x1: 0 as any,
+      x2: 0 as any,
+      y1: 0 as any,
+      y2: (this.height - DEFAULT_SPACING) as any,
+    });
+
     this.charts_svg.appendChild(this.verticleLine);
 
     this.addMouseListener();
@@ -208,29 +204,36 @@ export class PyxChart {
     this.charts_svg.removeEventListener('mouseleave', this.onMouseLeave);
     this.charts_svg.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('mouseup', this.onMouseUp);
+
     if (!this.options.withoutControls) {
       this.controlsContainer.querySelectorAll("input[type='checkbox']").forEach(el => {
         el.removeEventListener('change', this.onCheckBoxClick);
       });
     }
+
     if (!this.options.withoutNightMode) {
       this.nightModeControl.removeEventListener('click', this.onNightModeClick);
     }
     if (!this.options.withoutPreview) {
       // PC
+      // DRAG
       this.centerControl.removeEventListener('mousedown', this.onDragStart);
       this.centerControl.removeEventListener('mousemove', this.onDrag);
       this.centerControl.removeEventListener('mouseout', this.onDrag);
       this.centerControl.removeEventListener('mouseup', this.onDragEnd);
+      // RESIZE
       this.leftResizeControl.removeEventListener('mouseup', this.onResizeEndLeft);
       this.leftResizeControl.removeEventListener('mousedown', this.onResizeStartLeft);
       this.rightResizeControl.removeEventListener('mouseup', this.onResizeEndRight);
       this.rightResizeControl.removeEventListener('mousedown', this.onResizeStartRight);
       this.preview_svg.removeEventListener('mousemove', this.onResize);
       // mobile
+      //DRAG
       this.centerControl.removeEventListener('touchstart', this.onDragStart);
       this.centerControl.removeEventListener('touchmove', this.onDrag);
       this.centerControl.removeEventListener('touchend', this.onDragEnd);
+      this.centerControl.removeEventListener('touchcancel', this.onDrag);
+      // RESIZE
       this.leftResizeControl.removeEventListener('touchend', this.onResizeEndLeft);
       this.leftResizeControl.removeEventListener('touchstart', this.onResizeStartLeft);
       this.rightResizeControl.removeEventListener('touchend', this.onResizeEndRight);
@@ -407,7 +410,12 @@ export class PyxChart {
   showPoints(arr: Array<PointWithColor> = []) {
     this.removePoints();
     arr.forEach(point => {
-      const circle = generateCircle(point);
+      const circle = generateSvgElement('circle', null, {
+        cx: point.x as any,
+        cy: point.y as any,
+        stroke: point.color,
+        r: POINT_RADIUS as any,
+      });
       this.charts_svg.appendChild(circle);
     });
   }
@@ -420,11 +428,13 @@ export class PyxChart {
     this.toolTip.style.display = 'flex';
     this.toolTip.style.left = `${(point.x as number) + DEFAULT_SPACING}px`;
     this.toolTip.style.top = `${(point.y as number) + DEFAULT_SPACING}px`;
-    const childContainer = this.toolTip.querySelector('.items');
-    while (childContainer.firstChild) {
-      childContainer.removeChild(childContainer.firstChild);
-    }
-    this.toolTipDate.innerText = getShortDateByUnix(arr[0].date);
+    const childContainer = this.toolTip.querySelector('.items') as HTMLElement;
+
+    // Remove all child from container
+    removeAllChild(childContainer);
+    removeAllChild(this.toolTipDate);
+
+    this.toolTipDate.appendChild(createTextNode(getShortDateByUnix(arr[0].date)));
     arr
       .map(item =>
         generateNode({
@@ -529,7 +539,7 @@ export class PyxChart {
     }
   }
 
-  drawPreviewLeftResizeControl(): SVGRectElement {
+  drawPreviewLeftResizeControl(): SVGElement {
     const leftResizeControlSize = {
       width: RESIZE_CONTROL_WIDTH,
       height: this.previewHeight,
@@ -540,10 +550,13 @@ export class PyxChart {
     } as Point;
 
     if (!this.leftResizeControl) {
-      const leftResizeRect = generateRect(leftResizeControlPoint, leftResizeControlSize, null, [
-        classControlResizeName,
-        'left',
-      ]);
+      const leftResizeRect = generateSvgElement('rect', [classControlResizeName, 'left'], {
+        x: leftResizeControlPoint.x as any,
+        y: leftResizeControlPoint.y as any,
+        width: leftResizeControlSize.width as any,
+        height: leftResizeControlSize.height as any,
+        fill: 'none',
+      });
       this.preview_svg.appendChild(leftResizeRect);
       return leftResizeRect;
     }
@@ -554,7 +567,7 @@ export class PyxChart {
     return this.leftResizeControl;
   }
 
-  drawPreviewRightResizeControl(): SVGRectElement {
+  drawPreviewRightResizeControl(): SVGElement {
     const rightResizeControlSize = {
       width: RESIZE_CONTROL_WIDTH,
       height: this.previewHeight,
@@ -569,10 +582,13 @@ export class PyxChart {
     } as Point;
 
     if (!this.rightResizeControl) {
-      const rightResizeRect = generateRect(rightResizeControlPoint, rightResizeControlSize, null, [
-        classControlResizeName,
-        'left',
-      ]);
+      const rightResizeRect = generateSvgElement('rect', [classControlResizeName, 'left'], {
+        x: rightResizeControlPoint.x as any,
+        y: rightResizeControlPoint.y as any,
+        width: rightResizeControlSize.width as any,
+        height: rightResizeControlSize.height as any,
+        fill: 'none',
+      });
       this.preview_svg.appendChild(rightResizeRect);
       return rightResizeRect;
     }
@@ -583,7 +599,7 @@ export class PyxChart {
     return this.rightResizeControl;
   }
 
-  drawPreviewCenterControl(): SVGRectElement {
+  drawPreviewCenterControl(): SVGElement {
     const centerControlSize = {
       width:
         MIN_CONTROL_WIDTH +
@@ -597,7 +613,13 @@ export class PyxChart {
     } as Point;
 
     if (!this.centerControl) {
-      const center = generateRect(centerControlPoint, centerControlSize, 'transparent', ['center']);
+      const center = generateSvgElement('rect', ['center'], {
+        x: centerControlPoint.x as any,
+        y: centerControlPoint.y as any,
+        width: centerControlSize.width as any,
+        height: centerControlSize.height as any,
+        fill: 'transparent',
+      });
       this.preview_svg.appendChild(center);
       return center;
     }
@@ -608,7 +630,7 @@ export class PyxChart {
     return this.centerControl;
   }
 
-  drawLeftNavigateControl(): SVGRectElement {
+  drawLeftNavigateControl(): SVGElement {
     const leftControlSize = {
       width: Math.max(
         Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth) +
@@ -624,10 +646,13 @@ export class PyxChart {
     } as Point;
 
     if (!this.leftControl) {
-      const leftRect = generateRect(leftControlPoint, leftControlSize, null, [
-        classControlName,
-        'left',
-      ]);
+      const leftRect = generateSvgElement('rect', [classControlName, 'left'], {
+        x: leftControlPoint.x as any,
+        y: leftControlPoint.y as any,
+        width: leftControlSize.width as any,
+        height: leftControlSize.height as any,
+        fill: 'none',
+      });
       this.preview_svg.appendChild(leftRect);
       return leftRect;
     }
@@ -638,7 +663,7 @@ export class PyxChart {
     return this.leftControl;
   }
 
-  drawRightNavigateControl(): SVGRectElement {
+  drawRightNavigateControl(): SVGElement {
     const rightControlSize = {
       width: Math.max(
         Math.floor(
@@ -658,10 +683,13 @@ export class PyxChart {
     } as Point;
 
     if (!this.rightControl) {
-      const rightRect = generateRect(rightControlPoint, rightControlSize, null, [
-        classControlName,
-        'right',
-      ]);
+      const rightRect = generateSvgElement('rect', [classControlName, 'right'], {
+        x: rightControlPoint.x as any,
+        y: rightControlPoint.y as any,
+        width: rightControlSize.width as any,
+        height: rightControlSize.height as any,
+        fill: 'none',
+      });
       this.preview_svg.appendChild(rightRect);
       return rightRect;
     }
@@ -717,40 +745,46 @@ export class PyxChart {
     let index = this.sliceStartIndex;
     if (withXAxis) {
       const arrayOfText = [];
-      const firstItem = generateText(
-        {
-          x: 2 * DEFAULT_SPACING,
-          y: this.height,
-        },
-        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex]),
+      const firstItem = generateSvgElement(
+        'text',
         [classNameAbsLine],
+        {
+          x: (2 * DEFAULT_SPACING) as any,
+          y: this.height as any,
+        },
+        [],
+        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex]),
       );
       arrayOfText.push(firstItem);
       index += deltaDays;
       while (labelCount - 2 > 0 && index < this.sliceEndIndex - 1) {
         const item = this.columnDatasets[Type.X][Math.floor(index)];
-        const text = generateText(
-          {
-            x: 2 * DEFAULT_SPACING,
-            y: this.height,
-          },
-          getShortDateByUnix(item),
+        const text = generateSvgElement(
+          'text',
           [classNameAbsLine],
+          {
+            x: (2 * DEFAULT_SPACING) as any,
+            y: this.height as any,
+          },
+          [],
+          getShortDateByUnix(item),
         );
         arrayOfText.push(text);
         labelCount -= 1;
         index += deltaDays;
       }
-      const lastItem = generateText(
-        {
-          x: 2 * DEFAULT_SPACING,
-          y: this.height,
-        },
-        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex - 1]),
+      const lastItem = generateSvgElement(
+        'text',
         [classNameAbsLine],
+        {
+          x: (2 * DEFAULT_SPACING) as any,
+          y: this.height as any,
+        },
+        [],
+        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex - 1]),
       );
       arrayOfText.push(lastItem);
-      const group = generateGroup(arrayOfText);
+      const group = generateSvgElement('g', null, null, arrayOfText);
       this.charts_svg.appendChild(group);
 
       this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
@@ -803,11 +837,12 @@ export class PyxChart {
           return;
         }
 
-        const path = generatePath(
-          this.currentSlicePoint[key],
-          this.dataset.colors[key],
-          `pyx_path_${key}`,
-        );
+        const path = generateSvgElement('path', [], {
+          id: `pyx_path_${key}`,
+          stroke: this.dataset.colors[key],
+          fill: 'none',
+          d: getPathByPoints(this.currentSlicePoint[key]),
+        });
 
         this.charts_svg.appendChild(path);
         if (withAnimation) {
@@ -847,16 +882,17 @@ export class PyxChart {
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
       if (columnVisible) {
-        const path = generatePath(
-          this.columnDatasets[key].map((point, index) => {
-            return {
+        const path = generateSvgElement('path', [], {
+          id: `pyx_path_preview_${key}`,
+          d: getPathByPoints(
+            this.columnDatasets[key].map((point, index) => ({
               x: getXCord(index),
               y: getYCord(point),
-            };
-          }),
-          this.dataset.colors[key],
-          `pyx_path_preview_${key}`,
-        );
+            })),
+          ),
+          stroke: this.dataset.colors[key],
+          fill: 'none',
+        });
 
         this.preview_svg.prepend(path);
         if (withAnimation) {
@@ -881,7 +917,6 @@ export class PyxChart {
     this.minValue = getMin(values);
     this.maxValue = getMax(values);
     // I Hope all values not negative
-    // @TODO create for all sets of number
     if (this.minValue >= 0) {
       const step = parseInt((this.maxValue / this.horizontSteps).toString());
       const stepsArr = [0];
@@ -895,12 +930,14 @@ export class PyxChart {
 
   toggleNightMode() {
     this.night_mod = !this.night_mod;
+    removeAllChild(this.nightModeControl);
     if (this.night_mod) {
       this.node.classList.add('night');
-      this.nightModeControl.innerHTML = 'Switch to day mode';
+
+      this.nightModeControl.appendChild(createTextNode('Switch to day mode'));
     } else {
       this.node.classList.remove('night');
-      this.nightModeControl.innerHTML = 'Switch to night mode';
+      this.nightModeControl.appendChild(createTextNode('Switch to night mode'));
     }
   }
 
@@ -916,23 +953,21 @@ export class PyxChart {
     let positionY = this.height - DEFAULT_SPACING;
     let delta = positionY / arr.length - 1;
     arr.forEach(step => {
-      const line = generateLine(
-        {
-          x1: 0,
-          x2: this.width,
-          y1: positionY,
-          y2: positionY,
-        },
-        null,
-        [classNameStepLine],
-      );
-      const text = generateText(
-        {
-          x: 0,
-          y: positionY - 5,
-        },
-        step.toString(),
+      const line = generateSvgElement('line', [classNameStepLine], {
+        x1: 0 as any,
+        x2: this.width as any,
+        y1: positionY as any,
+        y2: positionY as any,
+      });
+      const text = generateSvgElement(
+        'text',
         [classNameStepTitle],
+        {
+          x: 0 as any,
+          y: (positionY - 5) as any,
+        },
+        [],
+        step.toString(),
       );
       this.charts_svg.prepend(line);
       this.charts_svg.prepend(text);

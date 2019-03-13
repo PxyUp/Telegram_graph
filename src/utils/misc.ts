@@ -31,8 +31,18 @@ export function changePathOnElement(el: SVGPathElement, path: string) {
   el.setAttribute('d', path);
 }
 
-export function animatePath(path: SVGPathElement): number {
-  const length = path.getTotalLength();
+export function removeAllChild(node: HTMLElement) {
+  while (node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
+}
+
+export function createTextNode(text: string): Text {
+  return document.createTextNode(text);
+}
+
+export function animatePath(path: SVGElement): number {
+  const length = (path as SVGPathElement).getTotalLength();
   const duration = 0.8;
   const oldTransition = path.style.transition;
   path.style.strokeDasharray = length + ' ' + length;
