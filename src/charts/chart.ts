@@ -675,7 +675,10 @@ export class PyxChart {
     let fullWidth = 0;
     let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
     const mustGeneratedLabels = labelCount;
-    const deltaDays = Math.max(Math.ceil(sliceSize / (mustGeneratedLabels - 1)), 1);
+    const deltaDays =
+      sliceSize > DEFAULT_DAY_COUNT
+        ? Math.max(Math.floor(sliceSize / (mustGeneratedLabels - 1)), 1)
+        : Math.max(Math.ceil(sliceSize / (mustGeneratedLabels - 1)), 1);
     let index = this.sliceStartIndex;
     if (withXAxis) {
       const arrayOfText = [];
@@ -719,7 +722,8 @@ export class PyxChart {
         fullWidth += item.getBoundingClientRect().width;
       });
 
-      const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (mustGeneratedLabels - 1);
+      const textDelta =
+        (this.width - 2 * DEFAULT_SPACING - fullWidth) / Math.max(mustGeneratedLabels - 1, 2);
       let relWidth = 0;
       this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
         item.setAttribute('x', (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any);
