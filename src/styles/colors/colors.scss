@@ -1,0 +1,23 @@
+$color_day: (
+  link: #55abeb,
+  background: white,
+  border: #e7ecf0,
+  controlCenterStoke: rgba(221, 234, 243, 0.7),
+  controlLeftRightFill: rgba(245, 249, 251, 0.8),
+  controlResizeLeftRightFill: rgba(221, 234, 243, 0.7),
+  lineStroke: #f2f4f5,
+  textAxis: #96a2aa,
+);
+
+$color_night: (
+  link: #55abeb,
+  toolTipBackGround: #273340,
+  background: #26303d,
+  border: #374656,
+  controlCenterStoke: rgba(221, 234, 243, 0.7),
+  controlLeftRightFill: rgba(31, 42, 56, 0.8),
+  controlResizeLeftRightFill: rgba(221, 234, 243, 0.7),
+  lineStroke: #293544,
+  textAxis: #546778,
+  textColor: white,
+);

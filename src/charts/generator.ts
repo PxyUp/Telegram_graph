@@ -1,16 +1,7 @@
-import {
-  Chart,
-  ChartOptions,
-  Container,
-  LinePoints,
-  Point,
-  PointWithColor,
-  RectangleOptions,
-} from '../interfaces/chart';
+import { Chart, ChartOptions, Container, RectangleOptions } from '../interfaces/chart';
 
 import { PyxChart } from './chart';
 import { PyxNode } from '../interfaces/node';
-import { getPathByPoints } from '../utils/misc';
 
 const getSize = (container: Container, defaultValue?: any): RectangleOptions => {
   if (container && container.size) {
@@ -63,104 +54,37 @@ export function generateCheckbox(
   return checkbox;
 }
 
-export function generateRect(
-  point: Point,
-  size: RectangleOptions,
-  color?: string,
+export function generateSvgElement(
+  type: string,
   classList?: Array<string>,
-  id?: string,
-): SVGRectElement {
-  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  rect.setAttribute('x', point.x as any);
-  rect.setAttribute('y', point.y as any);
-  rect.setAttribute('width', size.width as any);
-  rect.setAttribute('height', size.height as any);
-  if (color) {
-    rect.setAttribute('fill', color);
-  }
-  if (classList) {
-    classList.forEach(item => {
-      rect.classList.add(item);
-    });
-  }
-
-  if (id) {
-    rect.setAttribute('id', id);
-  }
-  return rect;
-}
-
-export function generateGroup(child: Array<SVGElement> = []): SVGElement {
-  const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  child.forEach(item => {
-    group.appendChild(item);
-  });
-  return group;
-}
-
-export function generateCircle(point: PointWithColor, radius: number = 5): SVGCircleElement {
-  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  circle.setAttribute('cx', point.x as any);
-  circle.setAttribute('cy', point.y as any);
-  circle.setAttribute('stroke', point.color);
-  if (radius) {
-    circle.setAttribute('r', radius as any);
-  }
-  return circle;
-}
-
-export function generatePath(points: Array<Point>, color: string, id?: string): SVGPathElement {
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', getPathByPoints(points));
-  path.setAttribute('stroke', color);
-  path.setAttribute('fill', 'none');
-  if (id) {
-    path.setAttribute('id', id);
-  }
-  return path;
-}
-
-export function generateLine(
-  point: LinePoints,
-  color: string | null,
-  classList: Array<string> = [],
-): SVGLineElement {
-  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  line.setAttribute('x1', point.x1 as any);
-  line.setAttribute('x2', point.x2 as any);
-  line.setAttribute('y1', point.y1 as any);
-  line.setAttribute('y2', point.y2 as any);
-  if (color) {
-    line.setAttribute('stroke', color);
-  }
+  attrs?: { [key: string]: string },
+  childs?: Array<SVGElement>,
+  value?: string,
+): SVGElement {
+  const element = document.createElementNS('http://www.w3.org/2000/svg', type);
 
   if (classList) {
     classList.forEach(item => {
-      line.classList.add(item);
+      element.classList.add(item);
+    });
+  }
+  if (attrs) {
+    Object.keys(attrs).forEach(key => {
+      element.setAttribute(key, attrs[key]);
     });
   }
 
-  return line;
-}
-
-export function generateText(
-  point: Point,
-  text: string,
-  classList: Array<string> = [],
-  width?: string,
-): SVGTextElement {
-  const textSvgNode = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-
-  textSvgNode.setAttribute('x', point.x as any);
-  textSvgNode.setAttribute('y', point.y as any);
-  classList.forEach(item => {
-    textSvgNode.classList.add(item);
-  });
-  textSvgNode.appendChild(document.createTextNode(text));
-  if (width) {
-    textSvgNode.setAttribute('width', width as any);
+  if (childs) {
+    childs.forEach(item => {
+      element.appendChild(item);
+    });
   }
-  return textSvgNode;
+
+  if (value) {
+    element.appendChild(document.createTextNode(value));
+  }
+
+  return element;
 }
 
 export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null {
