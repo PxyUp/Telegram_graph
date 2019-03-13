@@ -623,11 +623,13 @@ export class PyxChart {
   drawCurrentSlice() {
     const realMinValue = this.minValue > 0 ? 0 : this.minValue;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
-    const sliceXSize = Math.max(Math.ceil(sliceSize / DEFAULT_DAY_COUNT), 1);
-
     let fullWidth = 0;
-    let labelCount = 0;
-    for (let index = this.sliceStartIndex; index < this.sliceEndIndex; index += sliceXSize) {
+    let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
+    const mustGeneratedLabels = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
+    const deltaDays = Math.ceil(sliceSize / mustGeneratedLabels);
+    let index = this.sliceStartIndex;
+    // TODO must fix issue with last day in slice(on grpah must be last)
+    while (labelCount > 0 && index <= this.sliceEndIndex) {
       const item = this.columnDatasets[Type.X][Math.ceil(index)];
       if (item) {
         const text = generateText(
@@ -639,14 +641,14 @@ export class PyxChart {
           [classNameAbsLine],
         );
         this.charts_svg.appendChild(text);
-        labelCount += 1;
+        labelCount -= 1;
       }
+      index += deltaDays;
     }
-
     this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
       fullWidth += item.getBoundingClientRect().width;
     });
-    const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (2 * labelCount);
+    const textDelta = (this.width - 2 * DEFAULT_SPACING - fullWidth) / (2 * mustGeneratedLabels);
     let relWidth = 0;
     this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
       item.setAttribute('x', (2 * DEFAULT_SPACING +
@@ -656,7 +658,7 @@ export class PyxChart {
       relWidth += item.getBoundingClientRect().width;
     });
 
-    const calculatedWidth = this.width - 2 * textDelta - 3 * DEFAULT_SPACING;
+    const calculatedWidth = this.width - 2 * textDelta - 4 * DEFAULT_SPACING;
 
     const getXCord = (index: number): number => {
       return 2 * DEFAULT_SPACING + 2 * textDelta + (calculatedWidth / sliceSize) * index;
