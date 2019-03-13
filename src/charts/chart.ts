@@ -359,7 +359,7 @@ export class PyxChart {
   }
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
-    this.toolTip.style.display = 'block';
+    this.toolTip.style.display = 'flex';
     this.toolTip.style.left = `${(point.x as number) + DEFAULT_SPACING}px`;
     this.toolTip.style.top = `${point.y}px`;
     const childContainer = this.toolTip.querySelector('.items');
@@ -698,7 +698,6 @@ export class PyxChart {
 
         if (currentPath) {
           changePathOnElement(currentPath, getPathByPoints(this.currentSlicePoint[key]));
-
           return;
         }
 
