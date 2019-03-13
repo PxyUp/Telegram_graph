@@ -824,7 +824,8 @@ export class PyxChart {
       return (
         this.height -
         DEFAULT_SPACING -
-        (value / (this.maxValue - realMinValue)) * (this.height - 2 * DEFAULT_SPACING)
+        ((value - realMinValue) / Math.max(1, this.maxValue - realMinValue)) *
+          (this.height - 2 * DEFAULT_SPACING)
       );
     };
 
@@ -889,7 +890,7 @@ export class PyxChart {
       return (
         this.previewHeight -
         DEFAULT_PREVIEW_SPACING -
-        ((value - this.minValueGlobal) / (this.maxValueGlobal - this.minValueGlobal)) *
+        ((value - this.minValueGlobal) / Math.max(1, this.maxValueGlobal - this.minValueGlobal)) *
           (this.previewHeight - 2 * DEFAULT_PREVIEW_SPACING)
       );
     };
@@ -931,16 +932,14 @@ export class PyxChart {
 
     this.minValue = getMin(values);
     this.maxValue = getMax(values);
-    // I Hope all values not negative
-    if (this.minValue >= 0) {
-      const step = parseInt((this.maxValue / this.horizontSteps).toString());
-      const stepsArr = [0];
-      for (let index = 1; index < this.horizontSteps; index++) {
-        stepsArr.push(0 + step * index || index);
-      }
-      this.drawSteps(stepsArr);
-      return;
+    const step = Math.ceil(
+      (this.minValue > 0 ? this.maxValue : this.maxValue - this.minValue) / this.horizontSteps,
+    );
+    const stepsArr = this.minValue > 0 ? [0] : [this.minValue];
+    for (let index = 1; index < this.horizontSteps; index++) {
+      stepsArr.push(stepsArr[0] + step * index || index);
     }
+    this.drawSteps(stepsArr);
   }
 
   toggleNightMode() {
