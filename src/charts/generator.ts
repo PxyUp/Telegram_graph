@@ -1,5 +1,5 @@
 import { Chart, ChartOptions, Container, RectangleOptions } from '../interfaces/chart';
-import { createTextNode, getSize } from '../utils/misc';
+import { createTextNode, getSize, setNodeAttrs } from '../utils/misc';
 
 import { PyxChart } from './chart';
 import { PyxNode } from '../interfaces/node';
@@ -62,9 +62,7 @@ export function generateSvgElement(
     });
   }
   if (attrs) {
-    Object.keys(attrs).forEach(key => {
-      element.setAttribute(key, attrs[key]);
-    });
+    setNodeAttrs(element, attrs);
   }
 
   if (childs) {
@@ -111,9 +109,7 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
         `0 0 ${node.attrs['width']} ${node.attrs['height']}`,
       );
     } else {
-      Object.keys(node.attrs).forEach(key => {
-        rootNode.setAttribute(key, node.attrs[key]);
-      });
+      setNodeAttrs(rootNode, node.attrs);
     }
   }
 

@@ -88,3 +88,42 @@ export function animatePath(path: SVGElement): number {
     path.style.strokeDasharray = 'none';
   }, duration * 1000);
 }
+
+export function addNodeListener(
+  node: HTMLElement | Document | SVGElement,
+  listeners: { [key: string]: any | Array<any> },
+) {
+  Object.keys(listeners).forEach(event => {
+    if (!Array.isArray(listeners[event])) {
+      node.addEventListener(event, listeners[event]);
+      return;
+    }
+    listeners[event].forEach((callback: any) => {
+      node.addEventListener(event, callback);
+    });
+  });
+}
+
+export function removeNodeListener(
+  node: HTMLElement | Document | SVGElement,
+  listeners: { [key: string]: any | Array<any> },
+) {
+  Object.keys(listeners).forEach(event => {
+    if (!Array.isArray(listeners[event])) {
+      node.removeEventListener(event, listeners[event]);
+      return;
+    }
+    listeners[event].forEach((callback: any) => {
+      node.removeEventListener(event, callback);
+    });
+  });
+}
+
+export function setNodeAttrs(
+  node: HTMLElement | SVGElement | Element,
+  attrs: { [key: string]: string },
+) {
+  Object.keys(attrs).forEach(key => {
+    node.setAttribute(key, attrs[key]);
+  });
+}

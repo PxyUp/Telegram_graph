@@ -9,6 +9,7 @@ import {
   Type,
 } from '../interfaces/chart';
 import {
+  addNodeListener,
   animatePath,
   changePathOnElement,
   createTextNode,
@@ -18,6 +19,8 @@ import {
   getPathByPoints,
   getShortDateByUnix,
   removeAllChild,
+  removeNodeListener,
+  setNodeAttrs,
 } from '../utils/misc';
 import { generateCheckbox, generateNode, generateSvgElement } from './generator';
 
@@ -211,18 +214,18 @@ export class PyxChart {
   };
 
   addMouseListener() {
-    this.charts_svg.addEventListener('mouseenter', this.onMouseEnter);
-    this.charts_svg.addEventListener('mouseleave', this.onMouseLeave);
-    this.charts_svg.addEventListener('mousemove', this.onMouseMove);
-    document.addEventListener('mouseup', this.onMouseUp);
+    addNodeListener(this.charts_svg, this.SVG_CHARTS_LISTENERS);
+    addNodeListener(document, {
+      mouseup: this.onMouseUp,
+    });
   }
 
   destroy() {
     this.resetTimer();
-    this.charts_svg.removeEventListener('mouseenter', this.onMouseEnter);
-    this.charts_svg.removeEventListener('mouseleave', this.onMouseLeave);
-    this.charts_svg.removeEventListener('mousemove', this.onMouseMove);
-    document.removeEventListener('mouseup', this.onMouseUp);
+    removeNodeListener(this.charts_svg, this.SVG_CHARTS_LISTENERS);
+    removeNodeListener(document, {
+      mouseup: this.onMouseUp,
+    });
 
     if (!this.options.withoutControls) {
       this.controlsContainer.querySelectorAll("input[type='checkbox']").forEach(el => {
@@ -237,34 +240,21 @@ export class PyxChart {
       this.nightModeControl.removeEventListener('click', this.onNightModeClick);
     }
     if (!this.options.withoutPreview) {
-      // PC
-      // DRAG
-      this.centerControl.removeEventListener('mousedown', this.onDragStart);
-      this.preview_svg.removeEventListener('mousemove', this.onDrag);
-      this.centerControl.removeEventListener('mouseout', this.onDrag);
-      this.centerControl.removeEventListener('mouseup', this.onDragEnd);
-      // RESIZE
-      this.leftResizeControl.removeEventListener('mouseup', this.onResizeEndLeft);
-      this.leftResizeControl.removeEventListener('mousedown', this.onResizeStartLeft);
-      this.rightResizeControl.removeEventListener('mouseup', this.onResizeEndRight);
-      this.rightResizeControl.removeEventListener('mousedown', this.onResizeStartRight);
-      this.preview_svg.removeEventListener('mousemove', this.onResize);
-      // mobile
-      //DRAG
-      this.centerControl.removeEventListener('touchstart', this.onDragStart);
-      this.centerControl.removeEventListener('touchmove', this.onDrag);
-      this.preview_svg.removeEventListener('touchmove', this.onDrag);
-      this.centerControl.removeEventListener('touchend', this.onDragEnd);
-      this.centerControl.removeEventListener('touchcancel', this.onDrag);
-      // RESIZE
-      this.leftResizeControl.removeEventListener('touchend', this.onResizeEndLeft);
-      this.leftResizeControl.removeEventListener('touchstart', this.onResizeStartLeft);
-      this.rightResizeControl.removeEventListener('touchend', this.onResizeEndRight);
-      this.rightResizeControl.removeEventListener('touchstart', this.onResizeStartRight);
-      this.preview_svg.removeEventListener('touchmove', this.onResize);
-      // Right and Left navigation controls
-      this.leftControl.removeEventListener('click', this.onPreviewControlClick);
-      this.rightControl.removeEventListener('click', this.onPreviewControlClick);
+      removeNodeListener(this.centerControl, this.CENTRAL_CONTROL_LISTENERS);
+
+      removeNodeListener(this.preview_svg, this.PREVIEW_CHART_LISTENERS);
+
+      removeNodeListener(this.leftResizeControl, this.LEFT_RESIZE_CONTROL_LISTENERS);
+
+      removeNodeListener(this.rightResizeControl, this.RIGHT_RESIZE_CONTROL_LISTENERS);
+
+      removeNodeListener(this.leftControl, {
+        click: this.onPreviewControlClick,
+      });
+
+      removeNodeListener(this.rightControl, {
+        click: this.onPreviewControlClick,
+      });
     }
   }
 
@@ -419,8 +409,10 @@ export class PyxChart {
       ) {
         const cordX = e.clientX - this.positions.left;
         const cordY = e.offsetY;
-        this.verticleLine.setAttribute('x1', cordX.toString());
-        this.verticleLine.setAttribute('x2', cordX.toString());
+        setNodeAttrs(this.verticleLine, {
+          x1: cordX.toString(),
+          x2: cordX.toString(),
+        });
         const closestIndex = this.findClosesIndexOfPoint(cordX);
         if (closestIndex === null) {
           return;
@@ -548,28 +540,23 @@ export class PyxChart {
     this.leftResizeControl = this.drawPreviewLeftResizeControl();
     this.rightResizeControl = this.drawPreviewRightResizeControl();
     if (withEvents) {
-      this.leftControl.addEventListener('click', this.onPreviewControlClick);
-      this.rightControl.addEventListener('click', this.onPreviewControlClick);
+      addNodeListener(this.leftControl, {
+        click: this.onPreviewControlClick,
+      });
+
+      addNodeListener(this.rightControl, {
+        click: this.onPreviewControlClick,
+      });
+
       // PC
-      this.centerControl.addEventListener('mousedown', this.onDragStart, false);
-      this.centerControl.addEventListener('mouseup', this.onDragEnd, false);
-      this.centerControl.addEventListener('mouseout', this.onDrag, false);
-      this.leftResizeControl.addEventListener('mouseup', this.onResizeEndLeft, false);
-      this.leftResizeControl.addEventListener('mousedown', this.onResizeStartLeft, false);
-      this.rightResizeControl.addEventListener('mouseup', this.onResizeEndRight);
-      this.rightResizeControl.addEventListener('mousedown', this.onResizeStartRight);
-      this.preview_svg.addEventListener('mousemove', this.onResize, false);
-      this.preview_svg.addEventListener('mousemove', this.onDrag, false);
-      // Mobile
-      this.centerControl.addEventListener('touchstart', this.onDragStart, false);
-      this.centerControl.addEventListener('touchend', this.onDragEnd, false);
-      this.centerControl.addEventListener('touchcancel', this.onDrag, false);
-      this.leftResizeControl.addEventListener('touchend', this.onResizeEndLeft, false);
-      this.leftResizeControl.addEventListener('touchstart', this.onResizeStartLeft, false);
-      this.rightResizeControl.addEventListener('touchend', this.onResizeEndRight);
-      this.rightResizeControl.addEventListener('touchstart', this.onResizeStartRight);
-      this.preview_svg.addEventListener('touchmove', this.onResize, false);
-      this.preview_svg.addEventListener('touchmove', this.onDrag, false);
+
+      addNodeListener(this.centerControl, this.CENTRAL_CONTROL_LISTENERS);
+
+      addNodeListener(this.preview_svg, this.PREVIEW_CHART_LISTENERS);
+
+      addNodeListener(this.leftResizeControl, this.LEFT_RESIZE_CONTROL_LISTENERS);
+
+      addNodeListener(this.rightResizeControl, this.RIGHT_RESIZE_CONTROL_LISTENERS);
     }
   }
 
@@ -594,10 +581,11 @@ export class PyxChart {
       this.preview_svg.appendChild(leftResizeRect);
       return leftResizeRect;
     }
-
-    this.leftResizeControl.setAttribute('x', leftResizeControlPoint.x as any);
-    this.leftResizeControl.setAttribute('y', leftResizeControlPoint.y as any);
-    this.leftResizeControl.setAttribute('width', leftResizeControlSize.width as any);
+    setNodeAttrs(this.leftResizeControl, {
+      x: leftResizeControlPoint.x as any,
+      y: leftResizeControlPoint.y as any,
+      width: leftResizeControlSize.width as any,
+    });
     return this.leftResizeControl;
   }
 
@@ -627,9 +615,11 @@ export class PyxChart {
       return rightResizeRect;
     }
 
-    this.rightResizeControl.setAttribute('x', rightResizeControlPoint.x as any);
-    this.rightResizeControl.setAttribute('y', rightResizeControlPoint.y as any);
-    this.rightResizeControl.setAttribute('width', rightResizeControlSize.width as any);
+    setNodeAttrs(this.rightResizeControl, {
+      x: rightResizeControlPoint.x as any,
+      y: rightResizeControlPoint.y as any,
+      width: rightResizeControlSize.width as any,
+    });
     return this.rightResizeControl;
   }
 
@@ -658,9 +648,12 @@ export class PyxChart {
       return center;
     }
 
-    this.centerControl.setAttribute('x', centerControlPoint.x as any);
-    this.centerControl.setAttribute('y', centerControlPoint.y as any);
-    this.centerControl.setAttribute('width', centerControlSize.width as any);
+    setNodeAttrs(this.centerControl, {
+      x: centerControlPoint.x as any,
+      y: centerControlPoint.y as any,
+      width: centerControlSize.width as any,
+    });
+
     return this.centerControl;
   }
 
@@ -691,9 +684,12 @@ export class PyxChart {
       return leftRect;
     }
 
-    this.leftControl.setAttribute('x', leftControlPoint.x as any);
-    this.leftControl.setAttribute('y', leftControlPoint.y as any);
-    this.leftControl.setAttribute('width', leftControlSize.width as any);
+    setNodeAttrs(this.leftControl, {
+      x: leftControlPoint.x as any,
+      y: leftControlPoint.y as any,
+      width: leftControlSize.width as any,
+    });
+
     return this.leftControl;
   }
 
@@ -728,9 +724,11 @@ export class PyxChart {
       return rightRect;
     }
 
-    this.rightControl.setAttribute('x', rightControlPoint.x as any);
-    this.rightControl.setAttribute('y', rightControlPoint.y as any);
-    this.rightControl.setAttribute('width', rightControlSize.width as any);
+    setNodeAttrs(this.rightControl, {
+      x: rightControlPoint.x as any,
+      y: rightControlPoint.y as any,
+      width: rightControlSize.width as any,
+    });
 
     return this.rightControl;
   }
@@ -835,7 +833,9 @@ export class PyxChart {
         (this.width - 2 * DEFAULT_SPACING - fullWidth) / Math.max(mustGeneratedLabels - 1, 2);
       let relWidth = 0;
       this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
-        item.setAttribute('x', (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any);
+        setNodeAttrs(item, {
+          x: (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any,
+        });
         relWidth += item.getBoundingClientRect().width;
       });
     }
@@ -1021,4 +1021,39 @@ export class PyxChart {
   getTranspilingDataset() {
     return this.columnDatasets;
   }
+
+  private SVG_CHARTS_LISTENERS = {
+    mouseenter: this.onMouseEnter,
+    mouseleave: this.onMouseLeave,
+    mousemove: this.onMouseMove,
+  };
+
+  private CENTRAL_CONTROL_LISTENERS = {
+    mousedown: this.onDragStart,
+    mouseout: this.onDrag,
+    mouseup: this.onDragEnd,
+    touchstart: this.onDragStart,
+    touchmove: this.onDrag,
+    touchend: this.onDragEnd,
+    touchcancel: this.onDrag,
+  };
+
+  private PREVIEW_CHART_LISTENERS = {
+    mousemove: [this.onDrag, this.onResize],
+    touchmove: [this.onDrag, this.onResize],
+  };
+
+  private LEFT_RESIZE_CONTROL_LISTENERS = {
+    mouseup: this.onResizeEndLeft,
+    mousedown: this.onResizeStartLeft,
+    touchend: this.onResizeEndLeft,
+    touchstart: this.onResizeStartLeft,
+  };
+
+  private RIGHT_RESIZE_CONTROL_LISTENERS = {
+    mouseup: this.onResizeEndRight,
+    mousedown: this.onResizeStartRight,
+    touchend: this.onResizeEndRight,
+    touchstart: this.onResizeStartRight,
+  };
 }
