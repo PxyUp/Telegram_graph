@@ -84,7 +84,7 @@ export class PyxChart {
 
   private night_mod = false;
 
-  horizontSteps: number;
+  private horizontSteps: number;
 
   private sliceStartIndex = 0;
 
@@ -1016,14 +1016,6 @@ export class PyxChart {
       this.charts_svg.prepend(text);
       positionY -= delta;
     });
-  }
-
-  getSelector() {
-    return this.node;
-  }
-
-  getDataSet() {
-    return this.dataset;
   }
 
   getTranspilingDataset() {
