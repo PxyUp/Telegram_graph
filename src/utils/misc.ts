@@ -33,11 +33,21 @@ export function findClosestIndexPointX(arr: Array<Point>, value: number): number
 }
 
 export function getMin(arr: Array<number>) {
-  return Math.min.apply(Math, arr);
+  return arr.reduce((min, value) => {
+    if (!isNaN(value)) {
+      return Math.min(min, value);
+    }
+    return min;
+  }, Number.POSITIVE_INFINITY);
 }
 
 export function getMax(arr: Array<number>) {
-  return Math.max.apply(Math, arr);
+  return arr.reduce((max, value) => {
+    if (!isNaN(value)) {
+      return Math.max(max, value);
+    }
+    return max;
+  }, Number.NEGATIVE_INFINITY);
 }
 
 export function getShortDateByUnix(unix: number, withWeekday = false): string {
