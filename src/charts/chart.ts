@@ -465,7 +465,7 @@ export class PyxChart {
     removeAllChild(childContainer);
     removeAllChild(this.toolTipDate);
 
-    this.toolTipDate.appendChild(createTextNode(getShortDateByUnix(arr[0].date)));
+    this.toolTipDate.appendChild(createTextNode(getShortDateByUnix(arr[0].date, true)));
     arr
       .map(item =>
         generateNode({

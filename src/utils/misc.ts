@@ -40,9 +40,10 @@ export function getMax(arr: Array<number>) {
   return Math.max.apply(Math, arr);
 }
 
-export function getShortDateByUnix(unix: number): string {
+export function getShortDateByUnix(unix: number, withWeekday = false): string {
   const date = new Date(unix);
   return date.toLocaleString('en-us', {
+    weekday: withWeekday ? 'short' : undefined,
     month: 'short',
     day: 'numeric',
   });

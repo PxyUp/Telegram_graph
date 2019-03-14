@@ -9,6 +9,7 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 5. Support negative value - 13 Mar 2019, 23:38 CET
 6. Improve tooltip msgBox - 14 Mar 2019, 11:55 CET
 7. Move many function to utils - 14 Mar 2019, 15:21 CET
+8. Add weekday in tooltip - 14 Mar 2019, 20:55 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
