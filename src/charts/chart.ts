@@ -220,7 +220,7 @@ export class PyxChart {
     });
   }
 
-  destroy() {
+  destroy(withRemove = true) {
     this.resetTimer();
     removeNodeListener(this.charts_svg, this.SVG_CHARTS_LISTENERS);
     removeNodeListener(document, {
@@ -255,6 +255,9 @@ export class PyxChart {
       removeNodeListener(this.rightControl, {
         click: this.onPreviewControlClick,
       });
+    }
+    if (withRemove) {
+      this.node.remove();
     }
   }
 

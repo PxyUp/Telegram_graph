@@ -4,13 +4,15 @@ import { createTextNode, getSize, setNodeAttrs } from '../utils/misc';
 import { PyxChart } from './chart';
 import { PyxNode } from '../interfaces/node';
 
+let id = 0;
+
 export function generateCheckbox(
   id: number,
   key: string,
   label: string,
   checked = true,
 ): HTMLElement {
-  const checkbox = generateNode({
+  return generateNode({
     tag: 'div',
     classList: ['checkbox_container'],
     attrs: {
@@ -44,7 +46,6 @@ export function generateCheckbox(
       },
     ],
   }) as HTMLElement;
-  return checkbox;
 }
 
 export function generateSvgElement(
@@ -128,7 +129,6 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
 export function chartsGenerator(
   rootNode: HTMLElement,
 ): (dataset: Chart, options?: ChartOptions) => PyxChart {
-  let id = 0;
   return (dataset: Chart, options: ChartOptions = {}) => {
     const basicNode = generateNode({
       attrs: {
@@ -190,8 +190,6 @@ export function chartsGenerator(
         },
       ],
     });
-    rootNode.appendChild(basicNode);
-    id++;
-    return new PyxChart(id, basicNode as HTMLElement, dataset, options);
+    return new PyxChart(id++, rootNode.appendChild(basicNode) as HTMLElement, dataset, options);
   };
 }
