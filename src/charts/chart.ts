@@ -12,6 +12,7 @@ import {
   animatePath,
   changePathOnElement,
   createTextNode,
+  findClosestIndexPointX,
   getMax,
   getMin,
   getPathByPoints,
@@ -494,14 +495,7 @@ export class PyxChart {
     if (!arr.length) {
       return null;
     }
-    return this.currentSlicePoint[arr[0]].reduce(
-      (prev, curr, index) => {
-        return Math.abs((curr.x as number) - cordX) < Math.abs(prev[0] - cordX)
-          ? [curr.x as number, index]
-          : prev;
-      },
-      [this.width, null],
-    )[1];
+    return findClosestIndexPointX(this.currentSlicePoint[arr[0]], cordX);
   }
 
   removePathByKey(key: string) {

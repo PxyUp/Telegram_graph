@@ -1,5 +1,27 @@
 import { Point } from '../interfaces/chart';
 
+export function findClosestIndexPointX(arr: Array<Point>, value: number): number {
+  let rightIndex = 0;
+  let leftIndex = arr.length - 1;
+  let middleIndex;
+  while (leftIndex - rightIndex > 1) {
+    middleIndex = Math.floor((rightIndex + leftIndex) / 2);
+    if (value < arr[middleIndex].x) {
+      leftIndex = middleIndex;
+    } else {
+      if (value > arr[middleIndex].x) {
+        rightIndex = middleIndex;
+      } else {
+        return middleIndex;
+      }
+    }
+  }
+  if (value - (arr[rightIndex].x as number) <= (arr[leftIndex].x as number) - value) {
+    return rightIndex;
+  }
+  return leftIndex;
+}
+
 export function getMin(arr: Array<number>) {
   return Math.min.apply(Math, arr);
 }
