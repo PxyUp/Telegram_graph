@@ -10,11 +10,12 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 6. Improve tooltip msgBox - 14 Mar 2019, 11:55 CET
 7. Move many function to utils - 14 Mar 2019, 15:21 CET
 8. Add weekday in tooltip - 14 Mar 2019, 20:55 CET
+9. Change min max function to faster one - 14 Mar 2019, 21:47 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-58.5 kB (bundle) - 26.77 kB(datasets) = **31.73 kB** (with gzip **17.79 kB**)
+58.7 kB (bundle) - 26.77 kB(datasets) = **31.93 kB** (with gzip **17.87 kB**)
 # Build
 
 ## Localhost (htpp://localhost:9000)
