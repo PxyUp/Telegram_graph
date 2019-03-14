@@ -1,4 +1,14 @@
-import { Point } from '../interfaces/chart';
+import { Container, Point, RectangleOptions } from '../interfaces/chart';
+
+export function getSize(container: Container, defaultValue?: any): RectangleOptions {
+  if (container && container.size) {
+    return {
+      height: container.size.height,
+      width: container.size.width,
+    };
+  }
+  return defaultValue;
+}
 
 export function findClosestIndexPointX(arr: Array<Point>, value: number): number {
   let rightIndex = 0;

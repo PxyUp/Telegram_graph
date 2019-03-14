@@ -1,18 +1,8 @@
 import { Chart, ChartOptions, Container, RectangleOptions } from '../interfaces/chart';
+import { createTextNode, getSize } from '../utils/misc';
 
 import { PyxChart } from './chart';
 import { PyxNode } from '../interfaces/node';
-import { createTextNode } from '../utils/misc';
-
-const getSize = (container: Container, defaultValue?: any): RectangleOptions => {
-  if (container && container.size) {
-    return {
-      height: container.size.height,
-      width: container.size.width,
-    };
-  }
-  return defaultValue;
-};
 
 export function generateCheckbox(
   id: number,
