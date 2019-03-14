@@ -26,7 +26,7 @@ import { generateCheckbox, generateNode, generateSvgElement } from './generator'
 
 // constant number
 const POINT_RADIUS = 5;
-const MIN_TOOLTIP_WIDTH = 55;
+const MIN_TOOLTIP_WIDTH = 90;
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
 const DEFAULT_PREVIEW_SPACING = 16;
