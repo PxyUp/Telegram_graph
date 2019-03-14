@@ -8,6 +8,7 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 4. Improve checkbox click - 13 Mar 2019, 22:02 CET
 5. Support negative value - 13 Mar 2019, 23:38 CET
 6. Improve tooltip msgBox - 14 Mar 2019, 11:55 CET
+7. Move many function to utils - 14 Mar 2019, 15:21 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
