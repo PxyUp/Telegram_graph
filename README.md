@@ -7,11 +7,12 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 3. Refactor(ts and scss) - 13 Mar 2019, 20:47 CET
 4. Improve checkbox click - 13 Mar 2019, 22:02 CET
 5. Support negative value - 13 Mar 2019, 23:38 CET
+6. Improve tooltip msgBox - 14 Mar 2019, 11:55 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-58.9 kB (bundle) - 26.77 kB(datasets) = **32.83 kB** (with gzip **17.59 kB**)
+60.0 kB (bundle) - 26.77 kB(datasets) = **33.23 kB** (with gzip **17.79 kB**)
 # Build
 
 ## Localhost (htpp://localhost:9000)
