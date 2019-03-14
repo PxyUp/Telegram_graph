@@ -23,6 +23,7 @@ import { generateCheckbox, generateNode, generateSvgElement } from './generator'
 
 // constant number
 const POINT_RADIUS = 5;
+const MIN_TOOLTIP_WIDTH = 55;
 const DEFAULT_HOR_STEPS = 6;
 const DEFAULT_SPACING = 10;
 const DEFAULT_PREVIEW_SPACING = 16;
@@ -111,6 +112,8 @@ export class PyxChart {
     this.toolTipDate = this.node.querySelector('div.tooltip p.date');
     this.height = parseInt(this.charts_svg.getAttribute('height'));
     this.width = parseInt(this.charts_svg.getAttribute('width'));
+    // Set tooltip max width
+    this.toolTip.style.maxWidth = `${this.width - 2 * DEFAULT_SPACING}px`;
 
     Object.keys(this.dataset.names).forEach(key => {
       this.columnsVisible[key] = true;
@@ -457,7 +460,9 @@ export class PyxChart {
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
     this.toolTip.style.display = 'flex';
-    this.toolTip.style.left = `${(point.x as number) + DEFAULT_SPACING}px`;
+    const leftPosition = (point.x as number) + DEFAULT_SPACING;
+    this.toolTip.style.right = 'unset';
+    this.toolTip.style.left = `${leftPosition}px`;
     this.toolTip.style.top = `${(point.y as number) + DEFAULT_SPACING}px`;
     const childContainer = this.toolTip.querySelector('.items') as HTMLElement;
 
@@ -488,6 +493,11 @@ export class PyxChart {
         }),
       )
       .forEach(item => childContainer.appendChild(item));
+
+    if (leftPosition > this.width - MIN_TOOLTIP_WIDTH) {
+      this.toolTip.style.right = `${Math.min(MIN_TOOLTIP_WIDTH, this.width - leftPosition)}px`;
+      this.toolTip.style.left = 'unset';
+    }
   }
 
   findClosesIndexOfPoint(cordX: number): number | null {
