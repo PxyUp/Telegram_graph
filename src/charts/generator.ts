@@ -2,6 +2,7 @@ import { Chart, ChartOptions, Container, RectangleOptions } from '../interfaces/
 
 import { PyxChart } from './chart';
 import { PyxNode } from '../interfaces/node';
+import { createTextNode } from '../utils/misc';
 
 const getSize = (container: Container, defaultValue?: any): RectangleOptions => {
   if (container && container.size) {
@@ -32,8 +33,8 @@ export function generateCheckbox(
         children: [
           {
             tag: 'input',
-            id: `checkbox_${id}_${key}`,
             attrs: {
+              id: `checkbox_${id}_${key}`,
               type: 'checkbox',
               checked: checked,
             },
@@ -49,7 +50,7 @@ export function generateCheckbox(
       {
         tag: 'div',
         classList: ['label'],
-        value: label,
+        textValue: label,
       },
     ],
   }) as HTMLElement;
@@ -99,11 +100,8 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
       ? document.createElementNS('http://www.w3.org/2000/svg', 'svg')
       : document.createElement(node.tag);
 
-  if (node.value) {
-    rootNode.innerHTML = node.value;
-  }
-  if (node.id) {
-    rootNode.setAttribute('id', node.id);
+  if (node.textValue) {
+    rootNode.appendChild(createTextNode(node.textValue));
   }
 
   if (node.classList) {
@@ -147,7 +145,9 @@ export function chartsGenerator(
   let id = 0;
   return (dataset: Chart, options: ChartOptions = {}) => {
     const basicNode = generateNode({
-      id: `pyx_chart_${id}`,
+      attrs: {
+        id: `pyx_chart_${id}`,
+      },
       classList: ['pyx_chart_container'],
       tag: 'div',
       children: [
@@ -198,7 +198,7 @@ export function chartsGenerator(
           children: [
             {
               tag: 'a',
-              value: 'Switch to Night mode',
+              textValue: 'Switch to Night mode',
             },
           ],
         },

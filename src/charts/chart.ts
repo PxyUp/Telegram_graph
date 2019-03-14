@@ -482,12 +482,12 @@ export class PyxChart {
             {
               tag: 'span',
               classList: ['value'],
-              value: item.value.toString(),
+              textValue: item.value.toString(),
             },
             {
               tag: 'span',
               classList: ['item'],
-              value: this.dataset.names[item.key],
+              textValue: this.dataset.names[item.key],
             },
           ],
         }),
