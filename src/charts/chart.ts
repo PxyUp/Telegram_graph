@@ -371,7 +371,7 @@ export class PyxChart {
     }
 
     this.drawPreviewControls();
-    this.resetCharts();
+    this.drawAxisCharts();
     this.draw();
   }
 
@@ -397,7 +397,7 @@ export class PyxChart {
       this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
     }
     this.drawPreviewControls();
-    this.resetCharts();
+    this.drawAxisCharts();
     this.draw();
   };
 
@@ -769,7 +769,7 @@ export class PyxChart {
     this.refresh();
   }
 
-  resetCharts() {
+  drawAxisCharts() {
     this.charts_svg.querySelectorAll(`g`).forEach(el => el.remove());
   }
 
