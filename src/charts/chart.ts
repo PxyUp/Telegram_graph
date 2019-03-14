@@ -55,6 +55,8 @@ export class PyxChart {
 
   private timer: number | null = null;
   private timerPreview: number | null = null;
+  private resizeAnimationFrame: number | null = null;
+  private dragAnimationFrame: number | null = null;
 
   private maxValue: number;
   private minValue: number;
@@ -233,7 +235,7 @@ export class PyxChart {
       // PC
       // DRAG
       this.centerControl.removeEventListener('mousedown', this.onDragStart);
-      this.centerControl.removeEventListener('mousemove', this.onDrag);
+      this.preview_svg.removeEventListener('mousemove', this.onDrag);
       this.centerControl.removeEventListener('mouseout', this.onDrag);
       this.centerControl.removeEventListener('mouseup', this.onDragEnd);
       // RESIZE
@@ -246,6 +248,7 @@ export class PyxChart {
       //DRAG
       this.centerControl.removeEventListener('touchstart', this.onDragStart);
       this.centerControl.removeEventListener('touchmove', this.onDrag);
+      this.preview_svg.removeEventListener('touchmove', this.onDrag);
       this.centerControl.removeEventListener('touchend', this.onDragEnd);
       this.centerControl.removeEventListener('touchcancel', this.onDrag);
       // RESIZE
@@ -288,7 +291,10 @@ export class PyxChart {
 
   onResize = (e: MouseEvent | TouchEvent) => {
     if (this.isResizeActive) {
-      requestAnimationFrame(() => this.doResize(this.activeResize, e));
+      if (this.resizeAnimationFrame) {
+        cancelAnimationFrame(this.resizeAnimationFrame);
+      }
+      this.resizeAnimationFrame = requestAnimationFrame(() => this.doResize(this.activeResize, e));
     }
   };
 
@@ -302,7 +308,10 @@ export class PyxChart {
 
   onDrag = (e: MouseEvent | TouchEvent) => {
     if (this.isDragActive) {
-      requestAnimationFrame(() => this.onPreviewControlClick(e));
+      if (this.dragAnimationFrame) {
+        cancelAnimationFrame(this.dragAnimationFrame);
+      }
+      this.dragAnimationFrame = requestAnimationFrame(() => this.onPreviewControlClick(e));
     }
   };
 
@@ -534,23 +543,23 @@ export class PyxChart {
       // PC
       this.centerControl.addEventListener('mousedown', this.onDragStart, false);
       this.centerControl.addEventListener('mouseup', this.onDragEnd, false);
-      this.centerControl.addEventListener('mousemove', this.onDrag, false);
       this.centerControl.addEventListener('mouseout', this.onDrag, false);
       this.leftResizeControl.addEventListener('mouseup', this.onResizeEndLeft, false);
       this.leftResizeControl.addEventListener('mousedown', this.onResizeStartLeft, false);
       this.rightResizeControl.addEventListener('mouseup', this.onResizeEndRight);
       this.rightResizeControl.addEventListener('mousedown', this.onResizeStartRight);
       this.preview_svg.addEventListener('mousemove', this.onResize, false);
+      this.preview_svg.addEventListener('mousemove', this.onDrag, false);
       // Mobile
       this.centerControl.addEventListener('touchstart', this.onDragStart, false);
       this.centerControl.addEventListener('touchend', this.onDragEnd, false);
-      this.centerControl.addEventListener('touchmove', this.onDrag, false);
       this.centerControl.addEventListener('touchcancel', this.onDrag, false);
       this.leftResizeControl.addEventListener('touchend', this.onResizeEndLeft, false);
       this.leftResizeControl.addEventListener('touchstart', this.onResizeStartLeft, false);
       this.rightResizeControl.addEventListener('touchend', this.onResizeEndRight);
       this.rightResizeControl.addEventListener('touchstart', this.onResizeStartRight);
       this.preview_svg.addEventListener('touchmove', this.onResize, false);
+      this.preview_svg.addEventListener('touchmove', this.onDrag, false);
     }
   }
 
@@ -731,6 +740,10 @@ export class PyxChart {
     this.timer = null;
     clearTimeout(this.timerPreview);
     this.timerPreview = null;
+    cancelAnimationFrame(this.dragAnimationFrame);
+    this.dragAnimationFrame = null;
+    cancelAnimationFrame(this.resizeAnimationFrame);
+    this.resizeAnimationFrame;
   }
 
   setRightIndexSlice(size: number) {
@@ -755,8 +768,8 @@ export class PyxChart {
     const mustGeneratedLabels = labelCount;
     const deltaDays =
       sliceSize > DEFAULT_DAY_COUNT
-        ? Math.max(Math.floor(sliceSize / (mustGeneratedLabels - 1)), 1)
-        : Math.max(Math.ceil(sliceSize / (mustGeneratedLabels - 1)), 1);
+        ? Math.max(Math.round(sliceSize / (mustGeneratedLabels - 1)), 1)
+        : Math.max(Math.round(sliceSize / (mustGeneratedLabels - 1)), 1);
     let index = this.sliceStartIndex;
     if (withXAxis) {
       const arrayOfText = [];

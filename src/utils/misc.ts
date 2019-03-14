@@ -1,11 +1,11 @@
 import { Point } from '../interfaces/chart';
 
 export function getMin(arr: Array<number>) {
-  return Math.min(...arr);
+  return Math.min.apply(Math, arr);
 }
 
 export function getMax(arr: Array<number>) {
-  return Math.max(...arr);
+  return Math.max.apply(Math, arr);
 }
 
 export function getShortDateByUnix(unix: number): string {
