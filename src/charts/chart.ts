@@ -57,6 +57,7 @@ export class PyxChart {
   private timerPreview: number | null = null;
   private resizeAnimationFrame: number | null = null;
   private dragAnimationFrame: number | null = null;
+  private mouseMoveAnimationFrame: number | null = null;
 
   private maxValue: number;
   private minValue: number;
@@ -404,31 +405,36 @@ export class PyxChart {
   };
 
   onMouseMove = (e: MouseEvent) => {
-    if (
-      e.clientX - this.positions.left > DEFAULT_SPACING * 2 &&
-      e.clientX - this.positions.left < this.width
-    ) {
-      const cordX = e.clientX - this.positions.left;
-      const cordY = e.offsetY;
-      this.verticleLine.setAttribute('x1', cordX.toString());
-      this.verticleLine.setAttribute('x2', cordX.toString());
-      const closestIndex = this.findClosesIndexOfPoint(cordX);
-      if (closestIndex === null) {
-        return;
-      }
-      const points = Object.keys(this.columnsVisible)
-        .filter(key => this.columnsVisible[key])
-        .map(key => ({
-          key: key,
-          color: this.dataset.colors[key],
-          x: this.currentSlicePoint[key][closestIndex].x,
-          y: this.currentSlicePoint[key][closestIndex].y,
-          value: this.currentSlicePoint[key][closestIndex].value,
-          date: this.currentSlicePoint[key][closestIndex].date,
-        }));
-      this.showPoints(points);
-      this.showTooltip(points, { x: cordX, y: cordY });
+    if (this.mouseMoveAnimationFrame) {
+      cancelAnimationFrame(this.mouseMoveAnimationFrame);
     }
+    this.mouseMoveAnimationFrame = requestAnimationFrame(() => {
+      if (
+        e.clientX - this.positions.left > DEFAULT_SPACING * 2 &&
+        e.clientX - this.positions.left < this.width
+      ) {
+        const cordX = e.clientX - this.positions.left;
+        const cordY = e.offsetY;
+        this.verticleLine.setAttribute('x1', cordX.toString());
+        this.verticleLine.setAttribute('x2', cordX.toString());
+        const closestIndex = this.findClosesIndexOfPoint(cordX);
+        if (closestIndex === null) {
+          return;
+        }
+        const points = Object.keys(this.columnsVisible)
+          .filter(key => this.columnsVisible[key])
+          .map(key => ({
+            key: key,
+            color: this.dataset.colors[key],
+            x: this.currentSlicePoint[key][closestIndex].x,
+            y: this.currentSlicePoint[key][closestIndex].y,
+            value: this.currentSlicePoint[key][closestIndex].value,
+            date: this.currentSlicePoint[key][closestIndex].date,
+          }));
+        this.showPoints(points);
+        this.showTooltip(points, { x: cordX, y: cordY });
+      }
+    });
   };
 
   showPoints(arr: Array<PointWithColor> = []) {
@@ -743,7 +749,9 @@ export class PyxChart {
     cancelAnimationFrame(this.dragAnimationFrame);
     this.dragAnimationFrame = null;
     cancelAnimationFrame(this.resizeAnimationFrame);
-    this.resizeAnimationFrame;
+    this.resizeAnimationFrame = null;
+    cancelAnimationFrame(this.mouseMoveAnimationFrame);
+    this.mouseMoveAnimationFrame = null;
   }
 
   setRightIndexSlice(size: number) {
