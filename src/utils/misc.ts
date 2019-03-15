@@ -1,4 +1,6 @@
-import { Container, Point, RectangleOptions } from '../interfaces/chart';
+import { Container, MinMax, Point, RectangleOptions } from '../interfaces/chart';
+
+const computedDateArr = Object.create(null);
 
 export function getSize(container: Container, defaultValue?: any): RectangleOptions {
   if (container && container.size) {
@@ -8,6 +10,10 @@ export function getSize(container: Container, defaultValue?: any): RectangleOpti
     };
   }
   return defaultValue;
+}
+
+export function getRelativeOffset(targetCoords: number, parentCoords: number): number {
+  return targetCoords - parentCoords;
 }
 
 export function findClosestIndexPointX(arr: Array<Point>, value: number): number {
@@ -32,31 +38,26 @@ export function findClosestIndexPointX(arr: Array<Point>, value: number): number
   return leftIndex;
 }
 
-export function getMin(arr: Array<number>) {
-  return arr.reduce((min, value) => {
-    if (!isNaN(value)) {
-      return Math.min(min, value);
-    }
-    return min;
-  }, Number.POSITIVE_INFINITY);
-}
-
-export function getMax(arr: Array<number>) {
-  return arr.reduce((max, value) => {
-    if (!isNaN(value)) {
-      return Math.max(max, value);
-    }
-    return max;
-  }, Number.NEGATIVE_INFINITY);
+export function getMinMax(arr: Array<number>): MinMax {
+  const minMax = Object.create(null);
+  minMax['min'] = Number.POSITIVE_INFINITY;
+  minMax['max'] = Number.NEGATIVE_INFINITY;
+  return arr.reduce((prev, curr) => {
+    prev['min'] = Math.min(prev.min, curr);
+    prev['max'] = Math.max(prev.max, curr);
+    return prev;
+  }, minMax);
 }
 
 export function getShortDateByUnix(unix: number, withWeekday = false): string {
-  const date = new Date(unix);
-  return date.toLocaleString('en-us', {
-    weekday: withWeekday ? 'short' : undefined,
-    month: 'short',
-    day: 'numeric',
-  });
+  if (!computedDateArr[unix]) {
+    computedDateArr[unix] = new Date(unix).toLocaleString('en-us', {
+      weekday: withWeekday ? 'short' : undefined,
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+  return computedDateArr[unix];
 }
 
 export function getPathByPoints(points: Array<Point>): string {
