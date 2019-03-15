@@ -267,22 +267,24 @@ export class PyxChart {
     this.activeResize = null;
   };
 
-  onResizeStartRight = (e: MouseEvent | TouchEvent) => {
+  onResizeStartRight = () => {
+    this.hideHoverLineAndPoints();
     this.isResizeActive = true;
     this.activeResize = true;
   };
 
-  onResizeStartLeft = (e: MouseEvent | TouchEvent) => {
+  onResizeStartLeft = () => {
+    this.hideHoverLineAndPoints();
     this.isResizeActive = true;
     this.activeResize = false;
   };
 
-  onResizeEndLeft = (e: MouseEvent | TouchEvent) => {
+  onResizeEndLeft = () => {
     this.isResizeActive = false;
     this.activeResize = null;
   };
 
-  onResizeEndRight = (e: MouseEvent | TouchEvent) => {
+  onResizeEndRight = () => {
     this.isResizeActive = false;
     this.activeResize = null;
   };
@@ -297,6 +299,7 @@ export class PyxChart {
   };
 
   onDragStart = (e: MouseEvent | TouchEvent) => {
+    this.hideHoverLineAndPoints();
     this.isDragActive = true;
   };
 
@@ -320,11 +323,15 @@ export class PyxChart {
   onMouseLeave = (e: MouseEvent) => {
     const cordY = getRelativeOffset(e.clientY, this.positions.top);
     if (e.toElement !== this.toolTip || cordY >= this.height - 100) {
-      this.removePoints();
-      this.verticleLine.classList.remove('show');
-      this.toolTip.style.display = 'none';
+      this.hideHoverLineAndPoints();
     }
   };
+
+  hideHoverLineAndPoints() {
+    this.removePoints();
+    this.verticleLine.classList.remove('show');
+    this.toolTip.style.display = 'none';
+  }
 
   doResize(isRight: boolean, e: MouseEvent | TouchEvent) {
     if (isRight === null) {
