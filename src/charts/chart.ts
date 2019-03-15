@@ -414,8 +414,8 @@ export class PyxChart {
       if (cordX > DEFAULT_SPACING * 2 && cordX < this.width) {
         const cordY = e.offsetY;
         setNodeAttrs(this.verticleLine, {
-          x1: cordX.toString(),
-          x2: cordX.toString(),
+          x1: cordX as any,
+          x2: cordX as any,
         });
         const closestIndex = this.findClosesIndexOfPoint(cordX);
         if (closestIndex === null) {
@@ -478,7 +478,7 @@ export class PyxChart {
             {
               tag: 'span',
               classList: ['value'],
-              textValue: item.value.toString(),
+              textValue: item.value as any,
             },
             {
               tag: 'span',
@@ -1017,7 +1017,7 @@ export class PyxChart {
           y: (positionY - 5) as any,
         },
         [],
-        step.toString(),
+        step as any,
       );
       this.charts_svg.prepend(line);
       this.charts_svg.prepend(text);
