@@ -105,6 +105,7 @@ export class PyxChart {
     private nightModeControl: HTMLElement,
     private dataset: Chart,
     private options: ChartOptions,
+    private isWindows: boolean,
   ) {
     this.height = parseInt(this.charts_svg.getAttribute('height'));
     this.width = parseInt(this.charts_svg.getAttribute('width'));
@@ -401,10 +402,11 @@ export class PyxChart {
       cancelAnimationFrame(this.mouseMoveAnimationFrame);
     }
     this.mouseMoveAnimationFrame = requestAnimationFrame(() => {
-      const cordX = getRelativeOffset(e.clientX, this.positions.left);
+      const cordX =
+        getRelativeOffset(e.clientX, this.positions.left) +
+        (this.isWindows ? DEFAULT_SPACING - 1 : 0);
       if (cordX > DEFAULT_SPACING * 2 && cordX < this.width) {
         const cordY = e.offsetY;
-        console.log(cordY);
         setNodeAttrs(this.verticleLine, {
           x1: cordX as any,
           x2: cordX as any,
@@ -488,7 +490,7 @@ export class PyxChart {
     if (leftPosition > this.width - MIN_TOOLTIP_WIDTH) {
       stylesTooltip.right = `${Math.min(
         MIN_TOOLTIP_WIDTH,
-        this.width - leftPosition + DEFAULT_SPACING,
+        this.width - leftPosition + 2 * DEFAULT_SPACING,
       )}px`;
       stylesTooltip.left = 'unset';
     }

@@ -1,10 +1,11 @@
-import { Chart, ChartOptions, Container, RectangleOptions } from '../interfaces/chart';
-import { createTextNode, getSize, setNodeAttrs } from '../utils/misc';
+import { Chart, ChartOptions } from '../interfaces/chart';
+import { createTextNode, getSize, isWin, setNodeAttrs } from '../utils/misc';
 
 import { PyxChart } from './chart';
 import { PyxNode } from '../interfaces/node';
 
 let id = 0;
+const isWindows = isWin();
 
 export function generateCheckbox(
   id: number,
@@ -209,6 +210,7 @@ export function chartsGenerator(
       nightModeControl as HTMLElement,
       dataset,
       options,
+      isWindows,
     );
   };
 }

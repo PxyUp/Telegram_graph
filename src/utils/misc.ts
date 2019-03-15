@@ -147,3 +147,7 @@ export function setNodeAttrs(
     node.setAttribute(key, attrs[key]);
   });
 }
+
+export function isWin() {
+  return navigator.platform.indexOf('Win') > -1;
+}
