@@ -3,6 +3,6 @@ export interface PyxNode {
   skip?: boolean;
   attrs?: { [key: string]: any };
   classList?: Array<string>;
-  children?: Array<PyxNode>;
+  children?: Array<PyxNode | HTMLElement | SVGSVGElement>;
   textValue?: string;
 }

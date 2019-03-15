@@ -115,8 +115,12 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
   }
 
   if (node.children) {
-    node.children.forEach(item => {
-      const child = generateNode(item);
+    node.children.forEach((item: any) => {
+      if (!item.tag) {
+        rootNode.appendChild(item as HTMLHtmlElement);
+        return;
+      }
+      const child = generateNode(item as PyxNode);
       if (child) {
         rootNode.appendChild(child);
       }
@@ -130,6 +134,51 @@ export function chartsGenerator(
   rootNode: HTMLElement,
 ): (dataset: Chart, options?: ChartOptions) => PyxChart {
   return (dataset: Chart, options: ChartOptions = {}) => {
+    const chartsNode = generateNode({
+      tag: 'svg',
+      classList: ['main_chart'],
+      attrs: {
+        ...getSize(options.chartsContainer, {
+          width: '400',
+          height: '400',
+        }),
+      },
+    });
+    const previewNode = generateNode({
+      tag: 'svg',
+      skip: options.withoutPreview,
+      classList: ['chart_preview'],
+      attrs: {
+        ...getSize(options.chartsContainer, {
+          width: '400',
+          height: '60',
+        }),
+      },
+    });
+    const toolTipDateNode = generateNode({
+      tag: 'p',
+      classList: ['date'],
+    });
+    const toolTipNode = generateNode({
+      tag: 'div',
+      classList: ['tooltip'],
+      children: [
+        toolTipDateNode,
+        {
+          tag: 'div',
+          classList: ['items'],
+        },
+      ],
+    });
+    const controlsNode = generateNode({
+      tag: 'div',
+      classList: ['controls'],
+      skip: options.withoutControls,
+    });
+    const nightModeControl = generateNode({
+      tag: 'a',
+      textValue: 'Switch to Night mode',
+    });
     const basicNode = generateNode({
       attrs: {
         id: `pyx_chart_${id}`,
@@ -137,59 +186,29 @@ export function chartsGenerator(
       classList: ['pyx_chart_container'],
       tag: 'div',
       children: [
-        {
-          tag: 'svg',
-          classList: ['main_chart'],
-          attrs: {
-            ...getSize(options.chartsContainer, {
-              width: '400',
-              height: '400',
-            }),
-          },
-        },
-        {
-          tag: 'svg',
-          skip: options.withoutPreview,
-          classList: ['chart_preview'],
-          attrs: {
-            ...getSize(options.chartsContainer, {
-              width: '400',
-              height: '60',
-            }),
-          },
-        },
-        {
-          tag: 'div',
-          classList: ['tooltip'],
-          children: [
-            {
-              tag: 'p',
-              classList: ['date'],
-            },
-            {
-              tag: 'div',
-              classList: ['items'],
-            },
-          ],
-        },
-        {
-          tag: 'div',
-          classList: ['controls'],
-          skip: options.withoutControls,
-        },
+        chartsNode,
+        previewNode,
+        toolTipNode,
+        controlsNode,
         {
           tag: 'div',
           classList: ['night_mode_control'],
           skip: options.withoutNightMode,
-          children: [
-            {
-              tag: 'a',
-              textValue: 'Switch to Night mode',
-            },
-          ],
+          children: [nightModeControl],
         },
       ],
     });
-    return new PyxChart(id++, rootNode.appendChild(basicNode) as HTMLElement, dataset, options);
+    return new PyxChart(
+      id++,
+      rootNode.appendChild(basicNode) as HTMLElement,
+      chartsNode,
+      previewNode,
+      toolTipNode as HTMLElement,
+      toolTipDateNode as HTMLElement,
+      controlsNode as HTMLElement,
+      nightModeControl as HTMLElement,
+      dataset,
+      options,
+    );
   };
 }
