@@ -16,7 +16,7 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-58.9 kB (bundle) - 26.77 kB(datasets) = **32.13 kB** (with gzip **17.95 kB**)
+58.8 kB (bundle) - 26.77 kB(datasets) = **32.03 kB** (with gzip **17.92 kB**)
 # Build
 
 ## Localhost (htpp://localhost:9000)
