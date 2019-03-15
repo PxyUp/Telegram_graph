@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
@@ -40,6 +41,11 @@ module.exports = {
     port: 9000
   },
   plugins: [
+    new CopyPlugin([{
+      context: './src/datasets/',
+      from: '*.json',
+      force: true
+    }]),
     new HtmlWebpackPlugin({
         title: 'My App',
         template: 'src/index.html'
