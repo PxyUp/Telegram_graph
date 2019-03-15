@@ -51,13 +51,13 @@ export function getMinMax(arr: Array<number>): MinMax {
 
 export function getShortDateByUnix(unix: number, withWeekday = false): string {
   if (!computedDateArr[unix]) {
-    computedDateArr[unix] = new Date(unix).toLocaleString('en-us', {
-      weekday: withWeekday ? 'short' : undefined,
-      month: 'short',
-      day: 'numeric',
-    });
+    computedDateArr[unix] = new Date(unix);
   }
-  return computedDateArr[unix];
+  return computedDateArr[unix].toLocaleString('en-us', {
+    weekday: withWeekday ? 'short' : undefined,
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 export function getPathByPoints(points: Array<Point>): string {

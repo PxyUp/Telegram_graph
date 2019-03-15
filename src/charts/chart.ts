@@ -975,6 +975,7 @@ export class PyxChart {
     for (let index = 1; index < this.horizontSteps; index++) {
       stepsArr.push(stepsArr[0] + step * index || index);
     }
+
     this.drawSteps(stepsArr);
   }
 

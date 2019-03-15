@@ -72,7 +72,7 @@ export function generateSvgElement(
     });
   }
 
-  if (value) {
+  if (value !== undefined) {
     element.appendChild(document.createTextNode(value));
   }
 
