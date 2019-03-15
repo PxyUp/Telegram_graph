@@ -21,6 +21,7 @@ import {
   removeAllChild,
   removeNodeListener,
   setNodeAttrs,
+  setStyleBatch,
 } from '../utils/misc';
 import { generateCheckbox, generateNode, generateSvgElement } from './generator';
 
@@ -455,11 +456,13 @@ export class PyxChart {
   }
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
-    this.toolTip.style.display = 'flex';
     const leftPosition = (point.x as number) + DEFAULT_SPACING;
-    this.toolTip.style.right = 'unset';
-    this.toolTip.style.left = `${leftPosition}px`;
-    this.toolTip.style.top = `${(point.y as number) + DEFAULT_SPACING}px`;
+    const stylesTooltip = {
+      display: 'flex',
+      right: 'unset',
+      left: `${leftPosition}px`,
+      top: `${(point.y as number) + DEFAULT_SPACING}px`,
+    };
     const childContainer = this.toolTip.querySelector('.items') as HTMLElement;
 
     // Remove all child from container
@@ -491,9 +494,10 @@ export class PyxChart {
       .forEach(item => childContainer.appendChild(item));
 
     if (leftPosition > this.width - MIN_TOOLTIP_WIDTH) {
-      this.toolTip.style.right = `${Math.min(MIN_TOOLTIP_WIDTH, this.width - leftPosition)}px`;
-      this.toolTip.style.left = 'unset';
+      stylesTooltip.right = `${Math.min(MIN_TOOLTIP_WIDTH, this.width - leftPosition)}px`;
+      stylesTooltip.left = 'unset';
     }
+    setStyleBatch(this.toolTip, stylesTooltip);
   }
 
   findClosesIndexOfPoint(cordX: number): number | null {
@@ -520,8 +524,10 @@ export class PyxChart {
       label.classList.add('not_active');
     } else {
       label.classList.remove('not_active');
-      label.style.borderColor = color;
-      label.style.backgroundColor = color;
+      setStyleBatch(label, {
+        'border-color': color,
+        'background-color': color,
+      });
     }
   }
 

@@ -2,6 +2,13 @@ import { Container, MinMax, Point, RectangleOptions } from '../interfaces/chart'
 
 const computedDateArr = Object.create(null);
 
+export function setStyleBatch(node: HTMLElement | SVGElement, styles: { [key: string]: string }) {
+  const computedStyle = Object.keys(styles)
+    .map(key => `${key}: ${styles[key]}`)
+    .join(';');
+  node.style.cssText = computedStyle;
+}
+
 export function getSize(container: Container, defaultValue?: any): RectangleOptions {
   if (container && container.size) {
     return {
