@@ -59,3 +59,8 @@ export enum Type {
 }
 
 export type Types = { [key: string]: Type };
+
+export interface MinMax {
+  min: number;
+  max: number;
+}

@@ -14,9 +14,9 @@ import {
   changePathOnElement,
   createTextNode,
   findClosestIndexPointX,
-  getMax,
-  getMin,
+  getMinMax,
   getPathByPoints,
+  getRelativeOffset,
   getShortDateByUnix,
   removeAllChild,
   removeNodeListener,
@@ -267,22 +267,24 @@ export class PyxChart {
     this.activeResize = null;
   };
 
-  onResizeStartRight = (e: MouseEvent | TouchEvent) => {
+  onResizeStartRight = () => {
+    this.hideHoverLineAndPoints();
     this.isResizeActive = true;
     this.activeResize = true;
   };
 
-  onResizeStartLeft = (e: MouseEvent | TouchEvent) => {
+  onResizeStartLeft = () => {
+    this.hideHoverLineAndPoints();
     this.isResizeActive = true;
     this.activeResize = false;
   };
 
-  onResizeEndLeft = (e: MouseEvent | TouchEvent) => {
+  onResizeEndLeft = () => {
     this.isResizeActive = false;
     this.activeResize = null;
   };
 
-  onResizeEndRight = (e: MouseEvent | TouchEvent) => {
+  onResizeEndRight = () => {
     this.isResizeActive = false;
     this.activeResize = null;
   };
@@ -297,6 +299,7 @@ export class PyxChart {
   };
 
   onDragStart = (e: MouseEvent | TouchEvent) => {
+    this.hideHoverLineAndPoints();
     this.isDragActive = true;
   };
 
@@ -318,23 +321,29 @@ export class PyxChart {
   };
 
   onMouseLeave = (e: MouseEvent) => {
-    if (e.toElement !== this.toolTip || e.offsetY >= this.height - 100) {
-      this.removePoints();
-      this.verticleLine.classList.remove('show');
-      this.toolTip.style.display = 'none';
+    const cordY = getRelativeOffset(e.clientY, this.positions.top);
+    if (e.toElement !== this.toolTip || cordY >= this.height - 100) {
+      this.hideHoverLineAndPoints();
     }
   };
+
+  hideHoverLineAndPoints() {
+    this.removePoints();
+    this.verticleLine.classList.remove('show');
+    this.toolTip.style.display = 'none';
+  }
 
   doResize(isRight: boolean, e: MouseEvent | TouchEvent) {
     if (isRight === null) {
       return;
     }
+    const cursorX =
+      getRelativeOffset(
+        (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
+        this.positions.left,
+      ) +
+      2 * DEFAULT_SPACING;
     if (!isRight) {
-      const cursorX =
-        ((e as MouseEvent).offsetX >= 0
-          ? (e as MouseEvent).offsetX
-          : (e as TouchEvent).touches[0].clientX - this.positions.left) +
-        2 * DEFAULT_SPACING;
       this.sliceStartIndex = Math.max(
         0,
         Math.max(
@@ -349,11 +358,6 @@ export class PyxChart {
         this.sliceStartIndex = this.sliceEndIndex - 1;
       }
     } else {
-      const cursorX =
-        ((e as MouseEvent).offsetX >= 0
-          ? (e as MouseEvent).offsetX
-          : (e as TouchEvent).touches[0].clientX - this.positions.left) +
-        2 * DEFAULT_SPACING;
       this.sliceEndIndex = Math.min(
         this.countElements,
         Math.max(
@@ -376,10 +380,10 @@ export class PyxChart {
   }
 
   onPreviewControlClick = (e: MouseEvent | TouchEvent) => {
-    const cursorX =
-      (e as MouseEvent).offsetX >= 0
-        ? (e as MouseEvent).offsetX
-        : (e as TouchEvent).touches[0].clientX - this.positions.left;
+    const cursorX = getRelativeOffset(
+      (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
+      this.positions.left,
+    );
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     this.sliceStartIndex = Math.min(
       this.countElements - sliceSize,
@@ -406,11 +410,8 @@ export class PyxChart {
       cancelAnimationFrame(this.mouseMoveAnimationFrame);
     }
     this.mouseMoveAnimationFrame = requestAnimationFrame(() => {
-      if (
-        e.clientX - this.positions.left > DEFAULT_SPACING * 2 &&
-        e.clientX - this.positions.left < this.width
-      ) {
-        const cordX = e.clientX - this.positions.left;
+      const cordX = getRelativeOffset(e.clientX, this.positions.left);
+      if (cordX > DEFAULT_SPACING * 2 && cordX < this.width) {
         const cordY = e.offsetY;
         setNodeAttrs(this.verticleLine, {
           x1: cordX.toString(),
@@ -907,8 +908,9 @@ export class PyxChart {
       }
     });
 
-    this.minValueGlobal = getMin(values);
-    this.maxValueGlobal = getMax(values);
+    const minMax = getMinMax(values);
+    this.minValueGlobal = minMax.min;
+    this.maxValueGlobal = minMax.max;
 
     const getXCord = (index: number): number => {
       return MIN_CONTROL_WIDTH + (this.previewWidth / this.countElements) * index;
@@ -957,8 +959,10 @@ export class PyxChart {
         );
       }
     });
-    this.minValue = getMin(values);
-    this.maxValue = getMax(values);
+
+    const minMax = getMinMax(values);
+    this.minValue = minMax.min;
+    this.maxValue = minMax.max;
     const step =
       values.length === 0
         ? 0
