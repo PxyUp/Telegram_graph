@@ -404,6 +404,7 @@ export class PyxChart {
       const cordX = getRelativeOffset(e.clientX, this.positions.left);
       if (cordX > DEFAULT_SPACING * 2 && cordX < this.width) {
         const cordY = e.offsetY;
+        console.log(cordY);
         setNodeAttrs(this.verticleLine, {
           x1: cordX as any,
           x2: cordX as any,
@@ -447,11 +448,12 @@ export class PyxChart {
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
     const leftPosition = (point.x as number) + DEFAULT_SPACING;
+    const topPosition = (point.y as number) + DEFAULT_SPACING;
     const stylesTooltip = {
       display: 'flex',
       right: 'unset',
       left: `${leftPosition}px`,
-      top: `${(point.y as number) + DEFAULT_SPACING}px`,
+      top: `${topPosition}px`,
     };
     const childContainer = this.toolTip.querySelector('.items') as HTMLElement;
 
@@ -484,9 +486,13 @@ export class PyxChart {
       .forEach(item => childContainer.appendChild(item));
 
     if (leftPosition > this.width - MIN_TOOLTIP_WIDTH) {
-      stylesTooltip.right = `${Math.min(MIN_TOOLTIP_WIDTH, this.width - leftPosition)}px`;
+      stylesTooltip.right = `${Math.min(
+        MIN_TOOLTIP_WIDTH,
+        this.width - leftPosition + DEFAULT_SPACING,
+      )}px`;
       stylesTooltip.left = 'unset';
     }
+
     setStyleBatch(this.toolTip, stylesTooltip);
   }
 
