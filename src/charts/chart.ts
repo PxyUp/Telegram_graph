@@ -94,13 +94,13 @@ export class PyxChart {
 
   private sliceEndIndex = 0;
 
-  private currentSlicePoint: { [key: string]: Array<PointWithValue> } = Object.create(null);
+  private currentSlicePoint: { [key: string]: Array<PointWithValue> } = {};
 
   private verticleLine: SVGElement;
 
-  private columnsVisible: { [key: string]: boolean } = Object.create(null);
+  private columnsVisible: { [key: string]: boolean } = {};
 
-  private columnDatasets: { [key: string]: Array<number> } = Object.create(null);
+  private columnDatasets: { [key: string]: Array<number> } = {};
 
   private countElements: number;
 
@@ -457,12 +457,12 @@ export class PyxChart {
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
     const leftPosition = (point.x as number) + DEFAULT_SPACING;
-    const stylesTooltip = Object.create(null);
-    stylesTooltip['display'] = 'flex';
-    stylesTooltip['right'] = 'unset';
-    stylesTooltip['left'] = `${leftPosition}px`;
-    stylesTooltip['top'] = `${(point.y as number) + DEFAULT_SPACING}px`;
-
+    const stylesTooltip = {
+      display: 'flex',
+      right: 'unset',
+      left: `${leftPosition}px`,
+      top: `${(point.y as number) + DEFAULT_SPACING}px`,
+    };
     const childContainer = this.toolTip.querySelector('.items') as HTMLElement;
 
     // Remove all child from container

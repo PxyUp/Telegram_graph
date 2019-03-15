@@ -1,6 +1,6 @@
 import { Container, MinMax, Point, RectangleOptions } from '../interfaces/chart';
 
-const computedDateArr = Object.create(null);
+const computedDateArr = {} as { [key: number]: Date };
 
 export function setStyleBatch(node: HTMLElement | SVGElement, styles: { [key: string]: string }) {
   const computedStyle = Object.keys(styles)
@@ -46,9 +46,10 @@ export function findClosestIndexPointX(arr: Array<Point>, value: number): number
 }
 
 export function getMinMax(arr: Array<number>): MinMax {
-  const minMax = Object.create(null);
-  minMax['min'] = Number.POSITIVE_INFINITY;
-  minMax['max'] = Number.NEGATIVE_INFINITY;
+  const minMax = {
+    min: Number.POSITIVE_INFINITY,
+    max: Number.NEGATIVE_INFINITY,
+  };
   return arr.reduce((prev, curr) => {
     prev['min'] = Math.min(prev.min, curr);
     prev['max'] = Math.max(prev.max, curr);
