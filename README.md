@@ -11,11 +11,12 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 7. Move many function to utils - 14 Mar 2019, 15:21 CET
 8. Add weekday in tooltip - 14 Mar 2019, 20:55 CET
 9. Change min max function to faster one - 14 Mar 2019, 21:47 CET
+10. Improve performance for chart(minMax, offset, tooltip) - 15 Mar 2019, 13:30 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-58.7 kB (bundle) - 26.77 kB(datasets) = **31.93 kB** (with gzip **17.87 kB**)
+58.9 kB (bundle) - 26.77 kB(datasets) = **32.13 kB** (with gzip **17.95 kB**)
 # Build
 
 ## Localhost (htpp://localhost:9000)
