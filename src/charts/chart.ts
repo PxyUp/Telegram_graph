@@ -51,14 +51,6 @@ export class PyxChart {
   private activeResize: boolean | null = null;
   private positions: ClientRect;
 
-  private charts_svg: HTMLElement;
-  private preview_svg: HTMLElement;
-
-  private controlsContainer: HTMLElement;
-
-  private toolTip: HTMLElement;
-  private toolTipDate: HTMLElement;
-
   private timer: number | null = null;
   private timerPreview: number | null = null;
   private resizeAnimationFrame: number | null = null;
@@ -84,8 +76,6 @@ export class PyxChart {
   private leftResizeControl: SVGElement;
   private rightResizeControl: SVGElement;
 
-  private nightModeControl: HTMLElement;
-
   private night_mod = false;
 
   private horizontSteps: number;
@@ -107,13 +97,15 @@ export class PyxChart {
   constructor(
     private id: number,
     private node: HTMLElement,
+    private charts_svg: HTMLElement | SVGElement,
+    private preview_svg: HTMLElement | SVGElement,
+    private toolTip: HTMLElement,
+    private toolTipDate: HTMLElement,
+    private controlsContainer: HTMLElement,
+    private nightModeControl: HTMLElement,
     private dataset: Chart,
     private options: ChartOptions,
   ) {
-    this.charts_svg = this.node.querySelector('.main_chart');
-    this.preview_svg = this.node.querySelector('.chart_preview');
-    this.toolTip = this.node.querySelector('div.tooltip');
-    this.toolTipDate = this.node.querySelector('div.tooltip p.date');
     this.height = parseInt(this.charts_svg.getAttribute('height'));
     this.width = parseInt(this.charts_svg.getAttribute('width'));
     // Set tooltip max width
@@ -163,12 +155,10 @@ export class PyxChart {
     }
 
     if (!options.withoutControls) {
-      this.controlsContainer = this.node.querySelector('.controls');
       this.generateControls();
     }
 
     if (!options.withoutNightMode) {
-      this.nightModeControl = this.node.querySelector('.night_mode_control a');
       this.addNightModeListener();
     }
   }
@@ -376,7 +366,7 @@ export class PyxChart {
     }
 
     this.drawPreviewControls();
-    this.drawAxisCharts();
+    this.removeAxisXCharts();
     this.draw();
   }
 
@@ -402,7 +392,7 @@ export class PyxChart {
       this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
     }
     this.drawPreviewControls();
-    this.drawAxisCharts();
+    this.removeAxisXCharts();
     this.draw();
   };
 
@@ -414,6 +404,7 @@ export class PyxChart {
       const cordX = getRelativeOffset(e.clientX, this.positions.left);
       if (cordX > DEFAULT_SPACING * 2 && cordX < this.width) {
         const cordY = e.offsetY;
+        console.log(cordY);
         setNodeAttrs(this.verticleLine, {
           x1: cordX as any,
           x2: cordX as any,
@@ -457,11 +448,12 @@ export class PyxChart {
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
     const leftPosition = (point.x as number) + DEFAULT_SPACING;
+    const topPosition = (point.y as number) + DEFAULT_SPACING;
     const stylesTooltip = {
       display: 'flex',
       right: 'unset',
       left: `${leftPosition}px`,
-      top: `${(point.y as number) + DEFAULT_SPACING}px`,
+      top: `${topPosition}px`,
     };
     const childContainer = this.toolTip.querySelector('.items') as HTMLElement;
 
@@ -494,9 +486,13 @@ export class PyxChart {
       .forEach(item => childContainer.appendChild(item));
 
     if (leftPosition > this.width - MIN_TOOLTIP_WIDTH) {
-      stylesTooltip.right = `${Math.min(MIN_TOOLTIP_WIDTH, this.width - leftPosition)}px`;
+      stylesTooltip.right = `${Math.min(
+        MIN_TOOLTIP_WIDTH,
+        this.width - leftPosition + DEFAULT_SPACING,
+      )}px`;
       stylesTooltip.left = 'unset';
     }
+
     setStyleBatch(this.toolTip, stylesTooltip);
   }
 
@@ -776,8 +772,11 @@ export class PyxChart {
     this.refresh();
   }
 
-  drawAxisCharts() {
-    this.charts_svg.querySelectorAll(`g`).forEach(el => el.remove());
+  removeAxisXCharts() {
+    const el = this.charts_svg.querySelector(`g.axis`);
+    if (el) {
+      el.remove();
+    }
   }
 
   drawCurrentSlice(withAnimation = true, withXAxis = true) {
@@ -832,22 +831,23 @@ export class PyxChart {
         getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex - 1]),
       );
       arrayOfText.push(lastItem);
-      const group = generateSvgElement('g', null, null, arrayOfText);
+      const group = generateSvgElement('g', ['axis'], null, arrayOfText);
       this.charts_svg.appendChild(group);
 
-      this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach(item => {
-        fullWidth += item.getBoundingClientRect().width;
-      });
+      for (let index = 0; index < group.children.length; index++) {
+        fullWidth += group.children[index].getBoundingClientRect().width;
+      }
 
       const textDelta =
         (this.width - 2 * DEFAULT_SPACING - fullWidth) / Math.max(mustGeneratedLabels - 1, 2);
       let relWidth = 0;
-      this.charts_svg.querySelectorAll(`text.${classNameAbsLine}`).forEach((item, index) => {
+      for (let index = 0; index < group.children.length; index++) {
+        const item = group.children[index];
         setNodeAttrs(item, {
           x: (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any,
         });
         relWidth += item.getBoundingClientRect().width;
-      });
+      }
     }
 
     const calculatedWidth = this.width - 4 * DEFAULT_SPACING;
@@ -999,14 +999,11 @@ export class PyxChart {
   }
 
   drawSteps(arr: Array<number>) {
-    this.charts_svg.querySelectorAll(`line.${classNameStepLine}`).forEach(item => {
-      item.remove();
-    });
-
-    this.charts_svg.querySelectorAll(`text.${classNameStepTitle}`).forEach(item => {
-      item.remove();
-    });
-
+    const groupSteps = this.charts_svg.querySelector('g.steps');
+    if (groupSteps) {
+      groupSteps.remove();
+    }
+    const stepsElements = [] as Array<SVGElement>;
     let positionY = this.height - DEFAULT_SPACING;
     let delta = positionY / arr.length - 1;
     arr.forEach(step => {
@@ -1026,10 +1023,12 @@ export class PyxChart {
         [],
         step as any,
       );
-      this.charts_svg.prepend(line);
-      this.charts_svg.prepend(text);
+      stepsElements.push(line);
+      stepsElements.push(text);
       positionY -= delta;
     });
+    const groupStepsEl = generateSvgElement('g', ['steps'], null, stepsElements);
+    this.charts_svg.prepend(groupStepsEl);
   }
 
   getTranspilingDataset() {
