@@ -13,11 +13,17 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 9. Change min max function to faster one - 14 Mar 2019, 21:47 CET
 10. Improve performance for chart(minMax, offset, tooltip) - 15 Mar 2019, 13:30 CET
 11. Split bundle to lib and datasets - 15 Mar 2019, 15:14 CET
+12. Improve speed with querySelector and fix tooltip error - 15 Mar 2019, 18:13 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
 **34.6 kB** (with gzip **9.27 kB**)
+
+# Performance 5 graph(with example dataset)
+
+![Performance](https://github.com/PxyUp/Telegram_graph/raw/master/perf_screen.png)
+
 # Build
 
 ## Localhost (htpp://localhost:9000)
