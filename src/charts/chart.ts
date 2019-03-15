@@ -14,7 +14,10 @@ import {
   changePathOnElement,
   createTextNode,
   findClosestIndexPointX,
+  getCoordsX,
+  getCoordsY,
   getMinMax,
+  getOffsetIndex,
   getPathByPoints,
   getRelativeOffset,
   getShortDateByUnix,
@@ -29,12 +32,19 @@ import { generateCheckbox, generateNode, generateSvgElement } from './generator'
 const POINT_RADIUS = 5;
 const MIN_TOOLTIP_WIDTH = 90;
 const DEFAULT_HOR_STEPS = 6;
-const DEFAULT_SPACING = 10;
-const DEFAULT_PREVIEW_SPACING = 16;
+const DEFAULT_SPACING_RIGHT = 30;
+const DEFAULT_SPACING_LEFT = 30;
+const DEFAULT_SPACING_PREVIEW = 10;
+const DEFAULT_SPACING_TOP = 10;
+const DEFAULT_SPACING_BTM = 10;
+const DEFAULT_SPACING_TOP_PREVIEW = 5;
+const DEFAULT_SPACING_BTM_PREVIEW = 5;
+const DEFAULT_SPACING = DEFAULT_SPACING_RIGHT + DEFAULT_SPACING_LEFT;
+const DEFAULT_PREVIEW_SPACING = 10;
 const DEFAULT_SLICE = 19; // Programming + 1
 const SLICE_NUMBER = 5.5;
 const DEFAULT_DAY_COUNT = 6;
-const MIN_CONTROL_WIDTH = 10;
+const MIN_CONTROL_WIDTH = DEFAULT_PREVIEW_SPACING;
 const RESIZE_CONTROL_WIDTH = MIN_CONTROL_WIDTH;
 
 // ClassNames
@@ -127,7 +137,7 @@ export class PyxChart {
         this.sliceStartIndex = Math.max(this.columnDatasets[keyOfColumn].length - sliceSize - 1, 0);
       }
       if (!this.sliceEndIndex) {
-        this.sliceEndIndex = this.columnDatasets[keyOfColumn].length;
+        this.sliceEndIndex = this.columnDatasets[keyOfColumn].length - 1;
       }
     });
 
@@ -148,9 +158,8 @@ export class PyxChart {
     this.draw();
 
     if (!options.withoutPreview) {
-      // Preview
       this.previewHeight = parseInt(this.preview_svg.getAttribute('height'));
-      this.previewWidth = parseInt(this.preview_svg.getAttribute('width')) - DEFAULT_SPACING * 2;
+      this.previewWidth = parseInt(this.preview_svg.getAttribute('width'));
       this.drawPreview();
       this.drawPreviewControls(true);
     }
@@ -333,33 +342,21 @@ export class PyxChart {
       getRelativeOffset(
         (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
         this.positions.left,
-      ) +
-      2 * DEFAULT_SPACING;
+      ) - DEFAULT_PREVIEW_SPACING;
+    const offsetIndex = getOffsetIndex(
+      cursorX,
+      this.previewWidth,
+      DEFAULT_PREVIEW_SPACING,
+      DEFAULT_PREVIEW_SPACING,
+      this.countElements,
+    );
     if (!isRight) {
-      this.sliceStartIndex = Math.max(
-        0,
-        Math.max(
-          0,
-          Math.ceil(
-            ((cursorX - 2 * DEFAULT_SPACING - MIN_CONTROL_WIDTH) / this.previewWidth) *
-              this.countElements,
-          ),
-        ),
-      );
+      this.sliceStartIndex = offsetIndex;
       if (this.sliceStartIndex >= this.sliceEndIndex) {
         this.sliceStartIndex = this.sliceEndIndex - 1;
       }
     } else {
-      this.sliceEndIndex = Math.min(
-        this.countElements,
-        Math.max(
-          0,
-          Math.ceil(
-            ((cursorX - 2 * DEFAULT_SPACING - MIN_CONTROL_WIDTH) / this.previewWidth) *
-              this.countElements,
-          ),
-        ),
-      );
+      this.sliceEndIndex = offsetIndex;
 
       if (this.sliceEndIndex <= this.sliceStartIndex) {
         this.sliceEndIndex = this.sliceStartIndex + 1;
@@ -372,25 +369,31 @@ export class PyxChart {
   }
 
   onPreviewControlClick = (e: MouseEvent | TouchEvent) => {
-    const cursorX = getRelativeOffset(
-      (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
-      this.positions.left,
-    );
+    const cursorX =
+      Math.ceil(
+        getRelativeOffset(
+          (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
+          this.positions.left,
+        ),
+      ) - DEFAULT_PREVIEW_SPACING;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
-    this.sliceStartIndex = Math.min(
-      this.countElements - sliceSize,
-      Math.max(
-        0,
-        Math.ceil((cursorX / this.previewWidth) * (this.countElements - 1)) -
-          Math.floor(sliceSize / 2),
-      ),
+    const offsetIndexLeft = Math.floor(
+      getOffsetIndex(
+        cursorX,
+        this.previewWidth,
+        DEFAULT_PREVIEW_SPACING,
+        DEFAULT_PREVIEW_SPACING,
+        this.countElements,
+      ) -
+        sliceSize / 2,
     );
-    this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
-    if (this.sliceEndIndex === this.countElements) {
+    this.sliceStartIndex = Math.max(offsetIndexLeft, 0);
+    this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements - 1);
+    if (this.sliceEndIndex === this.countElements - 1) {
       this.sliceStartIndex = Math.max(0, this.sliceEndIndex - sliceSize);
     }
     if (this.sliceStartIndex === 0) {
-      this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements);
+      this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements - 2);
     }
     this.drawPreviewControls();
     this.removeAxisXCharts();
@@ -402,10 +405,8 @@ export class PyxChart {
       cancelAnimationFrame(this.mouseMoveAnimationFrame);
     }
     this.mouseMoveAnimationFrame = requestAnimationFrame(() => {
-      const cordX =
-        getRelativeOffset(e.clientX, this.positions.left) +
-        (this.isWindows ? DEFAULT_SPACING - 1 : 0);
-      if (cordX > DEFAULT_SPACING * 2 && cordX < this.width) {
+      const cordX = getRelativeOffset(e.clientX, this.positions.left);
+      if (cordX > DEFAULT_SPACING_LEFT / 2 && cordX < this.width - DEFAULT_SPACING_RIGHT / 2) {
         const cordY = e.offsetY;
         setNodeAttrs(this.verticleLine, {
           x1: cordX as any,
@@ -449,6 +450,8 @@ export class PyxChart {
   }
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
+    // @TODO Fix Tooltip position
+
     const leftPosition = (point.x as number) + DEFAULT_SPACING;
     const topPosition = (point.y as number) + DEFAULT_SPACING;
     const stylesTooltip = {
@@ -459,7 +462,6 @@ export class PyxChart {
     };
     const childContainer = this.toolTip.querySelector('.items') as HTMLElement;
 
-    // Remove all child from container
     removeAllChild(childContainer);
     removeAllChild(this.toolTipDate);
 
@@ -574,7 +576,12 @@ export class PyxChart {
       height: this.previewHeight,
     } as RectangleOptions;
     const leftResizeControlPoint = {
-      x: Math.max(Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth), 0),
+      x: Math.max(
+        0,
+        DEFAULT_PREVIEW_SPACING +
+          (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth -
+          RESIZE_CONTROL_WIDTH,
+      ),
       y: 0,
     } as Point;
 
@@ -603,16 +610,16 @@ export class PyxChart {
       height: this.previewHeight,
     } as RectangleOptions;
     const rightResizeControlPoint = {
-      x:
-        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth) +
-        MIN_CONTROL_WIDTH +
-        Math.floor((this.sliceEndIndex / this.countElements) * this.previewWidth) -
-        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
+      x: Math.min(
+        this.previewWidth - DEFAULT_PREVIEW_SPACING,
+        -DEFAULT_PREVIEW_SPACING +
+          this.previewWidth * (this.sliceEndIndex / (this.countElements - 1)),
+      ),
       y: 0,
     } as Point;
 
     if (!this.rightResizeControl) {
-      const rightResizeRect = generateSvgElement('rect', [classControlResizeName, 'left'], {
+      const rightResizeRect = generateSvgElement('rect', [classControlResizeName, 'right'], {
         x: rightResizeControlPoint.x as any,
         y: rightResizeControlPoint.y as any,
         width: rightResizeControlSize.width as any,
@@ -634,13 +641,19 @@ export class PyxChart {
   drawPreviewCenterControl(): SVGElement {
     const centerControlSize = {
       width:
-        MIN_CONTROL_WIDTH +
-        Math.floor((this.sliceEndIndex / this.countElements) * this.previewWidth) -
-        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
+        Math.min(
+          this.previewWidth - DEFAULT_PREVIEW_SPACING,
+          -DEFAULT_PREVIEW_SPACING +
+            this.previewWidth * (this.sliceEndIndex / (this.countElements - 1)),
+        ) -
+        (DEFAULT_PREVIEW_SPACING +
+          (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth),
       height: this.previewHeight,
     } as RectangleOptions;
     const centerControlPoint = {
-      x: Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
+      x:
+        DEFAULT_PREVIEW_SPACING +
+        (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth,
       y: 0,
     } as Point;
 
@@ -667,11 +680,9 @@ export class PyxChart {
 
   drawLeftNavigateControl(): SVGElement {
     const leftControlSize = {
-      width: Math.max(
-        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth) +
-          MIN_CONTROL_WIDTH,
-        MIN_CONTROL_WIDTH,
-      ),
+      width:
+        DEFAULT_PREVIEW_SPACING +
+        (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth,
       height: this.previewHeight,
     } as RectangleOptions;
 
@@ -691,7 +702,6 @@ export class PyxChart {
       this.preview_svg.appendChild(leftRect);
       return leftRect;
     }
-
     setNodeAttrs(this.leftControl, {
       x: leftControlPoint.x as any,
       y: leftControlPoint.y as any,
@@ -712,11 +722,11 @@ export class PyxChart {
       height: this.previewHeight,
     } as RectangleOptions;
     const rightControlPoint = {
-      x:
-        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth) +
-        MIN_CONTROL_WIDTH +
-        Math.floor((this.sliceEndIndex / this.countElements) * this.previewWidth) -
-        Math.floor((this.sliceStartIndex / this.countElements) * this.previewWidth),
+      x: Math.min(
+        this.previewWidth - DEFAULT_PREVIEW_SPACING,
+        -DEFAULT_PREVIEW_SPACING +
+          this.previewWidth * (this.sliceEndIndex / (this.countElements - 1)),
+      ),
       y: 0,
     } as Point;
 
@@ -792,13 +802,14 @@ export class PyxChart {
         ? Math.max(Math.round(sliceSize / (mustGeneratedLabels - 1)), 1)
         : Math.max(Math.round(sliceSize / (mustGeneratedLabels - 1)), 1);
     let index = this.sliceStartIndex;
-    if (withXAxis) {
+
+    const drawTextAxis = (firstX: number, lastX: number) => {
       const arrayOfText = [];
       const firstItem = generateSvgElement(
         'text',
         [classNameAbsLine],
         {
-          x: (2 * DEFAULT_SPACING) as any,
+          x: 0 as any,
           y: this.height as any,
         },
         [],
@@ -806,13 +817,13 @@ export class PyxChart {
       );
       arrayOfText.push(firstItem);
       index += deltaDays;
-      while (labelCount - 2 > 0 && index < this.sliceEndIndex - 1) {
+      while (labelCount - 2 > 0 && index < this.sliceEndIndex - 2) {
         const item = this.columnDatasets[Type.X][Math.floor(index)];
         const text = generateSvgElement(
           'text',
           [classNameAbsLine],
           {
-            x: (2 * DEFAULT_SPACING) as any,
+            x: 0 as any,
             y: this.height as any,
           },
           [],
@@ -826,45 +837,43 @@ export class PyxChart {
         'text',
         [classNameAbsLine],
         {
-          x: (2 * DEFAULT_SPACING) as any,
+          x: 0 as any,
           y: this.height as any,
         },
         [],
-        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex - 1]),
+        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex]),
       );
       arrayOfText.push(lastItem);
       const group = generateSvgElement('g', ['axis'], null, arrayOfText);
       this.charts_svg.appendChild(group);
-
+      let firstItemX: number;
+      let lastItemX: number;
       for (let index = 0; index < group.children.length; index++) {
-        fullWidth += group.children[index].getBoundingClientRect().width;
+        const item = group.children[index].getBoundingClientRect().width;
+        fullWidth += item;
+        if (index === 0) {
+          firstItemX = item / 2;
+        }
+        if (index === group.children.length - 1) {
+          lastItemX = item / 2;
+        }
       }
 
       const textDelta =
-        (this.width - 2 * DEFAULT_SPACING - fullWidth) / Math.max(mustGeneratedLabels - 1, 2);
+        (Math.max(lastPointX + lastItemX) - (firstPointX - firstItemX) - fullWidth) /
+        Math.max(mustGeneratedLabels - 1, 2);
       let relWidth = 0;
       for (let index = 0; index < group.children.length; index++) {
         const item = group.children[index];
         setNodeAttrs(item, {
-          x: (2 * DEFAULT_SPACING + index * textDelta + relWidth) as any,
+          x: (firstItemX + relWidth + textDelta * index) as any,
         });
         relWidth += item.getBoundingClientRect().width;
       }
-    }
-
-    const calculatedWidth = this.width - 4 * DEFAULT_SPACING;
-
-    const getXCord = (index: number): number => {
-      return 4 * DEFAULT_SPACING + (calculatedWidth / sliceSize) * index;
     };
-    const getYCord = (value: number): number => {
-      return (
-        this.height -
-        DEFAULT_SPACING -
-        ((value - realMinValue) / Math.max(1, this.maxValue - realMinValue)) *
-          (this.height - 2 * DEFAULT_SPACING)
-      );
-    };
+
+    let firstPointX: number;
+    let lastPointX: number;
 
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
@@ -875,15 +884,35 @@ export class PyxChart {
         ) as SVGPathElement;
 
         this.currentSlicePoint[key] = this.columnDatasets[key]
-          .slice(this.sliceStartIndex, this.sliceEndIndex)
+          .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
           .map((point, index) => {
             return {
-              x: getXCord(index),
-              y: getYCord(point),
+              x: getCoordsX(
+                this.width,
+                DEFAULT_SPACING_LEFT,
+                DEFAULT_SPACING_RIGHT,
+                index,
+                sliceSize,
+              ),
+              y: getCoordsY(
+                this.height,
+                DEFAULT_SPACING_TOP,
+                DEFAULT_SPACING_BTM,
+                this.maxValue,
+                realMinValue,
+                point,
+              ),
               value: point,
               date: this.columnDatasets[Type.X][this.sliceStartIndex + index],
             };
           });
+        if (firstPointX === undefined) {
+          firstPointX = this.currentSlicePoint[key][0].x as any;
+        }
+        if (lastPointX === undefined) {
+          lastPointX = this.currentSlicePoint[key][this.sliceEndIndex - this.sliceStartIndex]
+            .x as any;
+        }
 
         if (currentPath) {
           changePathOnElement(currentPath, getPathByPoints(this.currentSlicePoint[key]));
@@ -898,11 +927,16 @@ export class PyxChart {
         });
 
         this.charts_svg.appendChild(path);
+
         if (withAnimation) {
           this.timer = animatePath(path);
         }
       }
     });
+
+    if (withXAxis) {
+      drawTextAxis(firstPointX, lastPointX);
+    }
   }
 
   drawPreview(withAnimation = true) {
@@ -920,19 +954,6 @@ export class PyxChart {
     this.minValueGlobal = minMax.min;
     this.maxValueGlobal = minMax.max;
 
-    const getXCord = (index: number): number => {
-      return MIN_CONTROL_WIDTH + (this.previewWidth / this.countElements) * index;
-    };
-
-    const getYCord = (value: number): number => {
-      return (
-        this.previewHeight -
-        DEFAULT_PREVIEW_SPACING -
-        ((value - this.minValueGlobal) / Math.max(1, this.maxValueGlobal - this.minValueGlobal)) *
-          (this.previewHeight - 2 * DEFAULT_PREVIEW_SPACING)
-      );
-    };
-
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
       if (columnVisible) {
@@ -940,8 +961,21 @@ export class PyxChart {
           id: `pyx_path_preview_${key}`,
           d: getPathByPoints(
             this.columnDatasets[key].map((point, index) => ({
-              x: getXCord(index),
-              y: getYCord(point),
+              x: getCoordsX(
+                this.previewWidth,
+                DEFAULT_SPACING_PREVIEW,
+                DEFAULT_SPACING_PREVIEW,
+                index,
+                this.countElements,
+              ),
+              y: getCoordsY(
+                this.previewHeight,
+                DEFAULT_SPACING_TOP_PREVIEW,
+                DEFAULT_SPACING_BTM_PREVIEW,
+                this.maxValueGlobal,
+                this.minValueGlobal,
+                point,
+              ),
             })),
           ),
           stroke: this.dataset.colors[key],

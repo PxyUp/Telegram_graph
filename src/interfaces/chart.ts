@@ -13,8 +13,8 @@ export interface LinePoints {
 }
 
 export interface Point {
-  x: number | string;
-  y: number | string;
+  x: number;
+  y: number;
 }
 
 export interface PointWithColor extends Point {

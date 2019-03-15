@@ -150,3 +150,54 @@ export function setNodeAttrs(
 export function isWin() {
   return navigator.platform.indexOf('Win') > -1;
 }
+
+export function getCoordsX(
+  chartsWidth: number,
+  spacingLeft: number,
+  spacingRight: number,
+  indexElem: number,
+  count: number,
+): number {
+  if (count === 1) {
+    return spacingLeft + (chartsWidth - spacingLeft - spacingRight) / 2;
+  }
+  return spacingLeft + ((chartsWidth - spacingLeft - spacingRight) / count) * indexElem;
+}
+
+export function getCoordsY(
+  chartsHeight: number,
+  spacingTop: number,
+  spacingBtn: number,
+  maxValue: number,
+  minValue: number,
+  value: number,
+): number {
+  if (value === maxValue) {
+    return spacingTop;
+  }
+  if (value === minValue) {
+    return chartsHeight - spacingBtn;
+  }
+  if (minValue === maxValue) {
+    return spacingTop + (chartsHeight - spacingTop - spacingBtn) / 2;
+  }
+  return (
+    chartsHeight -
+    spacingBtn -
+    (chartsHeight - spacingTop - spacingBtn) * ((value - minValue) / (maxValue - minValue))
+  );
+}
+
+export function getOffsetIndex(
+  cursorX: number,
+  width: number,
+  spacingLeft: number,
+  spacingRight: number,
+  counts: number,
+) {
+  const index = (cursorX / (width - spacingLeft - spacingRight)) * counts;
+  if (index > counts / 2) {
+    return Math.min(Math.ceil(index), counts - 1);
+  }
+  return Math.max(Math.floor(index), 0);
+}
