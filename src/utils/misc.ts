@@ -134,21 +134,6 @@ export function createTextNode(text: string): Text {
   return document.createTextNode(text);
 }
 
-export function animatePath(path: SVGElement): number {
-  const length = (path as SVGPathElement).getTotalLength();
-  const oldTransition = path.style.transition;
-  path.style.strokeDasharray = length + ' ' + length;
-  path.style.strokeDashoffset = length.toString();
-  path.getBoundingClientRect();
-  path.style.transition = `stroke-dashoffset 0.8s ease-in-out`;
-  path.style.strokeDashoffset = '0';
-
-  return setTimeout(() => {
-    path.style.transition = oldTransition;
-    path.style.strokeDasharray = 'none';
-  }, 800);
-}
-
 export function addNodeListener(
   node: HTMLElement | Document | SVGElement,
   listeners: { [key: string]: any | Array<any> },

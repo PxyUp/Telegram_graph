@@ -9,7 +9,6 @@ import {
 } from '../interfaces/chart';
 import {
   addNodeListener,
-  animatePath,
   changePathOnElement,
   createTextNode,
   findClosestIndexPointX,
@@ -56,9 +55,6 @@ export class PyxChart {
   private isResizeActive = false;
   private activeResize: boolean | null = null;
   private positions: ClientRect;
-
-  private timer: number | null = null;
-  private timerPreview: number | null = null;
   private resizeAnimationFrame: number | null = null;
   private dragAnimationFrame: number | null = null;
   private mouseMoveAnimationFrame: number | null = null;
@@ -660,10 +656,6 @@ export class PyxChart {
   }
 
   resetTimer() {
-    clearTimeout(this.timer);
-    this.timer = null;
-    clearTimeout(this.timerPreview);
-    this.timerPreview = null;
     cancelAnimationFrame(this.dragAnimationFrame);
     this.dragAnimationFrame = null;
     cancelAnimationFrame(this.resizeAnimationFrame);
@@ -738,10 +730,6 @@ export class PyxChart {
         });
 
         this.charts_svg.appendChild(path);
-
-        if (withAnimation) {
-          this.timer = animatePath(path);
-        }
       }
     });
 
@@ -794,9 +782,6 @@ export class PyxChart {
         });
 
         this.preview_svg.prepend(path);
-        if (withAnimation) {
-          this.timerPreview = animatePath(path);
-        }
       }
     });
   }
