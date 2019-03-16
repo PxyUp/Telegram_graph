@@ -158,7 +158,7 @@ export class PyxChart {
       setStyleBatch(this.axisContainer, {
         top: `${this.height - DEFAULT_SPACING_BTM}px`,
         width: `${this.width - (DEFAULT_SPACING_LEFT + DEFAULT_SPACING_RIGHT) / 2}px`,
-        'padding-left': `${DEFAULT_SPACING_LEFT / 2}px`,
+        'padding-left': `${(DEFAULT_SPACING_LEFT / 3) * 2}px`,
         'padding-right': `${DEFAULT_SPACING_RIGHT / 2}px`,
       });
     }
