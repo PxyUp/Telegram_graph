@@ -587,7 +587,8 @@ export class PyxChart {
       x: Math.max(
         0,
         DEFAULT_PREVIEW_SPACING +
-          (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth -
+          (this.sliceStartIndex / (this.countElements - 1)) *
+            (this.previewWidth - 1 * DEFAULT_PREVIEW_SPACING) -
           2 * MIN_CONTROL_WIDTH,
       ),
       y: 0,
@@ -620,8 +621,8 @@ export class PyxChart {
     const rightResizeControlPoint = {
       x: Math.min(
         this.previewWidth - DEFAULT_PREVIEW_SPACING,
-        -DEFAULT_PREVIEW_SPACING +
-          this.previewWidth * (this.sliceEndIndex / (this.countElements - 1)),
+        (this.previewWidth - 1 * DEFAULT_PREVIEW_SPACING) *
+          (this.sliceEndIndex / (this.countElements - 1)),
       ),
       y: 0,
     } as Point;
@@ -653,20 +654,24 @@ export class PyxChart {
           0,
           Math.min(
             this.previewWidth - DEFAULT_PREVIEW_SPACING,
-            -DEFAULT_PREVIEW_SPACING +
-              this.previewWidth * (this.sliceEndIndex / (this.countElements - 1)),
+            (this.previewWidth - 1 * DEFAULT_PREVIEW_SPACING) *
+              (this.sliceEndIndex / (this.countElements - 1)),
           ) -
             (DEFAULT_PREVIEW_SPACING +
-              (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth),
+              (this.sliceStartIndex / (this.countElements - 1)) *
+                (this.previewWidth - 1 * DEFAULT_PREVIEW_SPACING)),
           0,
         ) + MIN_CONTROL_WIDTH,
       height: this.previewHeight,
     } as RectangleOptions;
     const centerControlPoint = {
-      x:
+      x: Math.max(
         DEFAULT_PREVIEW_SPACING +
-        (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth -
+          (this.sliceStartIndex / (this.countElements - 1)) *
+            (this.previewWidth - 1 * DEFAULT_PREVIEW_SPACING) -
+          MIN_CONTROL_WIDTH,
         MIN_CONTROL_WIDTH,
+      ),
       y: 0,
     } as Point;
 
@@ -695,7 +700,8 @@ export class PyxChart {
     const leftControlSize = {
       width:
         DEFAULT_PREVIEW_SPACING +
-        (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth -
+        (this.sliceStartIndex / (this.countElements - 1)) *
+          (this.previewWidth - 1 * DEFAULT_PREVIEW_SPACING) -
         MIN_CONTROL_WIDTH,
       height: this.previewHeight,
     } as RectangleOptions;
@@ -729,8 +735,9 @@ export class PyxChart {
     const rightControlSize = {
       width: Math.max(
         Math.floor(
-          ((this.countElements - this.sliceEndIndex) / this.countElements) * this.previewWidth,
-        ),
+          ((this.countElements - this.sliceEndIndex) / this.countElements) *
+            (this.previewWidth - 1 * DEFAULT_PREVIEW_SPACING),
+        ) + MIN_CONTROL_WIDTH,
         MIN_CONTROL_WIDTH,
       ),
       height: this.previewHeight,
@@ -738,8 +745,8 @@ export class PyxChart {
     const rightControlPoint = {
       x: Math.min(
         this.previewWidth - DEFAULT_PREVIEW_SPACING,
-        -DEFAULT_PREVIEW_SPACING +
-          this.previewWidth * (this.sliceEndIndex / (this.countElements - 1)),
+        (this.previewWidth - 1 * DEFAULT_PREVIEW_SPACING) *
+          (this.sliceEndIndex / (this.countElements - 1)),
       ),
       y: 0,
     } as Point;
