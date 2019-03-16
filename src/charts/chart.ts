@@ -406,7 +406,7 @@ export class PyxChart {
       cancelAnimationFrame(this.mouseMoveAnimationFrame);
     }
     this.mouseMoveAnimationFrame = requestAnimationFrame(() => {
-      const cordX = getRelativeOffset(e.clientX, this.positions.left);
+      const cordX = e.offsetX;
       if (cordX > DEFAULT_SPACING_LEFT / 2 && cordX < this.width - DEFAULT_SPACING_RIGHT / 2) {
         const cordY = e.offsetY;
         setNodeAttrs(this.verticleLine, {
