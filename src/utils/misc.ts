@@ -185,16 +185,47 @@ export function getCoordsY(
   );
 }
 
-export function getOffsetIndex(
-  cursorX: number,
-  width: number,
+export function relativeIndexByOffset(
+  offsetX: number,
+  fullWidth: number,
   spacingLeft: number,
   spacingRight: number,
-  counts: number,
-) {
-  const index = (cursorX / (width - spacingLeft - spacingRight)) * counts;
-  if (index > counts / 2) {
-    return Math.min(Math.ceil(index), counts - 1);
+  count: number,
+): number {
+  if (offsetX <= spacingLeft) {
+    return 0;
   }
-  return Math.max(Math.floor(index), 0);
+
+  if (offsetX >= fullWidth - spacingRight) {
+    return count - 1;
+  }
+
+  return Math.min(
+    count - 1,
+    Math.round(((offsetX - spacingLeft) / (fullWidth - spacingLeft - spacingRight)) * (count - 1)),
+  );
+}
+
+export function getLeftTransitionByIndex(
+  leftIndex: number,
+  fullWidth: number,
+  spacingLeft: number,
+  spacingRight: number,
+  count: number,
+): number {
+  return -(
+    fullWidth -
+    (leftIndex / (count - 1)) * (fullWidth - spacingLeft - spacingRight) -
+    spacingRight
+  );
+}
+
+export function getRightTransitionByIndex(
+  rightIndex: number,
+  fullWidth: number,
+  spacingLeft: number,
+  spacingRight: number,
+  count: number,
+): number {
+  return (rightIndex / (count - 1)) * (fullWidth - spacingLeft - spacingRight) + spacingLeft;
 }

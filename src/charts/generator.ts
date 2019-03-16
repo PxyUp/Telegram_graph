@@ -149,6 +149,7 @@ export function chartsGenerator(
         }),
       },
     });
+
     const previewNode = generateNode({
       tag: 'svg',
       skip: options.withoutPreview,
@@ -160,6 +161,59 @@ export function chartsGenerator(
         }),
       },
     });
+
+    const leftResizeControl = generateNode({
+      tag: 'div',
+      classList: ['resize'],
+      children: [
+        generateNode({
+          tag: 'div',
+          classList: ['caret'],
+        }),
+      ],
+    });
+
+    const rightResizeControl = generateNode({
+      tag: 'div',
+      classList: ['resize'],
+      children: [
+        generateNode({
+          tag: 'div',
+          classList: ['caret'],
+        }),
+      ],
+    });
+
+    const leftPreviewContainer = generateNode({
+      tag: 'div',
+      classList: ['control', 'left'],
+      children: [leftResizeControl],
+    });
+
+    const centerPreviewContainer = generateNode({
+      tag: 'div',
+      classList: ['control', 'center'],
+    });
+
+    const rightPreviewContainer = generateNode({
+      tag: 'div',
+      classList: ['control', 'right'],
+      children: [rightResizeControl],
+    });
+
+    const previewControlContainer = generateNode({
+      tag: 'div',
+      classList: ['preview_controls'],
+      children: [leftPreviewContainer, centerPreviewContainer, rightPreviewContainer],
+    });
+
+    const previewContainer = generateNode({
+      tag: 'div',
+      skip: options.withoutPreview,
+      classList: ['preview_container'],
+      children: [previewNode, previewControlContainer],
+    });
+
     const toolTipDateNode = generateNode({
       tag: 'p',
       classList: ['date'],
@@ -193,7 +247,7 @@ export function chartsGenerator(
       children: [
         chartsNode,
         axisContainer,
-        previewNode,
+        previewContainer,
         toolTipNode,
         controlsNode,
         {
@@ -214,6 +268,12 @@ export function chartsGenerator(
       controlsNode as HTMLElement,
       nightModeControl as HTMLElement,
       axisContainer as HTMLElement,
+      leftPreviewContainer as HTMLElement,
+      rightPreviewContainer as HTMLElement,
+      centerPreviewContainer as HTMLElement,
+      leftResizeControl as HTMLElement,
+      rightResizeControl as HTMLElement,
+      previewControlContainer as HTMLElement,
       dataset,
       options,
     );
