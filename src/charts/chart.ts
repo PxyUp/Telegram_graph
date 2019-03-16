@@ -418,8 +418,12 @@ export class PyxChart {
     }
     this.mouseMoveAnimationFrame = requestAnimationFrame(() => {
       const cordX = e.offsetX;
-      if (cordX > DEFAULT_SPACING_LEFT / 2 && cordX < this.width - DEFAULT_SPACING_RIGHT / 2) {
-        const cordY = e.offsetY;
+      const cordY = e.offsetY;
+      if (
+        cordX > DEFAULT_SPACING_LEFT / 2 &&
+        cordX < this.width - DEFAULT_SPACING_RIGHT / 2 &&
+        cordY < this.height - DEFAULT_SPACING_BTM
+      ) {
         setNodeAttrs(this.verticleLine, {
           x1: cordX as any,
           x2: cordX as any,
