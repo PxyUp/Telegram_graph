@@ -25,6 +25,7 @@ import {
   removeAllChild,
   removeNodeListener,
   setNodeAttrs,
+  setOptionsForEvent,
   setStyleBatch,
 } from '../utils/misc';
 import { generateCheckbox, generateNode, generateSvgElement } from './generator';
@@ -271,17 +272,15 @@ export class PyxChart {
     this.activeResize = null;
   };
 
-  onResizeStartRight = (e: MouseEvent) => {
-    e.stopPropagation();
-    this.isDragActive = false;
+  onResizeStartRight = (e: DragEvent) => {
+    setOptionsForEvent(e);
     this.hideHoverLineAndPoints();
     this.isResizeActive = true;
     this.activeResize = true;
   };
 
-  onResizeStartLeft = (e: MouseEvent) => {
-    e.stopPropagation();
-    this.isDragActive = false;
+  onResizeStartLeft = (e: DragEvent) => {
+    setOptionsForEvent(e);
     this.hideHoverLineAndPoints();
     this.isResizeActive = true;
     this.activeResize = false;
@@ -291,14 +290,11 @@ export class PyxChart {
     e.stopPropagation();
   };
 
-  onResizeEndLeft = () => {
-    this.isResizeActive = false;
-    this.activeResize = null;
-  };
-
-  onResizeEndRight = () => {
-    this.isResizeActive = false;
-    this.activeResize = null;
+  onResizeEnd = () => {
+    if (this.isResizeActive) {
+      this.isResizeActive = false;
+      this.activeResize = null;
+    }
   };
 
   onResize = (e: MouseEvent | TouchEvent) => {
@@ -310,17 +306,19 @@ export class PyxChart {
     }
   };
 
-  onDragStart = (e: MouseEvent | TouchEvent) => {
-    e.stopPropagation();
+  onDragStart = (e: DragEvent) => {
+    setOptionsForEvent(e);
     this.hideHoverLineAndPoints();
     this.isDragActive = true;
   };
 
-  onDragEnd = (e: MouseEvent | TouchEvent) => {
-    this.isDragActive = false;
+  onDragEnd = () => {
+    if (this.isDragActive) {
+      this.isDragActive = false;
+    }
   };
 
-  onDrag = (e: MouseEvent | TouchEvent) => {
+  onDrag = (e: DragEvent | TouchEvent) => {
     if (this.isDragActive) {
       if (this.dragAnimationFrame) {
         cancelAnimationFrame(this.dragAnimationFrame);
@@ -347,6 +345,9 @@ export class PyxChart {
   }
 
   doResize(isRight: boolean, e: MouseEvent | TouchEvent) {
+    if (e.type === 'drag' && (e as DragEvent).clientX <= 0) {
+      return;
+    }
     if (isRight === null) {
       return;
     }
@@ -379,9 +380,12 @@ export class PyxChart {
     this.draw();
   }
 
-  onPreviewControlClick = (e: MouseEvent | TouchEvent) => {
+  onPreviewControlClick = (e: DragEvent | TouchEvent) => {
+    if (e.type === 'drag' && (e as DragEvent).clientX <= 0) {
+      return;
+    }
     const cursorX = getRelativeOffset(
-      (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
+      (e as DragEvent).clientX || (e as TouchEvent).touches[0].clientX,
       this.positions.left,
     );
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
@@ -890,32 +894,38 @@ export class PyxChart {
   };
 
   private CENTRAL_CONTROL_LISTENERS = {
-    mousedown: this.onDragStart,
-    mouseout: this.onDrag,
-    mouseup: this.onDragEnd,
+    dragstart: this.onDragStart,
+    drag: this.onDrag,
+    dragend: this.onDragEnd,
     touchstart: this.onDragStart,
     touchmove: this.onDrag,
     touchend: this.onDragEnd,
-    touchcancel: this.onDrag,
+    //touchstart: this.onDragStart,
   };
 
   private PREVIEW_CHART_LISTENERS = {
-    mousemove: [this.onDrag, this.onResize],
-    touchmove: [this.onDrag, this.onResize],
+    //mousemove: [this.onResize],
+    //touchmove: [this.onResize],
+    //mouseup: [this.onResizeEnd],
+    //touchend: [this.onResizeEnd]
   };
 
   private LEFT_RESIZE_CONTROL_LISTENERS = {
-    mouseup: this.onResizeEndLeft,
-    mousedown: this.onResizeStartLeft,
-    touchend: this.onResizeEndLeft,
+    dragstart: this.onResizeStartLeft,
+    drag: this.onResize,
+    dragend: this.onResizeEnd,
+    touchmove: this.onResize,
     touchstart: this.onResizeStartLeft,
+    touchend: this.onResizeEnd,
     click: this.stopProp,
   };
 
   private RIGHT_RESIZE_CONTROL_LISTENERS = {
-    mouseup: this.onResizeEndRight,
-    mousedown: this.onResizeStartRight,
-    touchend: this.onResizeEndRight,
+    dragstart: this.onResizeStartRight,
+    drag: this.onResize,
+    touchmove: this.onResize,
+    dragend: this.onResizeEnd,
+    touchend: this.onResizeEnd,
     touchstart: this.onResizeStartRight,
     click: this.stopProp,
   };

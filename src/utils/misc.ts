@@ -229,3 +229,11 @@ export function getRightTransitionByIndex(
 ): number {
   return (rightIndex / (count - 1)) * (fullWidth - spacingLeft - spacingRight) + spacingLeft;
 }
+
+export function setOptionsForEvent(e: DragEvent) {
+  if (e.type === 'dragstart') {
+    document.body.style.cursor = 'pointer';
+    (e as DragEvent).dataTransfer.effectAllowed = 'move';
+    (e as DragEvent).dataTransfer.setDragImage(new Image(), 0, 0);
+  }
+}

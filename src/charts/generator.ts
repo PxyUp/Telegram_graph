@@ -165,6 +165,9 @@ export function chartsGenerator(
     const leftResizeControl = generateNode({
       tag: 'div',
       classList: ['resize'],
+      attrs: {
+        draggable: 'true',
+      },
       children: [
         generateNode({
           tag: 'div',
@@ -176,6 +179,9 @@ export function chartsGenerator(
     const rightResizeControl = generateNode({
       tag: 'div',
       classList: ['resize'],
+      attrs: {
+        draggable: 'true',
+      },
       children: [
         generateNode({
           tag: 'div',
@@ -193,6 +199,9 @@ export function chartsGenerator(
     const centerPreviewContainer = generateNode({
       tag: 'div',
       classList: ['control', 'center'],
+      attrs: {
+        draggable: 'true',
+      },
     });
 
     const rightPreviewContainer = generateNode({
