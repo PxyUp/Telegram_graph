@@ -142,7 +142,7 @@ export class PyxChart {
       x1: 0 as any,
       x2: 0 as any,
       y1: 0 as any,
-      y2: (this.height - DEFAULT_SPACING) as any,
+      y2: (this.height - DEFAULT_SPACING_BTM) as any,
     });
 
     this.charts_svg.appendChild(this.verticleLine);
@@ -150,6 +150,7 @@ export class PyxChart {
     this.addMouseListener();
 
     this.positions = this.charts_svg.getBoundingClientRect();
+
     if (!options.withoutAxisLabel) {
       setStyleBatch(this.axisContainer, {
         top: `${this.height - DEFAULT_SPACING_BTM}px`,
@@ -206,6 +207,7 @@ export class PyxChart {
   };
 
   onCheckBoxClick = (e: MouseEvent) => {
+    this.removePoints();
     let target = e.target as HTMLElement;
     let key = target.getAttribute('key');
     while (!key || target === document.body) {
@@ -219,17 +221,15 @@ export class PyxChart {
 
   addMouseListener() {
     addNodeListener(this.charts_svg, this.SVG_CHARTS_LISTENERS);
-    addNodeListener(document, {
-      mouseup: this.onMouseUp,
-    });
+    addNodeListener(document, this.DOCUMENT_LISTENERS);
+    addNodeListener(this.toolTip, this.TOOLTIP_LISTENERS);
   }
 
   destroy(withRemove = true) {
     this.resetTimer();
     removeNodeListener(this.charts_svg, this.SVG_CHARTS_LISTENERS);
-    removeNodeListener(document, {
-      mouseup: this.onMouseUp,
-    });
+    removeNodeListener(document, this.DOCUMENT_LISTENERS);
+    removeNodeListener(this.toolTip, this.TOOLTIP_LISTENERS);
 
     if (!this.options.withoutControls) {
       this.controlsContainer.querySelectorAll("input[type='checkbox']").forEach(el => {
@@ -338,6 +338,10 @@ export class PyxChart {
     if (e.toElement !== this.toolTip || cordY >= this.height - 100) {
       this.hideHoverLineAndPoints();
     }
+  };
+
+  onToolTipLeave = () => {
+    this.hideHoverLineAndPoints();
   };
 
   hideHoverLineAndPoints() {
@@ -906,6 +910,14 @@ export class PyxChart {
   private PREVIEW_CHART_LISTENERS = {
     mousemove: [this.onDrag, this.onResize],
     touchmove: [this.onDrag, this.onResize],
+  };
+
+  private DOCUMENT_LISTENERS = {
+    mouseup: this.onMouseUp,
+  };
+
+  private TOOLTIP_LISTENERS = {
+    mouseleave: this.onToolTipLeave,
   };
 
   private LEFT_RESIZE_CONTROL_LISTENERS = {
