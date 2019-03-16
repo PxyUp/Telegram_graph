@@ -8,6 +8,7 @@
     "build": "webpack",
     "build:prod": "webpack --mode=production",
     "serve": "webpack-dev-server",
+    "build:github": "yarn build:prod && git add docs && git commit -m 'github pages'",
     "format:code": "prettier --write \"src/**/*.{ts,js,?css}\""
   },
   "repository": {
@@ -22,13 +23,13 @@
   "homepage": "https://github.com/PxyUp/Telegram_graph#readme",
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "build:github"
     }
   },
   "lint-staged": {
     "src/**/*.{ts,js,?css}": [
       "prettier --write",
-      "build:prod",
       "git add"
     ]
   },
