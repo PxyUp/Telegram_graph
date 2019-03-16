@@ -46,7 +46,6 @@ const SLICE_NUMBER = 5.5;
 const DEFAULT_DAY_COUNT = 6;
 const MIN_CONTROL_WIDTH = DEFAULT_PREVIEW_SPACING;
 const RESIZE_CONTROL_WIDTH = MIN_CONTROL_WIDTH;
-
 // ClassNames
 const classNameStepLine = 'line_step';
 const classControlName = 'control';
@@ -115,7 +114,6 @@ export class PyxChart {
     private nightModeControl: HTMLElement,
     private dataset: Chart,
     private options: ChartOptions,
-    private isWindows: boolean,
   ) {
     this.height = parseInt(this.charts_svg.getAttribute('height'));
     this.width = parseInt(this.charts_svg.getAttribute('width'));
@@ -800,7 +798,7 @@ export class PyxChart {
 
   drawCurrentSlice(withAnimation = true, withXAxis = true) {
     const realMinValue = this.minValue >= 0 ? 0 : this.minValue;
-    const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
+    const sliceSize = this.sliceEndIndex - this.sliceStartIndex + 1;
     let fullWidth = 0;
     let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
     const mustGeneratedLabels = labelCount;
@@ -871,7 +869,8 @@ export class PyxChart {
       this.charts_svg.appendChild(group);
       let firstItemX: number;
       let lastItemX: number;
-      for (let index = 0; index < group.children.length; index++) {
+      const lengthChild = group.children.length;
+      for (let index = 0; index < lengthChild; index++) {
         const item = group.children[index].getBoundingClientRect().width;
         fullWidth += item;
         if (index === 0) {
@@ -882,16 +881,22 @@ export class PyxChart {
         }
       }
 
-      const textDelta =
-        (Math.max(lastX + lastItemX) - (firstX - firstItemX) - fullWidth) /
-        Math.max(arrayOfText.length - 1, 1);
-      let relWidth = 0;
-      for (let index = 0; index < group.children.length; index++) {
-        const item = group.children[index];
-        setNodeAttrs(item, {
-          x: (firstItemX + relWidth + textDelta * index) as any,
+      if (lengthChild === 1) {
+        setNodeAttrs(group.children[0], {
+          x: (firstX - firstItemX) as any,
         });
-        relWidth += item.getBoundingClientRect().width;
+      } else {
+        const textDelta =
+          (Math.max(lastX + lastItemX) - (firstX - firstItemX) - fullWidth) /
+          Math.max(arrayOfText.length - 1, 1);
+        let relWidth = 0;
+        for (let index = 0; index < lengthChild; index++) {
+          const item = group.children[index];
+          setNodeAttrs(item, {
+            x: (firstItemX + relWidth + textDelta * index) as any,
+          });
+          relWidth += item.getBoundingClientRect().width;
+        }
       }
     };
 

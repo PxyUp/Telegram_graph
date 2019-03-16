@@ -147,10 +147,6 @@ export function setNodeAttrs(
   });
 }
 
-export function isWin() {
-  return navigator.platform.indexOf('Win') > -1;
-}
-
 export function getCoordsX(
   chartsWidth: number,
   spacingLeft: number,
@@ -161,7 +157,7 @@ export function getCoordsX(
   if (count === 1) {
     return spacingLeft + (chartsWidth - spacingLeft - spacingRight) / 2;
   }
-  return spacingLeft + ((chartsWidth - spacingLeft - spacingRight) / count) * indexElem;
+  return spacingLeft + ((chartsWidth - spacingLeft - spacingRight) / (count - 1)) * indexElem;
 }
 
 export function getCoordsY(
