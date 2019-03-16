@@ -23,8 +23,7 @@
   "homepage": "https://github.com/PxyUp/Telegram_graph#readme",
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "yarn build:github"
+      "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {
