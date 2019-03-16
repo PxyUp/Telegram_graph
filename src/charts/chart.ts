@@ -805,28 +805,28 @@ export class PyxChart {
     let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
     const mustGeneratedLabels = labelCount;
     const deltaDays =
-      sliceSize > DEFAULT_DAY_COUNT
-        ? Math.max(Math.round(sliceSize / (mustGeneratedLabels - 1)), 1)
-        : Math.max(Math.round(sliceSize / (mustGeneratedLabels - 1)), 1);
+      sliceSize <= DEFAULT_DAY_COUNT + 2 ? 1 : Math.max(sliceSize / (mustGeneratedLabels - 1), 1);
     let index = this.sliceStartIndex;
 
     const drawTextAxis = (firstX: number, lastX: number) => {
       const arrayOfText = [];
-      const firstItem = generateSvgElement(
-        'text',
-        [classNameAbsLine],
-        {
-          x: 0 as any,
-          y: this.height as any,
-        },
-        [],
-        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex]),
-      );
-      arrayOfText.push(firstItem);
-      index += deltaDays;
-      while (labelCount - 2 > 0 && index < this.sliceEndIndex - 2) {
-        const item = this.columnDatasets[Type.X][Math.floor(index)];
-        const text = generateSvgElement(
+
+      if (deltaDays == 1) {
+        for (let i = this.sliceStartIndex; i <= this.sliceEndIndex; i++) {
+          const text = generateSvgElement(
+            'text',
+            [classNameAbsLine],
+            {
+              x: 0 as any,
+              y: this.height as any,
+            },
+            [],
+            getShortDateByUnix(this.columnDatasets[Type.X][i]),
+          );
+          arrayOfText.push(text);
+        }
+      } else {
+        const firstItem = generateSvgElement(
           'text',
           [classNameAbsLine],
           {
@@ -834,23 +834,39 @@ export class PyxChart {
             y: this.height as any,
           },
           [],
-          getShortDateByUnix(item),
+          getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex]),
         );
-        arrayOfText.push(text);
-        labelCount -= 1;
+        arrayOfText.push(firstItem);
         index += deltaDays;
+
+        while (labelCount - 2 > 0 && index < this.sliceEndIndex - 2) {
+          const item = this.columnDatasets[Type.X][Math.ceil(index)];
+          const text = generateSvgElement(
+            'text',
+            [classNameAbsLine],
+            {
+              x: 0 as any,
+              y: this.height as any,
+            },
+            [],
+            getShortDateByUnix(item),
+          );
+          arrayOfText.push(text);
+          labelCount -= 1;
+          index += deltaDays;
+        }
+        const lastItem = generateSvgElement(
+          'text',
+          [classNameAbsLine],
+          {
+            x: 0 as any,
+            y: this.height as any,
+          },
+          [],
+          getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex]),
+        );
+        arrayOfText.push(lastItem);
       }
-      const lastItem = generateSvgElement(
-        'text',
-        [classNameAbsLine],
-        {
-          x: 0 as any,
-          y: this.height as any,
-        },
-        [],
-        getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex]),
-      );
-      arrayOfText.push(lastItem);
       const group = generateSvgElement('g', ['axis'], null, arrayOfText);
       this.charts_svg.appendChild(group);
       let firstItemX: number;
@@ -868,7 +884,7 @@ export class PyxChart {
 
       const textDelta =
         (Math.max(lastX + lastItemX) - (firstX - firstItemX) - fullWidth) /
-        Math.max(mustGeneratedLabels - 1, 2);
+        Math.max(arrayOfText.length - 1, 1);
       let relWidth = 0;
       for (let index = 0; index < group.children.length; index++) {
         const item = group.children[index];
