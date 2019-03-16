@@ -266,7 +266,6 @@ export class PyxChart {
   }
 
   onMouseUp = (e: any) => {
-    console.log(e);
     this.isResizeActive = false;
     this.isDragActive = false;
     this.activeResize = null;
@@ -274,6 +273,7 @@ export class PyxChart {
 
   onResizeStartRight = (e: MouseEvent) => {
     e.stopPropagation();
+    this.isDragActive = false;
     this.hideHoverLineAndPoints();
     this.isResizeActive = true;
     this.activeResize = true;
@@ -281,6 +281,7 @@ export class PyxChart {
 
   onResizeStartLeft = (e: MouseEvent) => {
     e.stopPropagation();
+    this.isDragActive = false;
     this.hideHoverLineAndPoints();
     this.isResizeActive = true;
     this.activeResize = false;
