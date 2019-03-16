@@ -13,8 +13,8 @@ export interface LinePoints {
 }
 
 export interface Point {
-  x: number | string;
-  y: number | string;
+  x: number;
+  y: number;
 }
 
 export interface PointWithColor extends Point {
@@ -37,6 +37,7 @@ export interface ChartOptions {
   withoutPreview?: boolean;
   withoutControls?: boolean;
   withoutNightMode?: boolean;
+  withoutAxisLabel?: boolean;
   chartsContainer?: Container;
   previewContainer?: Container;
   horizontSteps?: number;

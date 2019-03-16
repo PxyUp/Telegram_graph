@@ -147,6 +147,85 @@ export function setNodeAttrs(
   });
 }
 
-export function isWin() {
-  return navigator.platform.indexOf('Win') > -1;
+export function getCoordsX(
+  chartsWidth: number,
+  spacingLeft: number,
+  spacingRight: number,
+  indexElem: number,
+  count: number,
+): number {
+  if (count === 1) {
+    return spacingLeft + (chartsWidth - spacingLeft - spacingRight) / 2;
+  }
+  return spacingLeft + ((chartsWidth - spacingLeft - spacingRight) / (count - 1)) * indexElem;
+}
+
+export function getCoordsY(
+  chartsHeight: number,
+  spacingTop: number,
+  spacingBtn: number,
+  maxValue: number,
+  minValue: number,
+  value: number,
+): number {
+  if (value === maxValue) {
+    return spacingTop;
+  }
+  if (value === minValue) {
+    return chartsHeight - spacingBtn;
+  }
+  if (minValue === maxValue) {
+    return chartsHeight - spacingBtn - (chartsHeight - spacingTop - spacingBtn) / 2;
+  }
+
+  return (
+    chartsHeight -
+    spacingBtn -
+    (chartsHeight - spacingTop - spacingBtn) * ((value - minValue) / (maxValue - minValue))
+  );
+}
+
+export function relativeIndexByOffset(
+  offsetX: number,
+  fullWidth: number,
+  spacingLeft: number,
+  spacingRight: number,
+  count: number,
+): number {
+  if (offsetX <= spacingLeft) {
+    return 0;
+  }
+
+  if (offsetX >= fullWidth - spacingRight) {
+    return count - 1;
+  }
+
+  return Math.min(
+    count - 1,
+    Math.round(((offsetX - spacingLeft) / (fullWidth - spacingLeft - spacingRight)) * (count - 1)),
+  );
+}
+
+export function getLeftTransitionByIndex(
+  leftIndex: number,
+  fullWidth: number,
+  spacingLeft: number,
+  spacingRight: number,
+  count: number,
+): number {
+  return -(
+    fullWidth -
+    (leftIndex / (count - 1)) * (fullWidth - spacingLeft - spacingRight) -
+    spacingRight
+  );
+}
+
+export function getRightTransitionByIndex(
+  rightIndex: number,
+  fullWidth: number,
+  spacingLeft: number,
+  spacingRight: number,
+  count: number,
+): number {
+  return (rightIndex / (count - 1)) * (fullWidth - spacingLeft - spacingRight) + spacingLeft;
 }

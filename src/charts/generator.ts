@@ -1,11 +1,10 @@
 import { Chart, ChartOptions } from '../interfaces/chart';
-import { createTextNode, getSize, isWin, setNodeAttrs } from '../utils/misc';
+import { createTextNode, getSize, setNodeAttrs } from '../utils/misc';
 
 import { PyxChart } from './chart';
 import { PyxNode } from '../interfaces/node';
 
 let id = 0;
-const isWindows = isWin();
 
 export function generateCheckbox(
   id: number,
@@ -135,6 +134,11 @@ export function chartsGenerator(
   rootNode: HTMLElement,
 ): (dataset: Chart, options?: ChartOptions) => PyxChart {
   return (dataset: Chart, options: ChartOptions = {}) => {
+    const axisContainer = generateNode({
+      tag: 'div',
+      classList: ['axis_labels'],
+      skip: options.withoutAxisLabel,
+    });
     const chartsNode = generateNode({
       tag: 'svg',
       classList: ['main_chart'],
@@ -145,6 +149,7 @@ export function chartsGenerator(
         }),
       },
     });
+
     const previewNode = generateNode({
       tag: 'svg',
       skip: options.withoutPreview,
@@ -156,6 +161,59 @@ export function chartsGenerator(
         }),
       },
     });
+
+    const leftResizeControl = generateNode({
+      tag: 'div',
+      classList: ['resize'],
+      children: [
+        generateNode({
+          tag: 'div',
+          classList: ['caret'],
+        }),
+      ],
+    });
+
+    const rightResizeControl = generateNode({
+      tag: 'div',
+      classList: ['resize'],
+      children: [
+        generateNode({
+          tag: 'div',
+          classList: ['caret'],
+        }),
+      ],
+    });
+
+    const leftPreviewContainer = generateNode({
+      tag: 'div',
+      classList: ['control', 'left'],
+      children: [leftResizeControl],
+    });
+
+    const centerPreviewContainer = generateNode({
+      tag: 'div',
+      classList: ['control', 'center'],
+    });
+
+    const rightPreviewContainer = generateNode({
+      tag: 'div',
+      classList: ['control', 'right'],
+      children: [rightResizeControl],
+    });
+
+    const previewControlContainer = generateNode({
+      tag: 'div',
+      classList: ['preview_controls'],
+      children: [leftPreviewContainer, centerPreviewContainer, rightPreviewContainer],
+    });
+
+    const previewContainer = generateNode({
+      tag: 'div',
+      skip: options.withoutPreview,
+      classList: ['preview_container'],
+      children: [previewNode, previewControlContainer],
+    });
+
     const toolTipDateNode = generateNode({
       tag: 'p',
       classList: ['date'],
@@ -188,7 +246,8 @@ export function chartsGenerator(
       tag: 'div',
       children: [
         chartsNode,
-        previewNode,
+        axisContainer,
+        previewContainer,
         toolTipNode,
         controlsNode,
         {
@@ -208,9 +267,15 @@ export function chartsGenerator(
       toolTipDateNode as HTMLElement,
       controlsNode as HTMLElement,
       nightModeControl as HTMLElement,
+      axisContainer as HTMLElement,
+      leftPreviewContainer as HTMLElement,
+      rightPreviewContainer as HTMLElement,
+      centerPreviewContainer as HTMLElement,
+      leftResizeControl as HTMLElement,
+      rightResizeControl as HTMLElement,
+      previewControlContainer as HTMLElement,
       dataset,
       options,
-      isWindows,
     );
   };
 }
