@@ -8,7 +8,7 @@
     "build": "webpack",
     "build:prod": "webpack --mode=production",
     "serve": "webpack-dev-server",
-    "build:github": "yarn build:prod && git add docs && git commit -m 'github pages' --no-verify",
+    "build:github": "yarn build:prod",
     "format:code": "prettier --write \"src/**/*.{ts,js,?css}\""
   },
   "repository": {
