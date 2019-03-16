@@ -1,6 +1,20 @@
 import { Container, MinMax, Point, RectangleOptions } from '../interfaces/chart';
 
+const withDayOptions = {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+};
+
+const withoutDayOptions = {
+  month: 'short',
+  day: 'numeric',
+};
+
 const computedDateArr = {} as { [key: number]: Date };
+const isIntl = !!(window as any).Intl;
+const IntlLong = isIntl && new Intl.DateTimeFormat('en-US', withDayOptions);
+const IntlShort = isIntl && new Intl.DateTimeFormat('en-US', withoutDayOptions);
 
 export function setStyleBatch(node: HTMLElement | SVGElement, styles: { [key: string]: string }) {
   const computedStyle = Object.keys(styles)
@@ -60,6 +74,11 @@ export function getMinMax(arr: Array<number>): MinMax {
 export function getShortDateByUnix(unix: number, withWeekday = false): string {
   if (!computedDateArr[unix]) {
     computedDateArr[unix] = new Date(unix);
+  }
+  if (isIntl) {
+    return withWeekday
+      ? IntlLong.format(computedDateArr[unix])
+      : IntlShort.format(computedDateArr[unix]);
   }
   return computedDateArr[unix].toLocaleString('en-us', {
     weekday: withWeekday ? 'short' : undefined,
