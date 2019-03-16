@@ -1,6 +1,29 @@
 # PyxCharts
 This project havent any 3rd party dependencies for show charts or styling elements all was wrote manual from zero
 
+# API 
+```ts
+import { Chart } from './interfaces/chart';
+import { chartsGenerator } from './charts';
+
+const generator = chartsGenerator(document.querySelector('.draw_engine'));
+
+fetch('/chart_data.json')
+  .then(res => res.json())
+  .then(dataSets => {
+    dataSets.forEach((dataset: any) => {
+      generator(dataset as Chart, {
+        withoutPreview: true, // default false
+        withoutControls: true, // default false
+        withoutAxisLabel: true, // default false
+        withoutNightMode: true, // default false
+        horizontSteps: 10, // default 6
+      });
+    });
+  });
+
+```
+
 # Timeline
 1. Start developing - 11 Mar 2019, 15:09 CET
 2. Funcional working - 13 Mar 2019, 15:55 CET

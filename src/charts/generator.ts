@@ -116,6 +116,9 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
 
   if (node.children) {
     node.children.forEach((item: any) => {
+      if (!item) {
+        return;
+      }
       if (!item.tag) {
         rootNode.appendChild(item as HTMLHtmlElement);
         return;

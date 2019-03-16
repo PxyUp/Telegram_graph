@@ -879,6 +879,11 @@ export class PyxChart {
     this.charts_svg.prepend(groupStepsEl);
   }
 
+  preventDrag = (e: DragEvent) => {
+    e.preventDefault();
+    return false;
+  };
+
   getTranspilingDataset() {
     return this.columnDatasets;
   }
@@ -891,12 +896,11 @@ export class PyxChart {
 
   private CENTRAL_CONTROL_LISTENERS = {
     mousedown: this.onDragStart,
-    mouseout: this.onDrag,
+    dragstart: this.preventDrag,
     mouseup: this.onDragEnd,
     touchstart: this.onDragStart,
     touchmove: this.onDrag,
     touchend: this.onDragEnd,
-    touchcancel: this.onDrag,
   };
 
   private PREVIEW_CHART_LISTENERS = {
@@ -906,6 +910,7 @@ export class PyxChart {
 
   private LEFT_RESIZE_CONTROL_LISTENERS = {
     mouseup: this.onResizeEndLeft,
+    dragstart: this.preventDrag,
     mousedown: this.onResizeStartLeft,
     touchend: this.onResizeEndLeft,
     touchstart: this.onResizeStartLeft,
@@ -914,6 +919,7 @@ export class PyxChart {
 
   private RIGHT_RESIZE_CONTROL_LISTENERS = {
     mouseup: this.onResizeEndRight,
+    dragstart: this.preventDrag,
     mousedown: this.onResizeStartRight,
     touchend: this.onResizeEndRight,
     touchstart: this.onResizeStartRight,
