@@ -51,11 +51,12 @@ fetch('./chart_data.json')
 12. Improve speed with querySelector and fix tooltip error - 15 Mar 2019, 18:13 CET
 13. Rewrote setAttr to transform - 16 Mar 2019, 18:47 CET
 14. Fix issue with drag - 16 Mar 2019, 20:38 CET
+15. Was submit - 16 Mar 2019, 21:50 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-**35.7 kB** (with gzip **9.62 kB**)
+**36.0 kB** (with gzip **9.62 kB**)
 
 # Performance 5 graph(with example dataset)
 
