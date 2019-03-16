@@ -179,8 +179,9 @@ export function getCoordsY(
     return chartsHeight - spacingBtn;
   }
   if (minValue === maxValue) {
-    return spacingTop + (chartsHeight - spacingTop - spacingBtn) / 2;
+    return chartsHeight - spacingBtn - (chartsHeight - spacingTop - spacingBtn) / 2;
   }
+
   return (
     chartsHeight -
     spacingBtn -

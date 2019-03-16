@@ -342,7 +342,9 @@ export class PyxChart {
       getRelativeOffset(
         (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
         this.positions.left,
-      ) - DEFAULT_PREVIEW_SPACING;
+      ) -
+      DEFAULT_PREVIEW_SPACING -
+      MIN_CONTROL_WIDTH;
     const offsetIndex = getOffsetIndex(
       cursorX,
       this.previewWidth,
@@ -375,7 +377,8 @@ export class PyxChart {
           (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
           this.positions.left,
         ),
-      ) - DEFAULT_PREVIEW_SPACING;
+      ) -
+      2 * DEFAULT_PREVIEW_SPACING;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     const offsetIndexLeft = Math.floor(
       getOffsetIndex(
@@ -578,7 +581,7 @@ export class PyxChart {
         0,
         DEFAULT_PREVIEW_SPACING +
           (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth -
-          RESIZE_CONTROL_WIDTH,
+          2 * MIN_CONTROL_WIDTH,
       ),
       y: 0,
     } as Point;
@@ -639,19 +642,24 @@ export class PyxChart {
   drawPreviewCenterControl(): SVGElement {
     const centerControlSize = {
       width:
-        Math.min(
-          this.previewWidth - DEFAULT_PREVIEW_SPACING,
-          -DEFAULT_PREVIEW_SPACING +
-            this.previewWidth * (this.sliceEndIndex / (this.countElements - 1)),
-        ) -
-        (DEFAULT_PREVIEW_SPACING +
-          (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth),
+        Math.max(
+          0,
+          Math.min(
+            this.previewWidth - DEFAULT_PREVIEW_SPACING,
+            -DEFAULT_PREVIEW_SPACING +
+              this.previewWidth * (this.sliceEndIndex / (this.countElements - 1)),
+          ) -
+            (DEFAULT_PREVIEW_SPACING +
+              (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth),
+          0,
+        ) + MIN_CONTROL_WIDTH,
       height: this.previewHeight,
     } as RectangleOptions;
     const centerControlPoint = {
       x:
         DEFAULT_PREVIEW_SPACING +
-        (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth,
+        (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth -
+        MIN_CONTROL_WIDTH,
       y: 0,
     } as Point;
 
@@ -680,7 +688,8 @@ export class PyxChart {
     const leftControlSize = {
       width:
         DEFAULT_PREVIEW_SPACING +
-        (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth,
+        (this.sliceStartIndex / (this.countElements - 1)) * this.previewWidth -
+        MIN_CONTROL_WIDTH,
       height: this.previewHeight,
     } as RectangleOptions;
 
@@ -790,7 +799,7 @@ export class PyxChart {
   }
 
   drawCurrentSlice(withAnimation = true, withXAxis = true) {
-    const realMinValue = this.minValue > 0 ? 0 : this.minValue;
+    const realMinValue = this.minValue >= 0 ? 0 : this.minValue;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
     let fullWidth = 0;
     let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
@@ -858,7 +867,7 @@ export class PyxChart {
       }
 
       const textDelta =
-        (Math.max(lastPointX + lastItemX) - (firstPointX - firstItemX) - fullWidth) /
+        (Math.max(lastX + lastItemX) - (firstX - firstItemX) - fullWidth) /
         Math.max(mustGeneratedLabels - 1, 2);
       let relWidth = 0;
       for (let index = 0; index < group.children.length; index++) {
@@ -1033,33 +1042,42 @@ export class PyxChart {
   }
 
   drawSteps(arr: Array<number>) {
+    const realMinValue = this.minValue >= 0 ? 0 : this.minValue;
     const groupSteps = this.charts_svg.querySelector('g.steps');
     if (groupSteps) {
       groupSteps.remove();
     }
     const stepsElements = [] as Array<SVGElement>;
-    let positionY = this.height - DEFAULT_SPACING;
-    let delta = positionY / arr.length - 1;
-    arr.forEach(step => {
+    arr.forEach((step, index) => {
+      const cordY =
+        index === 0
+          ? this.height - DEFAULT_SPACING_BTM
+          : (getCoordsY(
+              this.height,
+              DEFAULT_SPACING_TOP,
+              DEFAULT_SPACING_BTM,
+              this.maxValue,
+              realMinValue,
+              step,
+            ) as any);
       const line = generateSvgElement('line', [classNameStepLine], {
         x1: 0 as any,
         x2: this.width as any,
-        y1: positionY as any,
-        y2: positionY as any,
+        y1: cordY,
+        y2: cordY,
       });
       const text = generateSvgElement(
         'text',
         [classNameStepTitle],
         {
           x: 0 as any,
-          y: (positionY - 5) as any,
+          y: (cordY - 5) as any,
         },
         [],
         step as any,
       );
       stepsElements.push(line);
       stepsElements.push(text);
-      positionY -= delta;
     });
     const groupStepsEl = generateSvgElement('g', ['steps'], null, stepsElements);
     this.charts_svg.prepend(groupStepsEl);
