@@ -112,6 +112,7 @@ export class PyxChart {
     private toolTipDate: HTMLElement,
     private controlsContainer: HTMLElement,
     private nightModeControl: HTMLElement,
+    private axisContainer: HTMLElement,
     private dataset: Chart,
     private options: ChartOptions,
   ) {
@@ -153,6 +154,14 @@ export class PyxChart {
     this.addMouseListener();
 
     this.positions = this.charts_svg.getBoundingClientRect();
+    if (!options.withoutAxisLabel) {
+      setStyleBatch(this.axisContainer, {
+        top: `${this.height - DEFAULT_SPACING_BTM}px`,
+        width: `${this.width - (DEFAULT_SPACING_LEFT + DEFAULT_SPACING_RIGHT) / 2}px`,
+        'padding-left': `${DEFAULT_SPACING_LEFT / 2}px`,
+        'padding-right': `${DEFAULT_SPACING_RIGHT / 2}px`,
+      });
+    }
     this.draw();
 
     if (!options.withoutPreview) {
@@ -766,6 +775,46 @@ export class PyxChart {
     this.draw(withAnimation, withXAxis);
   }
 
+  drawAxisX() {
+    removeAllChild(this.axisContainer);
+    const sliceSize = this.sliceEndIndex - this.sliceStartIndex + 1;
+    let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
+    const mustGeneratedLabels = labelCount;
+    const deltaDays =
+      sliceSize <= DEFAULT_DAY_COUNT + 2 ? 1 : Math.max(sliceSize / (mustGeneratedLabels - 1), 1);
+    let index = this.sliceStartIndex;
+
+    const generateLabel = (text: string) => {
+      return generateNode({
+        tag: 'div',
+        textValue: text,
+      });
+    };
+    if (deltaDays == 1) {
+      for (let i = this.sliceStartIndex; i <= this.sliceEndIndex; i++) {
+        this.axisContainer.appendChild(
+          generateLabel(getShortDateByUnix(this.columnDatasets[Type.X][i])),
+        );
+      }
+    } else {
+      this.axisContainer.appendChild(
+        generateLabel(getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex])),
+      );
+      index += deltaDays;
+
+      while (labelCount - 2 > 0 && index < this.sliceEndIndex - 2) {
+        this.axisContainer.appendChild(
+          generateLabel(getShortDateByUnix(this.columnDatasets[Type.X][Math.ceil(index)])),
+        );
+        labelCount -= 1;
+        index += deltaDays;
+      }
+      this.axisContainer.appendChild(
+        generateLabel(getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex])),
+      );
+    }
+  }
+
   resetTimer() {
     clearTimeout(this.timer);
     this.timer = null;
@@ -799,103 +848,6 @@ export class PyxChart {
   drawCurrentSlice(withAnimation = true, withXAxis = true) {
     const realMinValue = this.minValue >= 0 ? 0 : this.minValue;
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex + 1;
-    let fullWidth = 0;
-    let labelCount = Math.min(DEFAULT_DAY_COUNT, sliceSize + 1);
-    const mustGeneratedLabels = labelCount;
-    const deltaDays =
-      sliceSize <= DEFAULT_DAY_COUNT + 2 ? 1 : Math.max(sliceSize / (mustGeneratedLabels - 1), 1);
-    let index = this.sliceStartIndex;
-
-    const drawTextAxis = (firstX: number, lastX: number) => {
-      const arrayOfText = [];
-
-      if (deltaDays == 1) {
-        for (let i = this.sliceStartIndex; i <= this.sliceEndIndex; i++) {
-          const text = generateSvgElement(
-            'text',
-            [classNameAbsLine],
-            {
-              x: 0 as any,
-              y: this.height as any,
-            },
-            [],
-            getShortDateByUnix(this.columnDatasets[Type.X][i]),
-          );
-          arrayOfText.push(text);
-        }
-      } else {
-        const firstItem = generateSvgElement(
-          'text',
-          [classNameAbsLine],
-          {
-            x: 0 as any,
-            y: this.height as any,
-          },
-          [],
-          getShortDateByUnix(this.columnDatasets[Type.X][this.sliceStartIndex]),
-        );
-        arrayOfText.push(firstItem);
-        index += deltaDays;
-
-        while (labelCount - 2 > 0 && index < this.sliceEndIndex - 2) {
-          const item = this.columnDatasets[Type.X][Math.ceil(index)];
-          const text = generateSvgElement(
-            'text',
-            [classNameAbsLine],
-            {
-              x: 0 as any,
-              y: this.height as any,
-            },
-            [],
-            getShortDateByUnix(item),
-          );
-          arrayOfText.push(text);
-          labelCount -= 1;
-          index += deltaDays;
-        }
-        const lastItem = generateSvgElement(
-          'text',
-          [classNameAbsLine],
-          {
-            x: 0 as any,
-            y: this.height as any,
-          },
-          [],
-          getShortDateByUnix(this.columnDatasets[Type.X][this.sliceEndIndex]),
-        );
-        arrayOfText.push(lastItem);
-      }
-      const group = generateSvgElement('g', ['axis'], null, arrayOfText);
-      this.charts_svg.appendChild(group);
-      let firstItemX: number;
-      let lastItemX: number;
-      const lengthChild = group.children.length;
-      for (let index = 0; index < lengthChild; index++) {
-        const item = group.children[index].getBoundingClientRect().width;
-        fullWidth += item;
-        if (index === 0) {
-          firstItemX = item / 2;
-        }
-        if (index === group.children.length - 1) {
-          lastItemX = item / 2;
-        }
-      }
-
-      const textDelta =
-        (Math.max(lastX + lastItemX) - (firstX - firstItemX) - fullWidth) /
-        Math.max(arrayOfText.length - 1, 1);
-      let relWidth = 0;
-      for (let index = 0; index < lengthChild; index++) {
-        const item = group.children[index];
-        setNodeAttrs(item, {
-          x: (firstItemX + relWidth + textDelta * index) as any,
-        });
-        relWidth += item.getBoundingClientRect().width;
-      }
-    };
-
-    let firstPointX: number;
-    let lastPointX: number;
 
     Object.keys(this.columnsVisible).forEach(key => {
       const columnVisible = this.columnsVisible[key];
@@ -928,13 +880,6 @@ export class PyxChart {
               date: this.columnDatasets[Type.X][this.sliceStartIndex + index],
             };
           });
-        if (firstPointX === undefined) {
-          firstPointX = this.currentSlicePoint[key][0].x as any;
-        }
-        if (lastPointX === undefined) {
-          lastPointX = this.currentSlicePoint[key][this.sliceEndIndex - this.sliceStartIndex]
-            .x as any;
-        }
 
         if (currentPath) {
           changePathOnElement(currentPath, getPathByPoints(this.currentSlicePoint[key]));
@@ -956,8 +901,8 @@ export class PyxChart {
       }
     });
 
-    if (withXAxis) {
-      drawTextAxis(firstPointX, lastPointX);
+    if (!this.options.withoutAxisLabel && withXAxis) {
+      this.drawAxisX();
     }
   }
 

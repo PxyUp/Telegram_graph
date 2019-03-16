@@ -134,6 +134,11 @@ export function chartsGenerator(
   rootNode: HTMLElement,
 ): (dataset: Chart, options?: ChartOptions) => PyxChart {
   return (dataset: Chart, options: ChartOptions = {}) => {
+    const axisContainer = generateNode({
+      tag: 'div',
+      classList: ['axis_labels'],
+      skip: options.withoutAxisLabel,
+    });
     const chartsNode = generateNode({
       tag: 'svg',
       classList: ['main_chart'],
@@ -187,6 +192,7 @@ export function chartsGenerator(
       tag: 'div',
       children: [
         chartsNode,
+        axisContainer,
         previewNode,
         toolTipNode,
         controlsNode,
@@ -207,6 +213,7 @@ export function chartsGenerator(
       toolTipDateNode as HTMLElement,
       controlsNode as HTMLElement,
       nightModeControl as HTMLElement,
+      axisContainer as HTMLElement,
       dataset,
       options,
     );

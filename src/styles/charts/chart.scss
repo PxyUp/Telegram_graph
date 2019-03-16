@@ -11,6 +11,19 @@ $toolTipBoxShadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   align-items: center;
   flex-direction: column;
 
+  .axis_labels {
+    user-select: none;
+    font-size: 13px;
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    div {
+      color: map-get($color_day, 'textAxis');
+    }
+  }
+
   .controls {
     margin-top: 8px;
     display: flex;
@@ -143,13 +156,13 @@ $toolTipBoxShadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     &.text_step {
       fill: map-get($color_day, 'textAxis');
     }
-
-    &.charts_abs {
-      fill: map-get($color_day, 'textAxis');
-    }
   }
 
   &.night {
+    .axis_labels {
+      color: map-get($color_night, 'textAxis');
+    }
+
     .checkbox_container {
       background-color: map-get($color_night, 'background');
       border-color: map-get($color_night, 'border');
@@ -185,9 +198,6 @@ $toolTipBoxShadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     text {
       text-shadow: 1px 0.5px #242f3e;
       &.text_step {
-        fill: map-get($color_night, 'textAxis');
-      }
-      &.charts_abs {
         fill: map-get($color_night, 'textAxis');
       }
     }

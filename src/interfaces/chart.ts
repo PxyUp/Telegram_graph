@@ -37,6 +37,7 @@ export interface ChartOptions {
   withoutPreview?: boolean;
   withoutControls?: boolean;
   withoutNightMode?: boolean;
+  withoutAxisLabel?: boolean;
   chartsContainer?: Container;
   previewContainer?: Container;
   horizontSteps?: number;
