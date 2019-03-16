@@ -69,7 +69,7 @@ fetch('./chart_data.json')
 yarn install
 yarn serve
 ```
-## Create bundle (After that you will have folder dist with index.html)
+## Create bundle (After that you will have folder docs with index.html)
 ```bash
 yarn install
 yarn build:prod
