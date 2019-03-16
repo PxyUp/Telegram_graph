@@ -56,7 +56,7 @@ fetch('./chart_data.json')
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-**36.0 kB** (with gzip **9.62 kB**)
+**36.2 kB** (with gzip **9.76 kB**)
 
 # Performance 5 graph(with example dataset)
 
@@ -64,7 +64,7 @@ fetch('./chart_data.json')
 
 # Build
 
-## Localhost (htpp://localhost:9000)
+## Localhost (http://localhost:9000)
 ```bash
 yarn install
 yarn serve
