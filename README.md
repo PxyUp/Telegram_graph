@@ -14,6 +14,7 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 10. Improve performance for chart(minMax, offset, tooltip) - 15 Mar 2019, 13:30 CET
 11. Split bundle to lib and datasets - 15 Mar 2019, 15:14 CET
 12. Improve speed with querySelector and fix tooltip error - 15 Mar 2019, 18:13 CET
+13. Rewrote setAttr to transform - 16 Mar 2019, 18:47 CET
 
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
