@@ -158,7 +158,7 @@ export function chartsGenerator(
       skip: options.withoutPreview,
       classList: ['chart_preview'],
       attrs: {
-        ...getSize(options.chartsContainer, {
+        ...getSize(options.previewContainer, {
           width: '400',
           height: '60',
         }),

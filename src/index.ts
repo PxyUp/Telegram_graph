@@ -1,5 +1,4 @@
-import { Chart } from './interfaces/chart';
-import { chartsGenerator } from './charts';
+import { Chart, chartsGenerator } from './charts';
 
 const generator = chartsGenerator(document.querySelector('.draw_engine'));
 

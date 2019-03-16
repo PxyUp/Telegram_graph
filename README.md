@@ -3,12 +3,12 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 
 # API 
 ```ts
-import { Chart } from './interfaces/chart';
-import { chartsGenerator } from './charts';
+import { Chart, chartsGenerator } from './charts';
 
+const width = document.body.clientWidth;
 const generator = chartsGenerator(document.querySelector('.draw_engine'));
 
-fetch('/chart_data.json')
+fetch('./chart_data.json')
   .then(res => res.json())
   .then(dataSets => {
     dataSets.forEach((dataset: any) => {
@@ -18,6 +18,18 @@ fetch('/chart_data.json')
         withoutAxisLabel: true, // default false
         withoutNightMode: true, // default false
         horizontSteps: 10, // default 6
+        chartsContainer: { // default not need set
+          size: {
+            width: width, // default 400
+            height: width, // default 400
+          }
+        },
+        previewContainer: { // default not need set
+          size: {
+            width, // default 400
+            height: 60, // default 60
+          }
+        }
       });
     });
   });
