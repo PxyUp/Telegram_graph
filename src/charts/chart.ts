@@ -450,10 +450,8 @@ export class PyxChart {
   }
 
   showTooltip(arr: Array<PointWithValueAndColor>, point: Point) {
-    // @TODO Fix Tooltip position
-
-    const leftPosition = (point.x as number) + DEFAULT_SPACING;
-    const topPosition = (point.y as number) + DEFAULT_SPACING;
+    const leftPosition = (point.x as number) + DEFAULT_SPACING_LEFT;
+    const topPosition = (point.y as number) + DEFAULT_SPACING_TOP;
     const stylesTooltip = {
       display: 'flex',
       right: 'unset',
@@ -492,7 +490,7 @@ export class PyxChart {
     if (leftPosition > this.width - MIN_TOOLTIP_WIDTH) {
       stylesTooltip.right = `${Math.min(
         MIN_TOOLTIP_WIDTH,
-        this.width - leftPosition + 2 * DEFAULT_SPACING,
+        this.width - leftPosition + DEFAULT_SPACING_LEFT + DEFAULT_SPACING_RIGHT,
       )}px`;
       stylesTooltip.left = 'unset';
     }
