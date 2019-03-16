@@ -892,6 +892,10 @@ export class PyxChart {
     return this.columnDatasets;
   }
 
+  onMouseEnterPreview = () => {
+    this.hideHoverLineAndPoints();
+  };
+
   private SVG_CHARTS_LISTENERS = {
     mouseenter: this.onMouseEnter,
     mouseleave: this.onMouseLeave,
@@ -908,6 +912,7 @@ export class PyxChart {
   };
 
   private PREVIEW_CHART_LISTENERS = {
+    mouseenter: this.onMouseEnterPreview,
     mousemove: [this.onDrag, this.onResize],
     touchmove: [this.onDrag, this.onResize],
   };
