@@ -11,7 +11,12 @@ const withoutDayOptions = {
   day: 'numeric',
 };
 
-const computedDateArr = {} as { [key: number]: Date };
+const computedIntlDateArr = {
+  long: {},
+  short: {},
+} as { long: { [key: number]: any }; short: { [key: number]: any } };
+
+const computedOldDateArr = {} as { [key: number]: Date };
 const isIntl = !!(window as any).Intl;
 const IntlLong = isIntl && new Intl.DateTimeFormat('en-US', withDayOptions);
 const IntlShort = isIntl && new Intl.DateTimeFormat('en-US', withoutDayOptions);
@@ -71,20 +76,37 @@ export function getMinMax(arr: Array<number>): MinMax {
   }, minMax);
 }
 
-export function getShortDateByUnix(unix: number, withWeekday = false): string {
-  if (!computedDateArr[unix]) {
-    computedDateArr[unix] = new Date(unix);
-  }
+const createGetterForDate = () => {
   if (isIntl) {
-    return withWeekday
-      ? IntlLong.format(computedDateArr[unix])
-      : IntlShort.format(computedDateArr[unix]);
+    return (unix: number, withWeekday = false): string => {
+      if (withWeekday) {
+        if (!computedIntlDateArr.long[unix]) {
+          computedIntlDateArr.long[unix] = IntlLong.format(unix);
+        }
+        return computedIntlDateArr.long[unix];
+      }
+      if (!computedIntlDateArr.short[unix]) {
+        computedIntlDateArr.short[unix] = IntlShort.format(unix);
+      }
+      return computedIntlDateArr.short[unix];
+    };
   }
-  return computedDateArr[unix].toLocaleString('en-us', {
-    weekday: withWeekday ? 'short' : undefined,
-    month: 'short',
-    day: 'numeric',
-  });
+  return (unix: number, withWeekday = false): string => {
+    if (!computedOldDateArr[unix]) {
+      computedOldDateArr[unix] = new Date(unix);
+    }
+    return computedOldDateArr[unix].toLocaleString('en-us', {
+      weekday: withWeekday ? 'short' : undefined,
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+};
+
+const generatorDate = createGetterForDate();
+
+export function getShortDateByUnix(unix: number, withWeekday = false): string {
+  return generatorDate(unix, withWeekday);
 }
 
 export function getPathByPoints(points: Array<Point>): string {
