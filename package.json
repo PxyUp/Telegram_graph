@@ -28,6 +28,7 @@
   "lint-staged": {
     "src/**/*.{ts,js,?css}": [
       "prettier --write",
+      "build:prod",
       "git add"
     ]
   },
