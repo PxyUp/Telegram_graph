@@ -881,22 +881,16 @@ export class PyxChart {
         }
       }
 
-      if (lengthChild === 1) {
-        setNodeAttrs(group.children[0], {
-          x: (firstX - firstItemX) as any,
+      const textDelta =
+        (Math.max(lastX + lastItemX) - (firstX - firstItemX) - fullWidth) /
+        Math.max(arrayOfText.length - 1, 1);
+      let relWidth = 0;
+      for (let index = 0; index < lengthChild; index++) {
+        const item = group.children[index];
+        setNodeAttrs(item, {
+          x: (firstItemX + relWidth + textDelta * index) as any,
         });
-      } else {
-        const textDelta =
-          (Math.max(lastX + lastItemX) - (firstX - firstItemX) - fullWidth) /
-          Math.max(arrayOfText.length - 1, 1);
-        let relWidth = 0;
-        for (let index = 0; index < lengthChild; index++) {
-          const item = group.children[index];
-          setNodeAttrs(item, {
-            x: (firstItemX + relWidth + textDelta * index) as any,
-          });
-          relWidth += item.getBoundingClientRect().width;
-        }
+        relWidth += item.getBoundingClientRect().width;
       }
     };
 
