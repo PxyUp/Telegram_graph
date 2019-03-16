@@ -18,7 +18,7 @@ This project havent any 3rd party dependencies for show charts or styling elemen
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-**34.6 kB** (with gzip **9.27 kB**)
+**35.5 kB** (with gzip **9.60 kB**)
 
 # Performance 5 graph(with example dataset)
 
