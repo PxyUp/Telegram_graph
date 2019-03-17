@@ -125,7 +125,7 @@ $toolTipBoxShadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   .tooltip {
     display: none;
     position: absolute;
-    z-index: 1;
+    z-index: 10;
     background-color: map-get($color_day, 'background');
     box-shadow: $toolTipBoxShadow;
     min-width: 90px;
@@ -213,15 +213,14 @@ $toolTipBoxShadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     .checkbox_container {
       background-color: map-get($color_night, 'background');
       border-color: map-get($color_night, 'border');
-      .label {
-        color: white;
-      }
-
-      label {
+      .round {
         &.not_active {
           background-color: unset !important;
           border-color: map-get($color_night, 'border') !important;
         }
+      }
+      .label {
+        color: map-get($color_night, 'textColor');
       }
     }
 

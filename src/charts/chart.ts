@@ -26,7 +26,7 @@ import {
   setNodeAttrs,
   setStyleBatch,
 } from '../utils/misc';
-import { generateCheckbox, generateNode, generateSvgElement } from './generator';
+import { generateNode, generateSvgElement } from './generator';
 
 // constant number
 const POINT_RADIUS = 5;
@@ -181,15 +181,25 @@ export class PxyUpChart {
   generateControls() {
     this.controlsContainer.style.width = `${this.width}px`;
     Object.keys(this.columnsVisible).forEach(key => {
-      const checkBoxControl = generateCheckbox(
-        this.id,
-        key,
-        this.dataset.names[key],
-        this.columnsVisible[key],
-      );
+      const checkBoxControl = generateNode({
+        tag: 'div',
+        classList: ['checkbox_container'],
+        attrs: {
+          key: key,
+        },
+        children: [
+          {
+            tag: 'div',
+            classList: ['round'],
+          },
+          {
+            tag: 'div',
+            classList: ['label'],
+            textValue: this.dataset.names[key],
+          },
+        ],
+      });
       this.controlsContainer.appendChild(checkBoxControl);
-      const label = checkBoxControl.querySelector("input[type='checkbox']");
-      label.addEventListener('click', this.doPreventDefault, false);
       checkBoxControl.addEventListener('click', this.onCheckBoxClick, false);
       this.setColorCheckboxByKey(key);
     });
@@ -229,11 +239,8 @@ export class PxyUpChart {
     removeNodeListener(this.toolTip, this.TOOLTIP_LISTENERS);
 
     if (!this.options.withoutControls) {
-      this.controlsContainer.querySelectorAll("input[type='checkbox']").forEach(el => {
-        el.removeEventListener('change', this.onCheckBoxClick);
-      });
-      this.controlsContainer.querySelectorAll('label').forEach(el => {
-        el.removeEventListener('click', this.doPreventDefault);
+      this.controlsContainer.querySelectorAll('.round').forEach(item => {
+        item.removeEventListener('click', this.onCheckBoxClick);
       });
     }
 
@@ -530,14 +537,14 @@ export class PxyUpChart {
 
   setColorCheckboxByKey(key: string) {
     const color = this.dataset.colors[key];
-    const label = this.controlsContainer.querySelector(
-      `label[for="checkbox_${this.id}_${key}"]`,
+    const checkbox = this.controlsContainer.querySelector(
+      `.checkbox_container[key="${key}"] .round`,
     ) as HTMLElement;
     if (!this.columnsVisible[key]) {
-      label.classList.add('not_active');
+      checkbox.classList.add('not_active');
     } else {
-      label.classList.remove('not_active');
-      setStyleBatch(label, {
+      checkbox.classList.remove('not_active');
+      setStyleBatch(checkbox, {
         'border-color': color,
         'background-color': color,
       });
@@ -818,7 +825,10 @@ export class PxyUpChart {
         );
       }
     });
-
+    if (values.length === 0) {
+      this.removeSteps();
+      return;
+    }
     const minMax = getMinMax(values);
     this.minValue = minMax.min;
     this.maxValue = minMax.max;
@@ -851,12 +861,16 @@ export class PxyUpChart {
     }
   }
 
-  drawSteps(arr: Array<number>) {
-    const realMinValue = this.minValue >= 0 ? 0 : this.minValue;
+  removeSteps() {
     const groupSteps = this.charts_svg.querySelector('g.steps');
     if (groupSteps) {
       groupSteps.remove();
     }
+  }
+
+  drawSteps(arr: Array<number>) {
+    this.removeSteps();
+    const realMinValue = this.minValue >= 0 ? 0 : this.minValue;
     const stepsElements = [] as Array<SVGElement>;
     arr.forEach((step, index) => {
       const cordY =

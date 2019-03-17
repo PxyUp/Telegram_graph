@@ -6,48 +6,6 @@ import { PxyupNode } from '../interfaces/node';
 
 let id = 0;
 
-export function generateCheckbox(
-  id: number,
-  key: string,
-  label: string,
-  checked = true,
-): HTMLElement {
-  return generateNode({
-    tag: 'div',
-    classList: ['checkbox_container'],
-    attrs: {
-      key: key,
-    },
-    children: [
-      {
-        tag: 'div',
-        classList: ['round'],
-        children: [
-          {
-            tag: 'input',
-            attrs: {
-              id: `checkbox_${id}_${key}`,
-              type: 'checkbox',
-              checked: checked,
-            },
-          },
-          {
-            tag: 'label',
-            attrs: {
-              for: `checkbox_${id}_${key}`,
-            },
-          },
-        ],
-      },
-      {
-        tag: 'div',
-        classList: ['label'],
-        textValue: label,
-      },
-    ],
-  }) as HTMLElement;
-}
-
 export function generateSvgElement(
   type: string,
   classList?: Array<string>,
