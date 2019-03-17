@@ -519,7 +519,7 @@ export class PxyUpChart {
   }
 
   removePathByKey(key: string) {
-    const path = this.charts_svg.querySelector(`path#pxyup_path_${key}`);
+    const path = this.charts_svg.querySelector(`path#pxyup_path_${this.id}_${key}`);
     if (path) {
       path.remove();
     }
@@ -690,7 +690,7 @@ export class PxyUpChart {
 
       if (columnVisible) {
         const currentPath = this.charts_svg.querySelector(
-          `path#${`pxyup_path_${key}`}`,
+          `path#${`pxyup_path_${this.id}_${key}`}`,
         ) as SVGPathElement;
 
         this.currentSlicePoint[key] = this.columnDatasets[key]
@@ -723,7 +723,7 @@ export class PxyUpChart {
         }
 
         const path = generateSvgElement('path', [], {
-          id: `pxyup_path_${key}`,
+          id: `pxyup_path_${this.id}_${key}`,
           stroke: this.dataset.colors[key],
           fill: 'none',
           d: getPathByPoints(this.currentSlicePoint[key]),
@@ -757,7 +757,7 @@ export class PxyUpChart {
       const columnVisible = this.columnsVisible[key];
       if (columnVisible) {
         const path = generateSvgElement('path', [], {
-          id: `pxyup_path_preview_${key}`,
+          id: `pxyup_path_preview_${this.id}_${key}`,
           d: getPathByPoints(
             this.columnDatasets[key].map((point, index) => ({
               x: getCoordsX(
