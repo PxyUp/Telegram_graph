@@ -90,6 +90,8 @@ export class PxyUpChart {
 
   private _position: ClientRect;
 
+  private animationTimer: number | null = null;
+
   constructor(
     private id: number,
     private node: HTMLElement,
@@ -545,13 +547,21 @@ export class PxyUpChart {
   toggleColumnVisible(key: string) {
     this.columnsVisible[key] = !this.columnsVisible[key];
     this.setColorCheckboxByKey(key);
+
     if (!this.columnsVisible[key]) {
       this.removePathByKey(key);
     }
+    this.node.classList.add('animation');
     if (!this.options.withoutPreview) {
       this.drawPreview(false);
     }
     this.refresh(false, false);
+    if (this.animationTimer) {
+      clearTimeout(this.animationTimer);
+    }
+    this.animationTimer = setTimeout(() => {
+      this.node.classList.remove('animation');
+    }, 150);
   }
 
   drawPreviewControls(withEvents: boolean = false) {
@@ -657,12 +667,22 @@ export class PxyUpChart {
   }
 
   resetTimer() {
-    cancelAnimationFrame(this.dragAnimationFrame);
-    this.dragAnimationFrame = null;
-    cancelAnimationFrame(this.resizeAnimationFrame);
-    this.resizeAnimationFrame = null;
-    cancelAnimationFrame(this.mouseMoveAnimationFrame);
-    this.mouseMoveAnimationFrame = null;
+    if (this.dragAnimationFrame) {
+      cancelAnimationFrame(this.dragAnimationFrame);
+      this.dragAnimationFrame = null;
+    }
+    if (this.resizeAnimationFrame) {
+      cancelAnimationFrame(this.resizeAnimationFrame);
+      this.resizeAnimationFrame = null;
+    }
+    if (this.mouseMoveAnimationFrame) {
+      cancelAnimationFrame(this.mouseMoveAnimationFrame);
+      this.mouseMoveAnimationFrame = null;
+    }
+    if (this.animationTimer) {
+      clearTimeout(this.animationTimer);
+      this.animationTimer = null;
+    }
   }
 
   setRightIndexSlice(size: number) {
