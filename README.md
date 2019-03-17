@@ -1,4 +1,4 @@
-# PyxCharts
+# Pxyup Charts
 This project havent any 3rd party dependencies for show charts or styling elements all was wrote manual from zero
 
 # API 

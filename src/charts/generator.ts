@@ -1,8 +1,8 @@
 import { Chart, ChartOptions } from '../interfaces/chart';
 import { createTextNode, getSize, setNodeAttrs } from '../utils/misc';
 
-import { PyxChart } from './chart';
-import { PyxNode } from '../interfaces/node';
+import { PxyUpChart } from './chart';
+import { PxyupNode } from '../interfaces/node';
 
 let id = 0;
 
@@ -79,7 +79,7 @@ export function generateSvgElement(
   return element;
 }
 
-export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null {
+export function generateNode(node: PxyupNode): HTMLElement | SVGSVGElement | null {
   if (node.skip) {
     return null;
   }
@@ -123,7 +123,7 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
         rootNode.appendChild(item as HTMLHtmlElement);
         return;
       }
-      const child = generateNode(item as PyxNode);
+      const child = generateNode(item as PxyupNode);
       if (child) {
         rootNode.appendChild(child);
       }
@@ -135,7 +135,7 @@ export function generateNode(node: PyxNode): HTMLElement | SVGSVGElement | null 
 
 export function chartsGenerator(
   rootNode: HTMLElement,
-): (dataset: Chart, options?: ChartOptions) => PyxChart {
+): (dataset: Chart, options?: ChartOptions) => PxyUpChart {
   return (dataset: Chart, options: ChartOptions = {}) => {
     const axisContainer = generateNode({
       tag: 'div',
@@ -243,9 +243,9 @@ export function chartsGenerator(
     });
     const basicNode = generateNode({
       attrs: {
-        id: `pyx_chart_${id}`,
+        id: `pxyup_chart_${id}`,
       },
-      classList: ['pyx_chart_container'],
+      classList: ['pxyup_chart_container'],
       tag: 'div',
       children: [
         chartsNode,
@@ -261,7 +261,7 @@ export function chartsGenerator(
         },
       ],
     });
-    return new PyxChart(
+    return new PxyUpChart(
       id++,
       rootNode.appendChild(basicNode) as HTMLElement,
       chartsNode,

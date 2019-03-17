@@ -3,7 +3,7 @@
 
 $toolTipBoxShadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 
-.pyx_chart_container {
+.pxyup_chart_container {
   width: 100%;
   background-color: map-get($color_day, 'background');
   position: relative;
@@ -199,7 +199,9 @@ $toolTipBoxShadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 
   &.night {
     .axis_labels {
-      color: map-get($color_night, 'textAxis');
+      div {
+        color: map-get($color_night, 'textAxis');
+      }
     }
 
     .checkbox_container {

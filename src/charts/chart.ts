@@ -50,7 +50,7 @@ const classNameStepLine = 'line_step';
 const verticleLineClass = 'verticle';
 const classNameStepTitle = 'text_step';
 
-export class PyxChart {
+export class PxyUpChart {
   private isDragActive = false;
   private isResizeActive = false;
   private activeResize: boolean | null = null;
@@ -519,7 +519,7 @@ export class PyxChart {
   }
 
   removePathByKey(key: string) {
-    const path = this.charts_svg.querySelector(`path#pyx_path_${key}`);
+    const path = this.charts_svg.querySelector(`path#pxyup_path_${key}`);
     if (path) {
       path.remove();
     }
@@ -690,7 +690,7 @@ export class PyxChart {
 
       if (columnVisible) {
         const currentPath = this.charts_svg.querySelector(
-          `path#${`pyx_path_${key}`}`,
+          `path#${`pxyup_path_${key}`}`,
         ) as SVGPathElement;
 
         this.currentSlicePoint[key] = this.columnDatasets[key]
@@ -723,7 +723,7 @@ export class PyxChart {
         }
 
         const path = generateSvgElement('path', [], {
-          id: `pyx_path_${key}`,
+          id: `pxyup_path_${key}`,
           stroke: this.dataset.colors[key],
           fill: 'none',
           d: getPathByPoints(this.currentSlicePoint[key]),
@@ -757,7 +757,7 @@ export class PyxChart {
       const columnVisible = this.columnsVisible[key];
       if (columnVisible) {
         const path = generateSvgElement('path', [], {
-          id: `pyx_path_preview_${key}`,
+          id: `pxyup_path_preview_${key}`,
           d: getPathByPoints(
             this.columnDatasets[key].map((point, index) => ({
               x: getCoordsX(
