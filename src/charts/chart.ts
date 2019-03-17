@@ -896,7 +896,6 @@ export class PxyUpChart {
     dragstart: this.preventDrag,
     mouseup: this.onDragEnd,
     touchstart: this.onDragStart,
-    touchmove: this.onDrag,
     touchend: this.onDragEnd,
   };
 
