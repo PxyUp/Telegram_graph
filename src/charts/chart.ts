@@ -54,7 +54,6 @@ export class PxyUpChart {
   private isDragActive = false;
   private isResizeActive = false;
   private activeResize: boolean | null = null;
-  private positions: ClientRect;
   private resizeAnimationFrame: number | null = null;
   private dragAnimationFrame: number | null = null;
   private mouseMoveAnimationFrame: number | null = null;
@@ -88,6 +87,8 @@ export class PxyUpChart {
   private columnDatasets: { [key: string]: Array<number> } = {};
 
   private countElements: number;
+
+  private _position: ClientRect;
 
   constructor(
     private id: number,
@@ -144,8 +145,6 @@ export class PxyUpChart {
     this.charts_svg.appendChild(this.verticleLine);
 
     this.addMouseListener();
-
-    this.positions = this.charts_svg.getBoundingClientRect();
 
     if (!options.withoutAxisLabel) {
       setStyleBatch(this.axisContainer, {
@@ -932,4 +931,11 @@ export class PxyUpChart {
     touchstart: this.onResizeStartRight,
     click: this.stopProp,
   };
+
+  get positions() {
+    if (!this._position) {
+      this._position = this.charts_svg.getBoundingClientRect();
+    }
+    return this._position;
+  }
 }
