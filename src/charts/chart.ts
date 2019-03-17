@@ -57,6 +57,7 @@ export class PxyUpChart {
   private resizeAnimationFrame: number | null = null;
   private dragAnimationFrame: number | null = null;
   private mouseMoveAnimationFrame: number | null = null;
+  private toggleColumnAnimationFrame: number | null = null;
 
   private maxValue: number;
   private minValue: number;
@@ -214,16 +215,21 @@ export class PxyUpChart {
   };
 
   onCheckBoxClick = (e: MouseEvent) => {
-    this.removePoints();
-    let target = e.target as HTMLElement;
-    let key = target.getAttribute('key');
-    while (!key || target === document.body) {
-      target = target.parentNode as HTMLElement;
-      key = target.getAttribute('key');
+    if (this.toggleColumnAnimationFrame) {
+      cancelAnimationFrame(this.toggleColumnAnimationFrame);
     }
-    if (key) {
-      this.toggleColumnVisible(key);
-    }
+    this.toggleColumnAnimationFrame = requestAnimationFrame(() => {
+      this.removePoints();
+      let target = e.target as HTMLElement;
+      let key = target.getAttribute('key');
+      while (!key || target === document.body) {
+        target = target.parentNode as HTMLElement;
+        key = target.getAttribute('key');
+      }
+      if (key) {
+        this.toggleColumnVisible(key);
+      }
+    });
   };
 
   addMouseListener() {
@@ -685,6 +691,10 @@ export class PxyUpChart {
     if (this.mouseMoveAnimationFrame) {
       cancelAnimationFrame(this.mouseMoveAnimationFrame);
       this.mouseMoveAnimationFrame = null;
+    }
+    if (this.toggleColumnAnimationFrame) {
+      cancelAnimationFrame(this.toggleColumnAnimationFrame);
+      this.toggleColumnAnimationFrame = null;
     }
     if (this.animationTimer) {
       clearTimeout(this.animationTimer);
