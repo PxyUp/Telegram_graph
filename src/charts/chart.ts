@@ -298,6 +298,7 @@ export class PxyUpChart {
   };
 
   onResize = (e: MouseEvent | TouchEvent) => {
+    e.preventDefault();
     if (this.isResizeActive) {
       if (this.resizeAnimationFrame) {
         cancelAnimationFrame(this.resizeAnimationFrame);
@@ -317,6 +318,7 @@ export class PxyUpChart {
   };
 
   onDrag = (e: MouseEvent | TouchEvent) => {
+    e.preventDefault();
     if (this.isDragActive) {
       if (this.dragAnimationFrame) {
         cancelAnimationFrame(this.dragAnimationFrame);
