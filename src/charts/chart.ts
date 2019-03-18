@@ -113,8 +113,9 @@ export class PxyUpChart {
     private options: ChartOptions,
   ) {
     // Hi Telegram Team!
-    this.height = parseInt(this.charts_svg.getAttribute('height'));
-    this.width = parseInt(this.charts_svg.getAttribute('width'));
+    // I tried get min time for Scripting/Rendering/Painting in Chrome Dev Tools
+    this.height = +this.charts_svg.getAttribute('height');
+    this.width = +this.charts_svg.getAttribute('width');
     // Set tooltip max width
     this.toolTip.style.maxWidth = `${this.width - 2 * DEFAULT_SPACING}px`;
 
@@ -161,8 +162,8 @@ export class PxyUpChart {
     this.draw();
 
     if (!options.withoutPreview) {
-      this.previewHeight = parseInt(this.preview_svg.getAttribute('height'));
-      this.previewWidth = parseInt(this.preview_svg.getAttribute('width'));
+      this.previewHeight = +this.preview_svg.getAttribute('height');
+      this.previewWidth = +this.preview_svg.getAttribute('width');
       this.drawPreview();
       this.drawPreviewControls(true);
     }
