@@ -112,6 +112,7 @@ export class PxyUpChart {
     private dataset: Chart,
     private options: ChartOptions,
   ) {
+    // Hi Telegram Team!
     this.height = parseInt(this.charts_svg.getAttribute('height'));
     this.width = parseInt(this.charts_svg.getAttribute('width'));
     // Set tooltip max width
@@ -572,7 +573,7 @@ export class PxyUpChart {
     if (this.animationTimer) {
       clearTimeout(this.animationTimer);
     }
-    this.animationTimer = setTimeout(() => {
+    this.animationTimer = window.setTimeout(() => {
       this.node.classList.remove('animation');
     }, 150);
   }

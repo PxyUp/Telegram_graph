@@ -56,7 +56,7 @@ fetch('./chart_data.json')
 **This repository was created for Telegram JS Contest March 10-24, 2019**
 
 # Size
-**36.1 kB** (with gzip **9.65 kB**)
+**27.0 kB** (with gzip **6.84 kB**)
 
 # Performance 5 graph(with example dataset)
 

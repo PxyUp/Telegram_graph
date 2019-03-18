@@ -8,6 +8,7 @@ dist
 # Runtime data
 pids
 *.pid
+.rpt2_cache
 *.seed
 *.pid.lock
 .DS_Store

@@ -8,8 +8,9 @@
     "build": "webpack",
     "build:prod": "webpack --mode=production",
     "serve": "webpack-dev-server",
-    "build:github": "yarn build:prod",
-    "format:code": "prettier --write \"src/**/*.{ts,js,?css}\""
+    "build:github": "yarn build:rollup",
+    "format:code": "prettier --write \"src/**/*.{ts,js,?css}\"",
+    "build:rollup": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -40,6 +41,13 @@
     "lint-staged": "^8.1.5",
     "node-sass": "^4.11.0",
     "prettier": "^1.16.4",
+    "rollup": "^1.6.0",
+    "rollup-copy-plugin": "^0.1.0",
+    "rollup-plugin-bundle-html": "^0.1.4",
+    "rollup-plugin-copy": "^0.2.3",
+    "rollup-plugin-sass": "^1.1.0",
+    "rollup-plugin-typescript2": "^0.20.1",
+    "rollup-plugin-uglify": "^6.0.2",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
