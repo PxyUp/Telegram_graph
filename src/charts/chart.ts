@@ -113,7 +113,7 @@ export class PxyUpChart {
     private options: ChartOptions,
   ) {
     // Hi Telegram Team!
-    // I tried get min time for Scripting/Rendering/Painting in Chrome Dev Tools
+    // I tried get min time for Scripting/Rendering/Painting in Chrome Dev Tools and Application size
     this.height = +this.charts_svg.getAttribute('height');
     this.width = +this.charts_svg.getAttribute('width');
     // Set tooltip max width
