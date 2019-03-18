@@ -30,7 +30,6 @@
     }
     &.not_active {
       background-color: unset !important;
-      border-color: map-get($color_day, 'border') !important;
     }
     &::after {
       border: 2px solid white;
