@@ -110,14 +110,12 @@ export function getShortDateByUnix(unix: number, withWeekday = false): string {
 }
 
 export function getPathByPoints(points: Array<Point>): string {
-  return points
-    .map((point, index) => {
-      if (index === 0) {
-        return `M ${point.x} ${point.y}`;
-      }
-      return `L ${point.x} ${point.y}`;
-    })
-    .join(' ');
+  return points.reduce((prev, point, index) => {
+    if (index === 0) {
+      return prev + `M ${point.x} ${point.y}`;
+    }
+    return prev + ` L ${point.x} ${point.y}`;
+  }, '');
 }
 
 export function changePathOnElement(el: SVGPathElement, path: string) {
