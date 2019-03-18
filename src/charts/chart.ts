@@ -116,7 +116,11 @@ export class PxyUpChart {
     private options: ChartOptions,
   ) {
     // Hi Telegram Team!
-    // I tried get min time for Scripting/Rendering/Painting in Chrome Dev Tools and Application size
+    // I tried charts with get min time for Scripting/Rendering/Painting in Chrome Dev Tools and Application size
+    // And i tried do it scalable, animation of axis X with point on chart > 1000, will be slow
+    // Because you every time need hide/show/translate more > 994 elements, i wanna scalable solution
+    // That reason why i tried optimize all of them appendChild, remove, setStyle and more another things
+    // Thank you for challenge!
     this.height = +this.charts_svg.getAttribute('height');
     this.width = +this.charts_svg.getAttribute('width');
     // Set tooltip max width
