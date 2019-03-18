@@ -9,7 +9,6 @@ import {
 } from '../interfaces/chart';
 import {
   addNodeListener,
-  arrEqual,
   changePathOnElement,
   createTextNode,
   findClosestIndexPointX,
@@ -93,8 +92,6 @@ export class PxyUpChart {
   private _position: ClientRect;
 
   private animationTimer: number | null = null;
-
-  private currentSteps: Array<number> = [];
 
   constructor(
     private id: number,
@@ -849,6 +846,9 @@ export class PxyUpChart {
       return;
     }
     const minMax = getMinMax(values);
+    if (this.minValue === minMax.min && this.maxValue === minMax.max) {
+      return;
+    }
     this.minValue = minMax.min;
     this.maxValue = minMax.max;
     const step =
@@ -864,10 +864,7 @@ export class PxyUpChart {
       stepsArr.push(stepsArr[0] + step * index || index);
     }
 
-    if (!arrEqual(this.currentSteps, stepsArr)) {
-      this.currentSteps = stepsArr;
-      this.drawSteps();
-    }
+    this.drawSteps(stepsArr);
   }
 
   toggleNightMode() {
@@ -890,11 +887,11 @@ export class PxyUpChart {
     }
   }
 
-  drawSteps() {
+  drawSteps(arr: Array<number>) {
     this.removeSteps();
     const realMinValue = this.minValue >= 0 ? 0 : this.minValue;
     const stepsElements = [] as Array<SVGElement>;
-    this.currentSteps.forEach((step, index) => {
+    arr.forEach((step, index) => {
       const cordY =
         index === 0
           ? this.height - DEFAULT_SPACING_BTM

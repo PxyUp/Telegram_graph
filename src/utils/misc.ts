@@ -253,7 +253,3 @@ export function getRightTransitionByIndex(
 ): number {
   return (rightIndex / (count - 1)) * (fullWidth - spacingLeft - spacingRight) + spacingLeft;
 }
-
-export function arrEqual(a: Array<number>, b: Array<number>): boolean {
-  return a.length === b.length && a.every((v, i) => v === b[i]);
-}
