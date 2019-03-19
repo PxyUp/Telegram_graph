@@ -419,12 +419,14 @@ export class PxyUpChart {
     );
     this.sliceStartIndex = Math.max(offsetIndexLeft, 0);
     this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements - 1);
+
     if (this.sliceEndIndex === this.countElements - 1) {
       this.sliceStartIndex = Math.max(0, this.sliceEndIndex - sliceSize);
     }
     if (this.sliceStartIndex === 0) {
-      this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements - 2);
+      this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements - 1);
     }
+
     this.drawPreviewControls();
     this.removeAxisXCharts();
     this.draw();
