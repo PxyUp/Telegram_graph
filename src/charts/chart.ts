@@ -844,6 +844,8 @@ export class PxyUpChart {
       }
     });
     if (values.length === 0) {
+      this.minValue = undefined;
+      this.maxValue = undefined;
       this.removeSteps();
       return;
     }
