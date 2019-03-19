@@ -498,8 +498,8 @@ export class PxyUpChart {
     removeAllChild(this.toolTipDate);
 
     this.toolTipDate.appendChild(createTextNode(getShortDateByUnix(arr[0].date, true)));
-    arr
-      .map(item =>
+    arr.forEach(item =>
+      childContainer.appendChild(
         generateNode({
           tag: 'div',
           attrs: {
@@ -518,8 +518,8 @@ export class PxyUpChart {
             },
           ],
         }),
-      )
-      .forEach(item => childContainer.appendChild(item));
+      ),
+    );
 
     if (leftPosition > this.width - MIN_TOOLTIP_WIDTH - DEFAULT_SPACING_RIGHT) {
       stylesTooltip.right = `${Math.min(

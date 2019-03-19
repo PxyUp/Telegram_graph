@@ -22,9 +22,10 @@ const IntlLong = isIntl && new Intl.DateTimeFormat('en-US', withDayOptions);
 const IntlShort = isIntl && new Intl.DateTimeFormat('en-US', withoutDayOptions);
 
 export function setStyleBatch(node: HTMLElement | SVGElement, styles: { [key: string]: string }) {
-  const computedStyle = Object.keys(styles)
-    .map(key => `${key}: ${styles[key]}`)
-    .join(';');
+  const computedStyle = Object.keys(styles).reduce(
+    (prev, cur) => prev + `${cur}: ${styles[cur]};`,
+    '',
+  );
   node.style.cssText = computedStyle;
 }
 
