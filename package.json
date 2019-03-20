@@ -46,6 +46,7 @@
     "rollup-plugin-bundle-html": "^0.1.4",
     "rollup-plugin-copy": "^0.2.3",
     "rollup-plugin-sass": "^1.1.0",
+    "rollup-plugin-terser": "^4.0.4",
     "rollup-plugin-typescript2": "^0.20.1",
     "rollup-plugin-uglify": "^6.0.2",
     "sass-loader": "^7.1.0",

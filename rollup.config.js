@@ -1,8 +1,8 @@
 import copy from 'rollup-plugin-copy';
 import html from 'rollup-plugin-bundle-html';
 import sass from 'rollup-plugin-sass';
+import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript2";
-import { uglify } from "rollup-plugin-uglify";
 
 export default {
     input: "src/index.ts",
@@ -16,7 +16,7 @@ export default {
         sass({
             insert: true
           }),
-          uglify(),
+          terser(),
           copy({
             "./src/datasets/chart_data.json": "./docs/chart_data.json",
             verbose: true

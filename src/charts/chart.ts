@@ -337,7 +337,7 @@ export class PxyUpChart {
 
   onMouseLeave = (e: MouseEvent) => {
     const cordY = getRelativeOffset(e.clientY, this.positions.top);
-    if (e.toElement !== this.toolTip || cordY >= this.height - 100) {
+    if (e.toElement !== this.toolTip || cordY >= this.height - 100 || cordY < 0) {
       this.hideHoverLineAndPoints();
     }
   };
@@ -347,6 +347,9 @@ export class PxyUpChart {
   };
 
   hideHoverLineAndPoints() {
+    if (this.mouseMoveAnimationFrame) {
+      cancelAnimationFrame(this.mouseMoveAnimationFrame);
+    }
     this.removePoints();
     setStyleBatch(this.verticleLine, {
       transform: 'translateX(-50px)',
@@ -918,7 +921,9 @@ export class PxyUpChart {
   }
 
   onMouseEnterPreview = () => {
-    this.hideHoverLineAndPoints();
+    if (this.mouseMoveAnimationFrame) {
+      cancelAnimationFrame(this.mouseMoveAnimationFrame);
+    }
   };
 
   private SVG_CHARTS_LISTENERS = {

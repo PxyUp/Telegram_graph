@@ -30,7 +30,7 @@ export function generateSvgElement(
     });
   }
 
-  if (value) {
+  if (value !== undefined) {
     element.textContent = value;
   }
 
