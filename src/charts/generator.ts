@@ -30,8 +30,8 @@ export function generateSvgElement(
     });
   }
 
-  if (value !== undefined) {
-    element.appendChild(document.createTextNode(value));
+  if (value) {
+    element.textContent = value;
   }
 
   return element;
