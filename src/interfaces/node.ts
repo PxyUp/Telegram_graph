@@ -3,6 +3,6 @@ export interface PxyupNode {
   skip?: boolean;
   attrs?: { [key: string]: any };
   classList?: Array<string>;
-  children?: Array<PxyupNode | HTMLElement | SVGSVGElement>;
+  children?: Array<PxyupNode | HTMLElement | SVGElement>;
   textValue?: string;
 }

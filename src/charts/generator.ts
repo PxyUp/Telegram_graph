@@ -95,19 +95,30 @@ export function chartsGenerator(
   rootNode: HTMLElement,
 ): (dataset: Chart, options?: ChartOptions) => PxyUpChart {
   return (dataset: Chart, options: ChartOptions = {}) => {
+    const size = getSize(options.chartsContainer, {
+      width: '400',
+      height: '400',
+    });
+
+    const verticleLine = generateSvgElement('line', ['verticle'], {
+      x1: 0 as any,
+      x2: 0 as any,
+      y1: 0 as any,
+      y2: (+size.height - 10) as any,
+    });
+
     const axisContainer = generateNode({
       tag: 'div',
       classList: ['axis_labels'],
       skip: options.withoutAxisLabel,
     });
+
     const chartsNode = generateNode({
       tag: 'svg',
       classList: ['main_chart'],
+      children: [verticleLine],
       attrs: {
-        ...getSize(options.chartsContainer, {
-          width: '400',
-          height: '400',
-        }),
+        ...size,
       },
     });
 
@@ -235,6 +246,7 @@ export function chartsGenerator(
       leftResizeControl as HTMLElement,
       rightResizeControl as HTMLElement,
       previewControlContainer as HTMLElement,
+      verticleLine as SVGElement,
       dataset,
       options,
     );
