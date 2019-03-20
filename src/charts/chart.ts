@@ -46,7 +46,6 @@ const DEFAULT_DAY_COUNT = 6;
 
 // ClassNames
 const classNameStepLine = 'line_step';
-const verticleLineClass = 'verticle';
 const classNameStepTitle = 'text_step';
 
 export class PxyUpChart {
@@ -80,8 +79,6 @@ export class PxyUpChart {
 
   private currentSlicePoint: { [key: string]: Array<PointWithValue> } = {};
 
-  private verticleLine: SVGElement;
-
   private columnsVisible: { [key: string]: boolean } = {};
 
   private columnDatasets: { [key: string]: Array<number> } = {};
@@ -108,6 +105,7 @@ export class PxyUpChart {
     private leftResizeControl: HTMLElement,
     private rightResizeControl: HTMLElement,
     private previewControlContainer: HTMLElement,
+    private verticleLine: SVGElement,
     private dataset: Chart,
     private options: ChartOptions,
   ) {
@@ -142,15 +140,6 @@ export class PxyUpChart {
     });
 
     this.horizontSteps = (options && options.horizontSteps) || DEFAULT_HOR_STEPS;
-
-    this.verticleLine = generateSvgElement('line', [verticleLineClass], {
-      x1: 0 as any,
-      x2: 0 as any,
-      y1: 0 as any,
-      y2: (this.height - DEFAULT_SPACING_BTM) as any,
-    });
-
-    this.charts_svg.appendChild(this.verticleLine);
 
     this.addMouseListener();
 
