@@ -191,7 +191,7 @@ export class PxyUpChart {
         tag: 'div',
         classList: ['checkbox_container'],
         attrs: {
-          key: key,
+          'data-key': key,
         },
         children: [
           {
@@ -207,7 +207,7 @@ export class PxyUpChart {
       });
       this.controlsContainer.appendChild(checkBoxControl);
       checkBoxControl.addEventListener('click', this.onCheckBoxClick, false);
-      this.setColorCheckboxByKey(key);
+      this.setColorCheckboxByKey(key, checkBoxControl as HTMLElement);
     });
   }
 
@@ -226,13 +226,13 @@ export class PxyUpChart {
     this.toggleColumnAnimationFrame = requestAnimationFrame(() => {
       this.removePoints();
       let target = e.target as HTMLElement;
-      let key = target.getAttribute('key');
+      let key = target.dataset.key;
       while (!key || target === document.body) {
         target = target.parentNode as HTMLElement;
-        key = target.getAttribute('key');
+        key = target.dataset.key;
       }
       if (key) {
-        this.toggleColumnVisible(key);
+        this.toggleColumnVisible(key, target);
       }
     });
   };
@@ -250,9 +250,9 @@ export class PxyUpChart {
     removeNodeListener(this.toolTip, this.TOOLTIP_LISTENERS);
 
     if (!this.options.withoutControls) {
-      this.controlsContainer.querySelectorAll('.round').forEach(item => {
-        item.removeEventListener('click', this.onCheckBoxClick);
-      });
+      for (let i = 0; i < this.controlsContainer.children.length; i++) {
+        this.controlsContainer.children[i].removeEventListener('click', this.onCheckBoxClick);
+      }
     }
 
     if (!this.options.withoutNightMode) {
@@ -346,10 +346,6 @@ export class PxyUpChart {
     }
   };
 
-  onMouseEnter = () => {
-    this.verticleLine.classList.add('show');
-  };
-
   onMouseLeave = (e: MouseEvent) => {
     const cordY = getRelativeOffset(e.clientY, this.positions.top);
     if (e.toElement !== this.toolTip || cordY >= this.height - 100) {
@@ -363,7 +359,9 @@ export class PxyUpChart {
 
   hideHoverLineAndPoints() {
     this.removePoints();
-    this.verticleLine.classList.remove('show');
+    setStyleBatch(this.verticleLine, {
+      transform: 'translateX(-50px)',
+    });
     this.toolTip.style.display = 'none';
   }
 
@@ -443,9 +441,8 @@ export class PxyUpChart {
         cordX < this.width - DEFAULT_SPACING_RIGHT / 2 &&
         cordY < this.height - DEFAULT_SPACING_BTM
       ) {
-        setNodeAttrs(this.verticleLine, {
-          x1: cordX as any,
-          x2: cordX as any,
+        setStyleBatch(this.verticleLine, {
+          transform: `translateX(${cordX}px)`,
         });
         const closestIndex = this.findClosesIndexOfPoint(cordX);
         if (closestIndex === null) {
@@ -541,17 +538,15 @@ export class PxyUpChart {
   }
 
   removePathByKey(key: string) {
-    const path = this.charts_svg.querySelector(`path#pxyup_path_${this.id}_${key}`);
+    const path = document.getElementById(`pxyup_path_${this.id}_${key}`);
     if (path) {
       path.remove();
     }
   }
 
-  setColorCheckboxByKey(key: string) {
+  setColorCheckboxByKey(key: string, checkBoxControl: HTMLElement) {
     const color = this.dataset.colors[key];
-    const checkbox = this.controlsContainer.querySelector(
-      `.checkbox_container[key="${key}"] .round`,
-    ) as HTMLElement;
+    const checkbox = checkBoxControl.firstElementChild as HTMLElement;
     if (!this.columnsVisible[key]) {
       checkbox.classList.add('not_active');
     } else {
@@ -563,9 +558,9 @@ export class PxyUpChart {
     }
   }
 
-  toggleColumnVisible(key: string) {
+  toggleColumnVisible(key: string, checkBoxControl: HTMLElement) {
     this.columnsVisible[key] = !this.columnsVisible[key];
-    this.setColorCheckboxByKey(key);
+    this.setColorCheckboxByKey(key, checkBoxControl);
 
     if (!this.columnsVisible[key]) {
       this.removePathByKey(key);
@@ -733,9 +728,7 @@ export class PxyUpChart {
       const columnVisible = this.columnsVisible[key];
 
       if (columnVisible) {
-        const currentPath = this.charts_svg.querySelector(
-          `path#${`pxyup_path_${this.id}_${key}`}`,
-        ) as SVGPathElement;
+        const currentPath = document.getElementById(`${`pxyup_path_${this.id}_${key}`}`) as any;
 
         this.currentSlicePoint[key] = this.columnDatasets[key]
           .slice(this.sliceStartIndex, this.sliceEndIndex + 1)
@@ -940,7 +933,6 @@ export class PxyUpChart {
   };
 
   private SVG_CHARTS_LISTENERS = {
-    mouseenter: this.onMouseEnter,
     mouseleave: this.onMouseLeave,
     mousemove: this.onMouseMove,
   };
