@@ -48,7 +48,7 @@ export function findClosestIndexPointX(arr: Array<Point>, value: number): number
   let leftIndex = arr.length - 1;
   let middleIndex;
   while (leftIndex - rightIndex > 1) {
-    middleIndex = ((rightIndex + leftIndex) / 2) | 0;
+    middleIndex = Math.floor((rightIndex + leftIndex) / 2);
     if (value < arr[middleIndex].x) {
       leftIndex = middleIndex;
     } else {

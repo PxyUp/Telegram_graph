@@ -131,7 +131,7 @@ export class PxyUpChart {
         this.countElements = this.columnDatasets[keyOfColumn].length;
       }
       if (!this.sliceStartIndex) {
-        const sliceSize = Math.max(DEFAULT_SLICE, (this.countElements / SLICE_NUMBER) | 0);
+        const sliceSize = Math.max(DEFAULT_SLICE, Math.floor(this.countElements / SLICE_NUMBER));
         this.sliceStartIndex = Math.max(this.columnDatasets[keyOfColumn].length - sliceSize - 1, 0);
       }
       if (!this.sliceEndIndex) {
@@ -393,16 +393,16 @@ export class PxyUpChart {
       this.positions.left,
     );
     const sliceSize = this.sliceEndIndex - this.sliceStartIndex;
-    const offsetIndexLeft =
-      (relativeIndexByOffset(
+    const offsetIndexLeft = Math.floor(
+      relativeIndexByOffset(
         cursorX,
         this.previewWidth,
         DEFAULT_PREVIEW_SPACING,
         DEFAULT_PREVIEW_SPACING,
         this.countElements,
       ) -
-        sliceSize / 2) |
-      0;
+        sliceSize / 2,
+    );
     this.sliceStartIndex = Math.max(offsetIndexLeft, 0);
     this.sliceEndIndex = Math.min(this.sliceStartIndex + sliceSize, this.countElements - 1);
 
