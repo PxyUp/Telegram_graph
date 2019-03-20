@@ -10,7 +10,6 @@ import {
 import {
   addNodeListener,
   changePathOnElement,
-  createTextNode,
   findClosestIndexPointX,
   getCoordsX,
   getCoordsY,
@@ -497,9 +496,8 @@ export class PxyUpChart {
     const childContainer = this.toolTip.querySelector('.items') as HTMLElement;
 
     removeAllChild(childContainer);
-    removeAllChild(this.toolTipDate);
 
-    this.toolTipDate.appendChild(createTextNode(getShortDateByUnix(arr[0].date, true)));
+    this.toolTipDate.textContent = getShortDateByUnix(arr[0].date, true);
     arr.forEach(item =>
       childContainer.appendChild(
         generateNode({
@@ -873,14 +871,12 @@ export class PxyUpChart {
 
   toggleNightMode() {
     this.night_mod = !this.night_mod;
-    removeAllChild(this.nightModeControl);
     if (this.night_mod) {
       this.node.classList.add('night');
-
-      this.nightModeControl.appendChild(createTextNode('Switch to day mode'));
+      this.nightModeControl.textContent = 'Switch to day mode';
     } else {
       this.node.classList.remove('night');
-      this.nightModeControl.appendChild(createTextNode('Switch to night mode'));
+      this.nightModeControl.textContent = 'Switch to night mode';
     }
   }
 

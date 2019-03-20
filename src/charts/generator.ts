@@ -1,5 +1,5 @@
 import { Chart, ChartOptions } from '../interfaces/chart';
-import { createTextNode, getSize, setNodeAttrs } from '../utils/misc';
+import { getSize, setNodeAttrs } from '../utils/misc';
 
 import { PxyUpChart } from './chart';
 import { PxyupNode } from '../interfaces/node';
@@ -48,7 +48,7 @@ export function generateNode(node: PxyupNode): HTMLElement | SVGSVGElement | nul
       : document.createElement(node.tag);
 
   if (node.textValue) {
-    rootNode.appendChild(createTextNode(node.textValue));
+    rootNode.textContent = node.textValue;
   }
 
   if (node.classList) {

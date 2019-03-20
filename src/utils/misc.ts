@@ -129,10 +129,6 @@ export function removeAllChild(node: HTMLElement) {
   }
 }
 
-export function createTextNode(text: string): Text {
-  return document.createTextNode(text);
-}
-
 export function addNodeListener(
   node: HTMLElement | Document | SVGElement,
   listeners: { [key: string]: any | Array<any> },
