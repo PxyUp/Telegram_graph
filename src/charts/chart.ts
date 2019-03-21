@@ -117,8 +117,6 @@ export class PxyUpChart {
     // Thank you for challenge!
     this.height = +this.charts_svg.getAttribute('height');
     this.width = +this.charts_svg.getAttribute('width');
-    // Set tooltip max width
-    this.toolTip.style.maxWidth = `${this.width - 2 * DEFAULT_SPACING}px`;
 
     Object.keys(this.dataset.names).forEach(key => {
       this.columnsVisible[key] = true;
