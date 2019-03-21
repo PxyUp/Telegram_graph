@@ -386,7 +386,6 @@ export class PxyUpChart {
     }
 
     this.drawPreviewControls();
-    this.removeAxisXCharts();
     this.draw();
   }
 
@@ -417,7 +416,6 @@ export class PxyUpChart {
     }
 
     this.drawPreviewControls();
-    this.removeAxisXCharts();
     this.draw();
   };
 
@@ -703,13 +701,6 @@ export class PxyUpChart {
   setLeftIndexSlice(size: number) {
     this.sliceEndIndex = size;
     this.refresh();
-  }
-
-  removeAxisXCharts() {
-    const el = this.charts_svg.querySelector(`g.axis`);
-    if (el) {
-      el.remove();
-    }
   }
 
   drawCurrentSlice(withAnimation = true, withXAxis = true) {
